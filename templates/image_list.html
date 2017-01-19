@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image_List</title>
+</head>
+<body>
+<h1>{{ message }}</h1>
+
+<ul>
+    {% for imagekey in ImageKeyList %}
+        <li>{{ imagekey }}</li>
+    {% endfor %}
+</ul>
+
+<p>显示所有镜像信息：</p>
+<p>
+    {% for image_dict in ImageList %}
+        <p>镜像：</p>
+        <p>{{ forloop.counter }}{{ image_dict }}</p>
+    {% empty %}
+        <p>抱歉，镜像列表为空</p>
+    {% endfor %}
+</p>
+
+
+<p>
+    {% for key,value in ImageInfo_dict.items %}
+        <ul>
+            <li>{{ key }}:{{ value }}</li>
+        </ul>
+    {% endfor %}
+</p>
+
+
+<p>显示当前OpenStack中的所有用户</p>
+<p>
+    {% for user_dict in UserList %}
+    <p>User:</p>
+    {{ user_dict }}
+    {% empty %}
+        <p>抱歉,user列表为空</p>
+    {% endfor %}
+</p>
+
+
+<p>显示flavor信息</p>
+<p>
+    {% for flavor_dict in FlavorList %}
+        <p>flavor：</p>
+        {{ flavor_dict }}
+    {% empty %}
+        <p>抱歉，flavor列表为空</p>
+    {% endfor %}
+</p>
+
+
+<p>显示所有网络信息</p>
+<p>
+    {% for network_dict in NetworkList %}
+        <p>网络：</p>
+        {{ network_dict }}
+    {% empty %}
+        <p>抱歉，网络列表为空</p>
+    {% endfor %}
+</p>
+
+<p>显示当前所有虚拟机</p>
+<p>
+    {% for server_dict in ServerList %}
+        <p>虚拟机：</p>
+        {{ server_dict }}
+    {% empty %}
+        <p>抱歉，虚拟机列表为空</p>
+    {% endfor %}
+</p>
+
+<p>****************************************</p>
+<p>显示系统中所有的实验</p>
+<p>
+    {% for exp in expList %}
+        <p>实验：</p>
+
+        <ul>
+            <li>{{ exp }}</li>
+        </ul>
+    {% empty %}
+        <p>抱歉，实验列表为空</p>
+    {% endfor %}
+</p>
+</body>
+</html>

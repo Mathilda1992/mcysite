@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}DEFAULT TITLE---Iserlab{% endblock %}</title>
+</head>
+<body>
+
+
+
+<div>
+    <p>欢迎来到Iserlab：基于OpenStack的网络攻防实验室</p>
+    <h1>您好，{{ request.user.username }}(教员用户)：{{ hello }}</h1>
+    <h2>当前时间 {{ currentTime }}</h2>
+    <h2>当前时间戳 {{ currentTimeStamp }}</h2>
+    <h2>{{ message1 }}</h2>
+    <h2>{{ conn_result }}</h2>
+    <h2>{{ message2 }}</h2>
+    <ul>
+        <li><a href="" >学员管理</a></li>
+        <li><a href="" >实验管理</a></li>
+        <li><a href="" >资源库</a></li>
+        <li><a href="" >教学统计中心</a></li>
+    </ul>
+</div>
+
+
+
+{% block content %}
+<div>这里是默认内容，所有继承自这个模板的页面，如果没有特有的内容覆盖就显示这里的默认内容。</div>
+{% endblock %}
+
+
+
+{% block footer %}
+<div>
+    <p>本平台由中国人民大学信息安全实验室团队开发@2016-9-7</p>
+</div>
+{% endblock %}
+
+</body>
+</html>

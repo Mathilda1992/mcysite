@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户注册</title>
+</head>
+
+ <style type="text/css">
+    body{color:#efd;background:#453;padding:0 5em;margin:0}
+    h1{padding:2em 1em;background:#675}
+    h2{color:#bf8;border-top:1px dotted #fff;margin-top:2em}
+    p{margin:1em 0}
+  </style>
+
+<body>
+<h1>用户注册页面</h1>
+<form method = 'post' enctype = "multipart/form-data">
+{#    用户名：<input type="text" name="username"><br> *请用学号作为用户名#}
+{#    邮箱：<input type="email" name="email"><br>×邮箱可用于找回密码#}
+{#    密码：<input type="password" name="password1"><br>#}
+{#    重复密码：<input type="password" name="password2"><br>#}
+
+
+    {{ rf.as_p }}
+    <input type="submit" value = "注册">
+    <input type="button" value="取消">
+</form>
+</body>
+</html>

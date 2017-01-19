@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title-自强学堂</title>
+</head>
+<body>
+<a href="/add/4/5/">计算 4+5</a>
+<a href="/add/?a=77&b=99">计算77+99</a>
+<br>
+<a href="{% url 'test' %}">test</a>
+<p><a href="{% url 'add2' 4 5 %}">link2</a></p>
+<p><a href="{% url 'add2' 11 22 %}">link</a></p>
+
+<p>{% url 'add2' 6 8 as the_url %}</p>
+<p><a href="{{ the_url }}">链接到：{{ the_url }}</a></p>
+
+
+
+<p>{{ string }}</p>
+
+<p>
+    {% for i in NameList %}
+    {{ i }}
+    {% endfor %}
+</p>
+
+<p>
+    站点：{{ info_dict.site }} 内容：{{ info_dict.tag }} 国家：{{ info_dict.country }}
+</p>
+
+
+<p>
+    {% for key,value in info_dict.items %}
+        <ul>
+            <li>{{ key }}:{{ value }}</li>
+        </ul>
+
+    {% endfor %}
+</p>
+
+
+<p>
+    {% for item in List %}
+        {{ item }}{% if not forloop.last %},{% endif %}
+    {% empty %}
+        <p>抱歉列表为空</p>
+    {% endfor %}
+</p>
+
+
+<p>
+    {% if var >= 90 %}
+    成绩优秀，自强学堂你没少去吧！学得不错
+    {% elif var >= 80 %}
+    成绩良好
+    {% elif var >= 70 %}
+    成绩一般
+    {% elif var >= 60 %}
+    需要努力
+    {% else %}
+    不及格啊，大哥！多去自强学堂学习啊！
+    {% endif %}
+</p>
+<p>获取当前用户：</p>
+{{ request.user }}
+<p>获取当前网站：</p>
+{{ request.path }}
+
+{{ request.GET.urlencode }}
+
+<p>如果登陆就显示内容，不登陆就不显示内容</p>
+<p>
+    {% if request.user.is_authenticated %}
+        {{ request.user.username }},您好！
+    {% else %}
+        请登录，这里放置<a href="{% url 'login' %}">登陆链接</a>
+    {% endif %}
+</p>
+
+
+
+
+
+<p>
+    {% for item in blogList %}
+        {{ item }}{% if not forloop.last %}<br></p>{% endif %}
+    {% empty %}
+        <p>抱歉列表为空</p>
+    {% endfor %}
+</p>
+</body>
+</html>
