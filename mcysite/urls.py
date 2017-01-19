@@ -54,7 +54,7 @@ urlpatterns = [
     url(r'^bloglist/$',blog_list2),
     #test book example
     url(r'^search/$',search),#failed
-    url(r'^contact/$',contact),
+    url(r'^contact/$',contact),#need to test
 
 
     #system operate
