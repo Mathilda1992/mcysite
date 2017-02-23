@@ -549,7 +549,13 @@ def exp_launch(request):
 
 
 
+#Modify exp template in private repo
+def exp_modify(request):
+    pass
 
+#Delete exp template in private repo
+def exp_delete(request):
+    pass
 
 
 ##
