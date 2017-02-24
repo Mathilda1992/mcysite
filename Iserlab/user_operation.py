@@ -4,17 +4,30 @@
 from Iserlab.models import User,Group,Student
 from Iserlab import identity_resource_operation
 
+
+
+#list all user info in system db table
 def list_user():
     u_list = User.objects.all()
     return u_list
 
 
-
+##for openstack api error reason, this function not to do
 def create_user(name,ps,email=''):
     #insert into User db
     u = User(username=name,password=ps,email=email)
     u.save()
     #create openstack user
+
+    # get the domain
+
+    # create project
+
+    # create user
+
+    # get role
+
+    # add role to project and user
 
     return u
 
@@ -41,7 +54,7 @@ def update_user(name):
 
 
 
-
+#********************************stu operation*******************************
 def list_stu():
     pass
 
@@ -63,7 +76,7 @@ def update_stu(name):
 
 
 
-
+#********************************group operation*******************************
 
 def list_group():
     g_list = Group.objects.all()

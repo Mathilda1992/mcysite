@@ -143,8 +143,55 @@ def group_view(request):
 
 def openstack_user_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    identity_resource_operation.list_users(conn)
+    users = identity_resource_operation.list_users(conn)
+    print '***show the OpenStack Users info:***'
+    # print users
+    # for item in users:
+    #     print item
     return HttpResponse('List openstack users')
+
+
+def openstack_users_list(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    users = identity_resource_operation.list_users(conn)
+    UserList = []
+    print '***show the OpenStack Users info:***'
+    for item in users:
+        print item
+        dict ={}
+
+    #exstract from openstack user data
+
+
+    c = Context({'UserList': UserList})
+    return render(request, 'image_list.html', c)
+
+def openstack_project_list(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    projects = identity_resource_operation.list_projects(conn)
+    for project in projects:
+        print project
+    return HttpResponse('List openstack projects')
+
+def openstack_project_find(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    project = identity_resource_operation.find_project(conn,'admin')
+    return HttpResponse('Find openstack projects')
+
+def openstack_project_create(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    dict = {}
+    dict.setdefault('a',1)
+    dict.setdefault('b',2)
+    dict.setdefault('c',3)
+    print dict
+    new_project = identity_resource_operation.create_project(conn,**dict)
+    return HttpResponse('Create openstack projects')
+
+def openstack_role_list(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    roles = identity_resource_operation.list_roles(conn)
+    return HttpResponse('List openstack roles')
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~List resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def flavor_list(request):
@@ -157,6 +204,8 @@ def flavor_list(request):
     print '***show the flavors:***'
     for flavor in flavors:
         print flavor
+        #extract flavor info to a dict
+
         FlavorList.append(flavor)
 
     print '**show the type of list object:**'
@@ -493,20 +542,7 @@ def add_stu(request):
     return HttpResponse('Add Student Successfully!')
 
 
-def openstack_users_list(request):
-    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    UserList = []
-    users = identity_resource_operation.list_users(conn)
-    print '***show the OpenStack Users:***'
-    for user in users:
-        print user
-        UserList.append(user)
 
-    print '**show the type of list object:**'
-    print type(UserList[0])
-
-    c = Context({'UserList': UserList})
-    return render(request, 'image_list.html', c)
 
 
 

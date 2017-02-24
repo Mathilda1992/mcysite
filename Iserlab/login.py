@@ -25,14 +25,18 @@ def login(request):
         uf = UserForm(request.POST)
         if uf.is_valid():
             username = uf.cleaned_data['username']
+            print username
             password = uf.cleaned_data['password']
             #compare with data from db to check whether the user login exists in db
             user = User.objects.filter(username__exact = username,password__exact = password)
             if user:
                 #save the user in session
+                print "log sucess!"
                 request.session['username'] = username
+                print request.user.username
                 return render_to_response("home.html",{'username':username})
             else:
+                print "username or password error!!!"
                 return HttpResponseRedirect('/login/')
     else:#request.method == 'GET'
         uf = UserForm()

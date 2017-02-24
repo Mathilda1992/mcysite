@@ -41,7 +41,11 @@ urlpatterns = [
     url(r'^flavor_list/$',flavor_list,name='flavor_list'),
     url(r'^image_list/$',image_list,name='image_list'),
     url(r'^image_list2/$',image_list2,name='image_list2'),
-    url(r'^user_list/$',openstack_users_list,name='user_list'),
+    url(r'^user_list/$',openstack_user_list,name='user_list'),
+    url(r'^project_list/$',openstack_project_list,name='project_list'),
+    url(r'^project_find/$', openstack_project_find, name='project_find'),
+    url(r'^project_create/$', openstack_project_create, name='project_create'),
+    url(r'^role_list/$', openstack_role_list, name='role_list'),
     url(r'^vm_create/$',VM_create,name='vm_create'),
     url(r'^image_find/$',image_find,name='image_find'),
 
