@@ -7,6 +7,9 @@ from django.http import HttpResponseRedirect
 #from django.core.context_processors import csrf
 from django import forms
 
+from django.core.mail import send_mail
+from django.core.mail import send_mass_mail
+
 import datetime
 
 
@@ -22,6 +25,9 @@ auth_password = 'os62511279'
 auth_url = 'http://202.112.113.220:5000/v2.0/'
 project_name = 'admin'
 region_name = 'RegionOne'
+
+
+system_admin_email = 'machenyi2011@163.com'
 
 
 def hello(request):
@@ -141,42 +147,36 @@ def group_view(request):
 
 
 
+# def openstack_user_list(request):
+#     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+#     users = identity_resource_operation.list_users(conn)
+#     print '***show the OpenStack Users info:***'
+#
+#     return HttpResponse('List openstack users')
+
+
 def openstack_user_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    users = identity_resource_operation.list_users(conn)
-    print '***show the OpenStack Users info:***'
-    # print users
-    # for item in users:
-    #     print item
-    return HttpResponse('List openstack users')
-
-
-def openstack_users_list(request):
-    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    users = identity_resource_operation.list_users(conn)
-    UserList = []
-    print '***show the OpenStack Users info:***'
-    for item in users:
-        print item
-        dict ={}
-
-    #exstract from openstack user data
-
-
+    UserList = identity_resource_operation.list_users(conn)
     c = Context({'UserList': UserList})
     return render(request, 'image_list.html', c)
 
+
+
 def openstack_project_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    projects = identity_resource_operation.list_projects(conn)
-    for project in projects:
-        print project
-    return HttpResponse('List openstack projects')
+    ProjectList = identity_resource_operation.list_projects(conn)
+    c = Context({'UserList': ProjectList})
+    return render(request, 'image_list.html', c)
+
+
 
 def openstack_project_find(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     project = identity_resource_operation.find_project(conn,'admin')
     return HttpResponse('Find openstack projects')
+
+
 
 def openstack_project_create(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
@@ -188,10 +188,14 @@ def openstack_project_create(request):
     new_project = identity_resource_operation.create_project(conn,**dict)
     return HttpResponse('Create openstack projects')
 
+
+
 def openstack_role_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     roles = identity_resource_operation.list_roles(conn)
     return HttpResponse('List openstack roles')
+
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~List resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def flavor_list(request):
@@ -216,20 +220,12 @@ def flavor_list(request):
     return render(request, 'image_list.html', c)
 
 
+
 def network_list(request):
-    # create conn to openstack
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     # define sth used to deliver to html
-    NetworkList = []
-    # get flavor data from openstack
-    networks = compute_resource_operation.list_networks(conn)
-    print '***show the networks:***'
-    for network in networks:
-        print network
-        NetworkList.append(network)
-    print '**show the type of list object:**'
-    print type(NetworkList[0])
-    # the type of the list object :<class 'openstack.network.v2.network.Network'>
+
+    NetworkList = network_resource_operation.list_networks2(conn)
     return render(request, 'image_list.html', {'NetworkList': NetworkList})
 
 
@@ -239,21 +235,14 @@ def subnet_list(request):
     s_dict_list = network_resource_operation.list_subnets(conn)
     return HttpResponse('List subnets')
 
+
+
 def server_list(request):
     # create conn to openstack
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     # define sth used to deliver to html
     ServerList = []
-    # get flavor data from openstack
-    servers = compute_resource_operation.list_servers(conn)
-    print '***show the servers:***'
-    for server in servers:
-        print server
-        ServerList.append(server)
-
-    print '**show the type of list object:**'
-    print type(ServerList[0])
-    # the type of the list object :<class 'openstack.compute.v2.server.ServerDetail'>
+    ServerList = compute_resource_operation.list_servers(conn)
 
     return render(request, 'image_list.html', {'ServerList': ServerList})
 
@@ -262,51 +251,20 @@ def server_list(request):
 def image_list(request):
     #create conn to openstack
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    #define sth used to deliver to html
+
     ImageList = []
     #get images data from openstack
-    images = image_resource_operation.list_images(conn)
+    ImageList = image_resource_operation.list_images(conn)
 
     #insert data into tables in mysql
 
-    #output the image list in console
-    print('**********List Images**************')
-    for image in images:
-        # print(image)
-        # we should analysis the image info string into a imageInfo_dict
+    #output the image name list in console
+    context = {}
+    context["ImageList"] = ImageList
 
-
-        #test whether the image is a string or a dict?? the object type in the list is class, <class 'openstack.image.v2.image.Image'>
-        # print image
-
-        #put the imageInfo_dict into a imageList
-        ImageList.append(image)
-
-    for j in ImageList:
-        print j
-
-    print '*********'
-    print ImageList[0]
-
-
-    #get the type of list object
-    print '*****get the type of list object***'
-    for i in range(0,ImageList.__len__()):
-        print type(ImageList[i])
-    #output result
-    # < class 'openstack.image.v2.image.Image'>
-
-
-    # list = [1, 'a', 'b', {'key': 'value'}]
     # for i in range(0, list.__len__()):
-    #     print type(list[i])
-    #
-    # print 'stringtype:'
-    # for i in range(0, list.__len__()):
-    #     if isinstance(list[i], str):
-    #         print type(list[i])
-
-    return render(request,'image_list.html',{'ImageList':ImageList})
+    #     print
+    return render(request,'image_list.html',context)
 
 
 
@@ -411,11 +369,8 @@ def image_create(request):
     image_name = upload_imageFile()#???????
     image_resource_operation.upload_image(conn,image_name)
     # List current image list
-    images = image_resource_operation.list_images(conn)
-    ImageList=[]
-    for image in images:
-        ImageList.append(image)
-        print image
+    ImageList = image_resource_operation.list_images(conn)
+
 
     c = Context({'ImageList': ImageList})
     return render(request, 'image_list.html', c)
@@ -506,6 +461,8 @@ def exp_vm_launch(request):
 #***********************************************************************#
 #                  Teacher login the system                             #
 #***********************************************************************#
+
+
 
 
 
@@ -683,8 +640,7 @@ def upload_imageFile():
 #              Delivery the experiment to students                       #
 #***********************************************************************#
 
-from django.core.mail import send_mail
-from django.core.mail import send_mass_mail
+
 def delivery(request):
     #Get the experiment to be delivery
 

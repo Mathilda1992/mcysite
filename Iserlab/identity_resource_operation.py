@@ -4,54 +4,67 @@
 #operation on openstack identity resources
 
 #/*****************************************User Operations***********************************/
-def list_users(conn):
-    print("List openstack Users:")
-    users = conn.identity.users()
-
+def extract_user(users):
     list = []
     for item in users:
         print item
-        # print item.links['self']
-        #extract data
         dict = {}
-        dict.setdefault("id",item.id)
-        # dict.setdefault("enabled",item.enabled);
-        dict.setdefault("name",item.name)
-        dict.setdefault("links",item.links['self'])
-        dict.setdefault("domain_id",item.domain_id)
+        dict.setdefault("allow_create ",item.allow_create )
+        dict.setdefault("allow_delete ", item.allow_delete)
+        dict.setdefault("allow_get ", item.allow_get)
+        dict.setdefault("allow_head ", item.allow_head)
+        dict.setdefault("allow_list ", item.allow_list)
+        dict.setdefault("allow_update ", item.allow_update)
+        dict.setdefault("base_path ", item.base_path)
+        dict.setdefault("create ", item.create)
+        dict.setdefault("default_project_id ", item.default_project_id)
+        dict.setdefault("delete ", item.delete)
+        dict.setdefault("description ", item.description)
+        dict.setdefault("domain_id ", item.domain_id)#
+        dict.setdefault("email ", item.email)
+        dict.setdefault("existing ", item.existing)
+        dict.setdefault("find ", item.find)
+        dict.setdefault("get ", item.get)
+        dict.setdefault("head ", item.head)
+        dict.setdefault("id", item.id)#
+        dict.setdefault("is_enabled", item.is_enabled)#
+        dict.setdefault("links ", item.links)#
+        dict.setdefault("list ", item.list)
+        dict.setdefault("location ", item.location)
+        dict.setdefault("name", item.name)#
+        dict.setdefault("new ", item.new)
+        dict.setdefault("password ", item.password)
+        dict.setdefault("password_expires_at ", item.password_expires_at)
+        dict.setdefault("patch_update ", item.patch_update)
+        dict.setdefault("put_create ", item.put_create)
+        dict.setdefault("resource_key ", item.resource_key)
+        dict.setdefault("resources_key ", item.resources_key)
+        dict.setdefault("service ", item.service)
+        # dict.setdefault("to_dict ", item.to_dict)
+        dict.setdefault("update ", item.update)
         list.append(dict)
-
     print "the data after extract"
     for i in list:
         print i
     return list
+#--------------------all attrs of user to access-------------------------------------
+# ['__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__',
+# '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_alternate_id', '_body', '_body_mapping', '_collect_attrs', '_consume_attrs', '_filter_component', '_get_id',
+# '_get_mapping', '_get_one_match', '_header', '_header_mapping', '_prepare_request', '_query_mapping', '_translate_response', '_update', '_uri', '_uri_mapping', 'allow_create', 'allow_delete',
+# 'allow_get', 'allow_head', 'allow_list', 'allow_update', 'base_path', 'create', 'default_project_id', 'delete', 'description', 'domain_id', 'email', 'existing', 'find', 'get', 'head', 'id',
+#  'is_enabled', 'links', 'list', 'location', 'name', 'new', 'password', 'password_expires_at', 'patch_update', 'put_create', 'resource_key', 'resources_key', 'service', 'to_dict', 'update']
+
+
+
+def list_users(conn):
+    print("List openstack Users:")
+    users = conn.identity.users()
+    return extract_user(users)
 #data before extract
 #openstack.identity.v3.user.User(id=03e0e7f58179416a8fdd582924bf9283, enabled=True, name=lyj, links={u'self': u'http://controller:5000/v3/users/03e0e7f58179416a8fdd582924bf9283'}, domain_id=default)
 #openstack.identity.v3.user.User(id=1c10eeae495e4b059ad9adbd9f8f98f3, enabled=True, name=glance, links={u'self': u'http://controller:5000/v3/users/1c10eeae495e4b059ad9adbd9f8f98f3'}, domain_id=default)
-#openstack.identity.v3.user.User(id=1dfb08cb0f4747f58e34e2bc02ee3d92, enabled=True, name=teacher, links={u'self': u'http://controller:5000/v3/users/1dfb08cb0f4747f58e34e2bc02ee3d92'}, domain_id=default)
-#openstack.identity.v3.user.User(id=36efd260c02b42d1968fc20db1477f34, enabled=True, name=neutron, links={u'self': u'http://controller:5000/v3/users/36efd260c02b42d1968fc20db1477f34'}, domain_id=default)
-#openstack.identity.v3.user.User(id=424cb1c3e87d4358bbef741e6253c62b, enabled=True, name=quleilei, links={u'self': u'http://controller:5000/v3/users/424cb1c3e87d4358bbef741e6253c62b'}, domain_id=default)
-#openstack.identity.v3.user.User(id=428c18c9f6a34f9c9a222cc4226d0dad, enabled=True, name=qinli, links={u'self': u'http://controller:5000/v3/users/428c18c9f6a34f9c9a222cc4226d0dad'}, domain_id=default)
-#openstack.identity.v3.user.User(id=48476c83c1634f9d8cba95b1381d8e58, enabled=True, name=admin, links={u'self': u'http://controller:5000/v3/users/48476c83c1634f9d8cba95b1381d8e58'}, domain_id=default)
-#openstack.identity.v3.user.User(id=5758e584a8b543c784aaaa007f1a8ff6, enabled=True, name=liuying, links={u'self': u'http://controller:5000/v3/users/5758e584a8b543c784aaaa007f1a8ff6'}, domain_id=default)
-#openstack.identity.v3.user.User(id=8903fd567f124fc2911079499a8d0c50, enabled=True, name=demo, links={u'self': u'http://controller:5000/v3/users/8903fd567f124fc2911079499a8d0c50'}, domain_id=default)
-#openstack.identity.v3.user.User(id=a09196e34875467c9d2ac2a4f2514421, enabled=True, name=mcy, links={u'self': u'http://controller:5000/v3/users/a09196e34875467c9d2ac2a4f2514421'}, domain_id=default)
-#openstack.identity.v3.user.User(id=ad01cdcecfb345b7ac8dcb73e436f051, enabled=True, name=cinder, links={u'self': u'http://controller:5000/v3/users/ad01cdcecfb345b7ac8dcb73e436f051'}, domain_id=default)
-#openstack.identity.v3.user.User(id=e576f8e3066a4adfa93f1e7b3d9ccd5e, enabled=True, name=nova, links={u'self': u'http://controller:5000/v3/users/e576f8e3066a4adfa93f1e7b3d9ccd5e'}, domain_id=default)
 
-#the data after extract
-#{'domain_id': u'default', 'id': u'03e0e7f58179416a8fdd582924bf9283', 'links': u'http://controller:5000/v3/users/03e0e7f58179416a8fdd582924bf9283', 'name': u'lyj'}
-#{'domain_id': u'default', 'id': u'1c10eeae495e4b059ad9adbd9f8f98f3', 'links': u'http://controller:5000/v3/users/1c10eeae495e4b059ad9adbd9f8f98f3', 'name': u'glance'}
-#{'domain_id': u'default', 'id': u'1dfb08cb0f4747f58e34e2bc02ee3d92', 'links': u'http://controller:5000/v3/users/1dfb08cb0f4747f58e34e2bc02ee3d92', 'name': u'teacher'}
-#{'domain_id': u'default', 'id': u'36efd260c02b42d1968fc20db1477f34', 'links': u'http://controller:5000/v3/users/36efd260c02b42d1968fc20db1477f34', 'name': u'neutron'}
-#{'domain_id': u'default', 'id': u'424cb1c3e87d4358bbef741e6253c62b', 'links': u'http://controller:5000/v3/users/424cb1c3e87d4358bbef741e6253c62b', 'name': u'quleilei'}
-#{'domain_id': u'default', 'id': u'428c18c9f6a34f9c9a222cc4226d0dad', 'links': u'http://controller:5000/v3/users/428c18c9f6a34f9c9a222cc4226d0dad', 'name': u'qinli'}
-#{'domain_id': u'default', 'id': u'48476c83c1634f9d8cba95b1381d8e58', 'links': u'http://controller:5000/v3/users/48476c83c1634f9d8cba95b1381d8e58', 'name': u'admin'}
-#{'domain_id': u'default', 'id': u'5758e584a8b543c784aaaa007f1a8ff6', 'links': u'http://controller:5000/v3/users/5758e584a8b543c784aaaa007f1a8ff6', 'name': u'liuying'}
-#{'domain_id': u'default', 'id': u'8903fd567f124fc2911079499a8d0c50', 'links': u'http://controller:5000/v3/users/8903fd567f124fc2911079499a8d0c50', 'name': u'demo'}
-#{'domain_id': u'default', 'id': u'a09196e34875467c9d2ac2a4f2514421', 'links': u'http://controller:5000/v3/users/a09196e34875467c9d2ac2a4f2514421', 'name': u'mcy'}
-#{'domain_id': u'default', 'id': u'ad01cdcecfb345b7ac8dcb73e436f051', 'links': u'http://controller:5000/v3/users/ad01cdcecfb345b7ac8dcb73e436f051', 'name': u'cinder'}
-#{'domain_id': u'default', 'id': u'e576f8e3066a4adfa93f1e7b3d9ccd5e', 'links': u'http://controller:5000/v3/users/e576f8e3066a4adfa93f1e7b3d9ccd5e', 'name': u'nova'}
+
 
 def create_user(conn):
     print("Create openstack User")
@@ -65,37 +78,65 @@ def update_user(conn):
     pass
 
 #***************************Project Operations***************************************
-def list_projects(conn):
-    print("List openstack Projects:")
-    projects = conn.identity.projects()
-
+def extract_project(projects):
     list = []
     for item in projects:
         print item
-        # extract data
         dict = {}
-        dict.setdefault("id_domain", item.is_domain)
-        dict.setdefault("description",item.description)
-        # dict.setdefault("enabled", item.enabled)
-        dict.setdefault("domain_id", item.domain_id)
-        dict.setdefault("parent_id",item.parent_id)
-        dict.setdefault("id", item.id)
-        dict.setdefault("name", item.name)
+        dict.setdefault("allow_create ", item.allow_create)
+        dict.setdefault("allow_delete ", item.allow_delete)
+        dict.setdefault("allow_get ", item.allow_get)
+        dict.setdefault("allow_head ", item.allow_head)
+        dict.setdefault("allow_list ", item.allow_list)
+        dict.setdefault("allow_update ", item.allow_update)
+        dict.setdefault("base_path ", item.base_path)
+        dict.setdefault("create ", item.create)
+        dict.setdefault("delete ", item.delete)
+        dict.setdefault("description ", item.description)
+        dict.setdefault("domain_id ", item.domain_id)  #
+        dict.setdefault("existing ", item.existing)
+        dict.setdefault("find ", item.find)
+        dict.setdefault("get ", item.get)
+        dict.setdefault("head ", item.head)
+        dict.setdefault("id", item.id)  #
+        dict.setdefault("is_domain",item.is_domain)
+        dict.setdefault("is_enabled", item.is_enabled)  #
+        dict.setdefault("list ", item.list)
+        dict.setdefault("location ", item.location)
+        dict.setdefault("name", item.name)  #
+        dict.setdefault("new ", item.new)
+        dict.setdefault("parent_id", item.parent_id)
+        dict.setdefault("patch_update ", item.patch_update)
+        dict.setdefault("put_create ", item.put_create)
+        dict.setdefault("resource_key ", item.resource_key)
+        dict.setdefault("resources_key ", item.resources_key)
+        dict.setdefault("service ", item.service)
+        # dict.setdefault("to_dict ", item.to_dict)
+        dict.setdefault("update ", item.update)
         list.append(dict)
 
     for i in list:
         print i
     return list
+#--------------------all attrs of project to access-------------------------------------
+#['__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__',
+# '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_alternate_id', '_body', '_body_mapping', '_collect_attrs', '_consume_attrs', '_filter_component',
+# '_get_id', '_get_mapping', '_get_one_match', '_header', '_header_mapping', '_prepare_request', '_query_mapping', '_translate_response', '_update', '_uri', '_uri_mapping', 'allow_create',
+# 'allow_delete', 'allow_get', 'allow_head', 'allow_list', 'allow_update', 'base_path', 'create', 'delete', 'description', 'domain_id', 'existing', 'find', 'get', 'head', 'id', 'is_domain',
+# 'is_enabled', 'list', 'location', 'name', 'new', 'parent_id', 'patch_update', 'put_create', 'resource_key', 'resources_key', 'service', 'to_dict', 'update']
+
+
+
+def list_projects(conn):
+    print("List openstack Projects:")
+    projects = conn.identity.projects()
+    return extract_project(projects)
+
 #List Projects:
 #openstack.identity.v3.project.Project(is_domain=False, description=QuLeilei Project, enabled=True, domain_id=default, parent_id=None, id=02d5ad020bec441185dd901f61cb28db, name=quleilei)
 #openstack.identity.v3.project.Project(is_domain=False, description=Liuying Project, enabled=True, domain_id=default, parent_id=None, id=1b136c88aa6f4b8ebfd7ab9803c938c5, name=liuying)
-#openstack.identity.v3.project.Project(is_domain=False, description=Admin Project create on 2016-11-15, enabled=True, domain_id=default, parent_id=None, id=2f1bc8c34f094d049a201819732537a3, name=admin)
-#openstack.identity.v3.project.Project(is_domain=False, description=Qinli Project, enabled=True, domain_id=default, parent_id=None, id=388abc648a20494eba70dab8ccfa9d14, name=qinli)
-#openstack.identity.v3.project.Project(is_domain=False, description=Service Project create on 2016-11-15, enabled=True, domain_id=default, parent_id=None, id=6266384750f949148eebf160fadcd662, name=service)
-#openstack.identity.v3.project.Project(is_domain=False, description=Demo Project create on 2016-11-15, enabled=True, domain_id=default, parent_id=None, id=7ad82b22a6924a978c54862efb3517f2, name=demo)
-#openstack.identity.v3.project.Project(is_domain=False, description=lyj Project-comman, enabled=True, domain_id=default, parent_id=None, id=7f4cc78a61d0484d8cc57441c0857f6a, name=lyj)
-#openstack.identity.v3.project.Project(is_domain=False, description=teacher Project, enabled=True, domain_id=default, parent_id=None, id=bd9dc26b524143339cad03c0ee048429, name=teacher)
-#openstack.identity.v3.project.Project(is_domain=False, description=Machenyi Project, enabled=True, domain_id=default, parent_id=None, id=f9085a59e485496eb44dce5608d438d1, name=mcy)
+
+
 
 def create_project(conn,**new_project_attrs):
     print new_project_attrs
@@ -105,16 +146,20 @@ def create_project(conn,**new_project_attrs):
 def delete_project(conn):
     pass
 
+
 def get_project(conn,project):
     pass
+
 
 def find_project(conn,id_or_name):
     project = conn.identity.find_project(id_or_name)
     print project
     return project
 
+
 def update_project(conn,project,**attrs):
     pass
+
 
 #/*****************************************domain Operations***********************************/
 def list_domains(conn):
@@ -122,6 +167,7 @@ def list_domains(conn):
 
     for domain in conn.identity.domains():
         print(domain)
+        print dir(domain)
     return conn.identity.domains()
 
 

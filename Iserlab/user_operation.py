@@ -6,30 +6,26 @@ from Iserlab import identity_resource_operation
 
 
 
-#list all user info in system db table
+#list all user(teacher) info in system db table
 def list_user():
     u_list = User.objects.all()
     return u_list
 
 
+#----------------------------pass this function---------------------------------#
 ##for openstack api error reason, this function not to do
-def create_user(name,ps,email=''):
+def create_user(name,ps,role,email='',):
     #insert into User db
-    u = User(username=name,password=ps,email=email)
+    if role == "teacher":
+        u = User(username=name,password=ps,email=email)
+    else:
+        u = Student(stu_username=name,stu_password=ps,stu_email=email)
     u.save()
-    #create openstack user
-
-    # get the domain
-
-    # create project
-
-    # create user
-
-    # get role
-
-    # add role to project and user
 
     return u
+#----------------------------pass this function---------------------------------#
+
+
 
 
 def find_user(name):
@@ -60,7 +56,9 @@ def list_stu():
 
 
 def create_stu(name,ps,email):
+
     pass
+
 
 def find_stu(name):
     s = Student.objects.get(stu_username=name)

@@ -17,20 +17,20 @@ from django.core.mail import send_mail
 import json
 
 
-def index(request):
-    string = "hello world"
-    NameList = ["Alice","Bob","Cara"]
-    info_dict = {'site':'baidu.com','tag':'Search Engine','country':'China'}
-
-    List = map(str,range(100))
-    # return render(request,'test.html',{'List':List})
-
-    # return render(request,'test.html',{'info_dict':info_dict})
-    stu_email_List = ['machenyi2011@163.com']
-    send_mail('Subject here', 'Here is the message', 'machenyi2011@163.com', stu_email_List, fail_silently=False)
-
-    var =87
-    return render(request, 'test.html', {'var':var})
+# def index(request):
+#     string = "hello world"
+#     NameList = ["Alice","Bob","Cara"]
+#     info_dict = {'site':'baidu.com','tag':'Search Engine','country':'China'}
+#
+#     List = map(str,range(100))
+#     # return render(request,'test.html',{'List':List})
+#
+#     # return render(request,'test.html',{'info_dict':info_dict})
+#     stu_email_List = ['machenyi2011@163.com']
+#     send_mail('Subject here', 'Here is the message', 'machenyi2011@163.com', stu_email_List, fail_silently=False)
+#
+#     var =87
+#     return render(request, 'test.html', {'var':var})
 
 
 def add(request):
@@ -61,5 +61,18 @@ def home(request):
         'List': json.dumps(List),
         'Dict': json.dumps(Dict)
     })
+
+#----------------------2017-2-28----------#
+from .forms import AddForm
+def index(request):
+    if request.method == 'POST':
+        form = AddForm(request.POST)
+        if form.is_valid():
+            a = form.cleaned_data['a']
+            b = form.cleaned_data['b']
+            return HttpResponse(str(int(a)+int(b)))
+    else:
+        form = AddForm()
+        return render(request,'index.html',{'form':form})
 
 

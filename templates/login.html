@@ -15,8 +15,10 @@
 <body>
 <h1>登录页面</h1>
 <form method = 'post' enctype = "multipart/form-data">
-    {{ uf.as_p }}
-    <input type="submit" value = "登录"><a href='/register/'>注册</a>|忘记密码
+    <br><label>用户名：</label>{{ uf.username }}{{ uf.username.errors|safe }}
+    <br><label>密码：</label>{{ uf.password }}{{ uf.password.errors|safe }}
+    <!---{{ uf.as_p }}--->
+    <br><input type="submit" value = "登录"><a href='/register/'>注册</a>|忘记密码
 </form>
 </body>
 </html>

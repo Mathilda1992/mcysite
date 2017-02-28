@@ -16,8 +16,7 @@
 <p>显示所有镜像信息：</p>
 <p>
     {% for image_dict in ImageList %}
-        <p>镜像：</p>
-        <p>{{ forloop.counter }}{{ image_dict }}</p>
+        <p>镜像{{ forloop.counter }}:{{ image_dict}}</p>
     {% empty %}
         <p>抱歉，镜像列表为空</p>
     {% endfor %}
@@ -36,19 +35,28 @@
 <p>显示当前OpenStack中的所有用户</p>
 <p>
     {% for user_dict in UserList %}
-    <p>User:</p>
-    {{ user_dict }}
+    <p>User{{ forloop.counter }}:{{ user_dict }}</p>
+
     {% empty %}
         <p>抱歉,user列表为空</p>
     {% endfor %}
 </p>
 
 
+<p>显示当前OpenStack中的所有Project</p>
+<p>
+    {% for project_dict in ProjectList %}
+    <p>Project{{ forloop.counter }}:{{ project_dict }}</p>
+
+    {% empty %}
+        <p>抱歉,project列表为空</p>
+    {% endfor %}
+</p>
+
 <p>显示flavor信息</p>
 <p>
     {% for flavor_dict in FlavorList %}
-        <p>flavor：</p>
-        {{ flavor_dict }}
+        <p>flavor{{ forloop.counter }}：{{ flavor_dict }}</p>
     {% empty %}
         <p>抱歉，flavor列表为空</p>
     {% endfor %}
@@ -58,8 +66,10 @@
 <p>显示所有网络信息</p>
 <p>
     {% for network_dict in NetworkList %}
-        <p>网络：</p>
-        {{ network_dict }}
+        <p>网络{{ forloop.counter }}:</p>
+        <p>Network Name:{{ network_dict.name}}--Network ID:{{ network_dict.id }}--Status:{{ network_dict.status }}--Tenant ID{{ network_dict.tenant_id }}</p>
+        <p>Subnet Name:{{ network_dict.sub_name }}--CIDR:{{ network_dict.sub_cidr }}--Gatewap IP:{{ network_dict.sub_gateway_ip }}--Allocation Pools:{{ network_dict.sub_allocation_pools }}</p>
+
     {% empty %}
         <p>抱歉，网络列表为空</p>
     {% endfor %}
@@ -68,8 +78,8 @@
 <p>显示当前所有虚拟机</p>
 <p>
     {% for server_dict in ServerList %}
-        <p>虚拟机：</p>
-        {{ server_dict }}
+        <p>虚拟机{{ forloop.counter }}:{{ server_dict.to_dict}}</p>
+
     {% empty %}
         <p>抱歉，虚拟机列表为空</p>
     {% endfor %}

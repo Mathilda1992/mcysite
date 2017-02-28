@@ -15,14 +15,16 @@
 <body>
 <h1>用户注册页面</h1>
 <form method = 'post' enctype = "multipart/form-data">
-{#    用户名：<input type="text" name="username"><br> *请用学号作为用户名#}
-{#    邮箱：<input type="email" name="email"><br>×邮箱可用于找回密码#}
-{#    密码：<input type="password" name="password1"><br>#}
-{#    重复密码：<input type="password" name="password2"><br>#}
+    <br><label>用户名：</label>{{ rf.username }}{{ rf.username.errors|safe }}
+    <br><label>密码：</label>{{ rf.password }}{{ rf.password.errors|safe }}
+    <br><label>重复密码：</label>{{ rf.password_r }}
+    <br><label>邮箱：</label>{{ rf.email }}{{ rf.email.errors|safe }}
+    <br><label>角色：</label>{{ rf.role }}{{ rf.role.erros|safe }}
 
 
-    {{ rf.as_p }}
-    <input type="submit" value = "注册">
+    <!---{{ rf.as_p }}--->
+
+    <br><input type="submit" value = "注册">
     <input type="button" value="取消">
 </form>
 </body>
