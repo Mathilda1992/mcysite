@@ -13,6 +13,10 @@ from Iserlab.models import User,Student
 from django.core.exceptions import ValidationError
 
 
+
+
+
+
 def validate_username(username):
     if username =="badboy":
         raise ValidationError('%s is used, please change one!' % username)
@@ -53,33 +57,72 @@ class RegisterForm(forms.Form):
 def login(request):
     if request.method == 'POST':
         uf = LoginForm(request.POST)
+
         if uf.is_valid():
             username = uf.cleaned_data['username']
             print username
             password = uf.cleaned_data['password']
-            #compare with data from db to check whether the user login exists in db
+            #compare with data from db to check whether the user login exists in db(bothe teacher and student db)
             user = User.objects.filter(username__exact = username,password__exact = password)
+            stu = Student.objects.filter(stu_username__exact=username,stu_password__exact=password)
             if user:
-                #save the user in session
-                print "log sucess!"
+                print "Teacher log in!"
+
+                #-------save the user in session
                 request.session['username'] = username
-                print request.user.username
-                return render_to_response("home.html",{'username':username})
+                request.session['role']='teacher'
+
+                # #request.user:this object means login user
+                # if request.user.is_authenticated():
+                #     print "*******"
+                #     print "output the login user info:????Why the user is admin????"
+                #     print request.user.username
+                #     print request.user.password
+                #     print request.user.last_login
+                #     print request.user.date_joined
+                # else:
+                #     print "#######"
+                return HttpResponseRedirect('/home/')
+
+
+                # #--------set username into cookies
+                # response = HttpResponseRedirect('/home/')
+                # response.set_cookie('username',username)
+                # response.set_cookie('role','teacher')
+                # return response
+
+
+            elif stu:
+                print "Student log in"
+                request.session['username'] = username
+                request.session['role'] = 'sutdent'
+                return HttpResponseRedirect('/home/')
+
             else:
-                print "username or password error!!!"
+                print "ERROR:username or password error!!!"
                 return HttpResponseRedirect('/login/')
+
+
     else:#request.method == 'GET'
         uf = LoginForm()
-        return render_to_response("login.html",{'uf':uf})
+    return render_to_response("login.html",{'uf':uf})
 
 
 
 def logout(request):
+    #-----use session
     try:
+        #clear the session
         del request.session['username']
     except KeyError:
         pass
     return HttpResponse("You are logged out.")
+
+
+    # #----use cookie
+    # response = HttpResponse('logout!!')
+    # response.delete_cookie('username')
+    # return response
 
 
 
@@ -89,6 +132,7 @@ def register(request):
     if request.method == 'POST':
         rf = RegisterForm(request.POST)
         if rf.is_valid():
+            #get data from form
             username = rf.cleaned_data['username']
             password = rf.cleaned_data['password']
             password_r = rf.cleaned_data['password_r']
@@ -97,7 +141,6 @@ def register(request):
 
             if password == password_r:
                 #insert this record into db
-
                 if role == "teacher":
                     u = User(username=username, password=password, email=email)
                     u.save()
@@ -120,5 +163,7 @@ def register(request):
                 return HttpResponse("Different Password!")
     else:
         rf = RegisterForm()
-    return render_to_response("register.html",{'rf':rf})
+        return render_to_response("register.html",{'rf':rf})
+
+
 

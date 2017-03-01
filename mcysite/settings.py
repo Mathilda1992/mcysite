@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Iserlab',
     'people',
+    'blog',
 ]
 
 MIDDLEWARE_CLASSES = [

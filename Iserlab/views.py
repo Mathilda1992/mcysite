@@ -54,13 +54,13 @@ def old_add2_redirect(request,a,b):
     )
 
 
-def home(request):
-    List = ['alice', 'bob','cara']
-    Dict = {'site': 'www.baidu.com', 'author': 'machenyi'}
-    return render(request, 'test111.html', {
-        'List': json.dumps(List),
-        'Dict': json.dumps(Dict)
-    })
+# def home(request):
+#     List = ['alice', 'bob','cara']
+#     Dict = {'site': 'www.baidu.com', 'author': 'machenyi'}
+#     return render(request, 'test111.html', {
+#         'List': json.dumps(List),
+#         'Dict': json.dumps(Dict)
+#     })
 
 #----------------------2017-2-28----------#
 from .forms import AddForm
@@ -74,5 +74,9 @@ def index(request):
     else:
         form = AddForm()
         return render(request,'index.html',{'form':form})
+
+
+#-------------------2017-3-1---------------------#
+
 
 

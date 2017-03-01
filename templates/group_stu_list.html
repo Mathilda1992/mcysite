@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Group Student List</title>
+</head>
+<body>
+<p>显示当前group中的所有学生</p>
+<p>
+    {% for item in G_Stu_List %}
+    <p>Student{{ forloop.counter }}:STU_ID{{ item.id }};STU_NAME:{{ item.stu_username }};STU_EMALI:{{ item.stu_email }}</p>
+
+    {% empty %}
+        <p>抱歉,Student列表为空</p>
+    {% endfor %}
+</p>
+
+</body>
+</html>

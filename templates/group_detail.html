@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Group Detail</title>
+</head>
+<body>
+
+<!-----
+<p>群组名称：{{ G_Detail_Dict.name }}</p>
+<p>群组描述：{{ G_Detail_Dict.desc }}</p>
+<p>群组创建者：{{ G_Detail_Dict.teacher.username }}</p>
+<p>群组人数：{{ G_Detail_Dict.stucount }}</p>
+<p>该群组的学生列表</p>
+    {% for item in G_Detail_Dict.stulist %}
+    <p>Student{{ forloop.counter }}:STU_ID{{ item.id }};STU_NAME:{{ item.stu_username }};STU_EMALI:{{ item.stu_email }}</p>
+
+    {% empty %}
+        <p>抱歉,Student列表为空</p>
+    {% endfor %}
+
+----->
+
+<div class="header">
+    <span><a href="{% url 'group_view' G_Detail_Dict.id %}">{{ G_Detail_Dict.name }}</a></span>
+</div>
+
+<div class="content">
+    <div class="blog">
+        <div class="title">
+            <a href="#"><h2>{{ G_Detail_Dict.name }}</h2></a>
+        </div>
+        <p>显示当前group详情<a href="{% url 'group_edit' G_Detail_Dict.id %}" >编辑群组</a>|<a href="/stu_home/" >关闭</a></p>
+
+        <div class="info">
+            <span class="category" style="color: #ff9900;">学生人数：{{ G_Detail_Dict.stucount }}</span>
+            <span class="author" style="color: #4a86e8">创建者：{{ G_Detail_Dict.teacher }}</span>
+            <span class="created" style="color: #6aa84f">创建时间：{{ G_Detail_Dict.created_at|date:"Y-m-d H:i" }}</span>
+        </div>
+        <div class="summary">
+            群组描述：{{ G_Detail_Dict.desc }}
+        </div>
+        <p>学生列表：</p>
+        <div class="info">
+            {% for item in G_Detail_Dict.stulist %}
+                <li>
+                    学生ID：<span class="category" style="color: #ff9900;">{{ item.id }}</span>
+                    学生用户名：<span class="author" style="color: #4a86e8">{{ item.stu_username }}</span>
+                    邮箱：<span class="created" style="color: #6aa84f">{{ item.stu_email }}</span>
+                </li>
+            {% empty %}
+                <p>抱歉,Student列表为空</p>
+            {% endfor %}
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Experiment Detail</title>
+</head>
+<body>
+
+
+<div class="header">
+    <span><a href="{% url 'exp_detail' E_Detail_Dict.id %}">{{ E_Detail_Dict.exp_name }}</a></span>
+</div>
+
+<div class="content">
+    <div class="blog">
+        <div class="title">
+            <a href="#"><h2>{{ E_Detail_Dict.name }}</h2></a>
+        </div>
+        <p>显示当前group详情<a href="{% url 'exp_edit' E_Detail_Dict.id %}" >编辑实验</a>|<a href="/exp_home/" >关闭</a></p>
+
+        <div class="info">
+            <span class="catagory" style="color: #ff9900;">实验编号：{{ E_Detail_Dict.id }}</span>
+            <span class="catagory" style="color: #ff9900;">主机数量：{{ E_Detail_Dict.exp_image_count }}</span>
+            <span class="author" style="color: #4a86e8;">所有者：{{ E_Detail_Dict.exp_owner }}</span>
+            <span class="author" style="color: #4a86e8;">是否共享：{{ E_Detail_Dict.is_shared }}</span>
+            <span class="created" style="color: #6aa84e;">创建日期：{{ E_Detail_Dict.exp_createtime |date:"Y-m-d H:i" }}</span>
+            <span class="created" style="color: #6aa84e;">更新日期：{{ E_Detail_Dict.exp_updatetime |date:"Y-m-d H:i" }}</span>
+        </div>
+        <div class="summary">
+            实验描述：{{ E_Detail_Dict.exp_description }}
+        </div>
+        <p>实验拓扑：</p>
+
+
+
+    </div>
+
+</div>
+
+</body>
+</html>

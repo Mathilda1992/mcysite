@@ -10,15 +10,16 @@ from Iserlab.models import *
 #this class describe what fields showed on admin UI
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('username','password','email',)
+    list_display = ('id','username','password','email',)
 #
 #
 class StudentAdmin(admin.ModelAdmin):
-    list_diaplay = ('stu_username','stu_password','stu_email',)
+    list_display = ('id', 'stu_username', 'stu_password', 'stu_email',)
+
 
 
 class GroupAdmin(admin.ModelAdmin):
-    list_display = ('name','teacher','stuCount','created_at',)
+    list_display = ('id','name','teacher','stuCount','created_at',)
     filter_horizontal = ('student',)
 
 #

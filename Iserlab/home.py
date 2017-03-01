@@ -6,11 +6,15 @@ from django.template import Context
 from django.http import HttpResponseRedirect
 #from django.core.context_processors import csrf
 from django import forms
+from django.http import Http404
 
 from django.core.mail import send_mail
 from django.core.mail import send_mass_mail
 
 import datetime
+
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
 
 
 from Iserlab import createconn_openstackSDK
@@ -18,6 +22,8 @@ from Iserlab import image_resource_operation,compute_resource_operation,network_
 from Iserlab import experiment_operation,repo_operation,user_operation
 from Iserlab import showTime
 
+#-------import models---------
+from Iserlab.models import User,Group,Student,Experiment
 
 
 auth_username = 'admin'
@@ -30,12 +36,72 @@ region_name = 'RegionOne'
 system_admin_email = 'machenyi2011@163.com'
 
 
-def hello(request):
+def home(request):
     context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
     context['hello']='welcome to our platfowm'
     context['currentTime']= showTime.formatTime2()
     context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
     return render(request,'home.html',context)
+
+
+def stu_home(request):
+    context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
+    context['hello']='welcome to our platfowm'
+    context['currentTime']= showTime.formatTime2()
+    context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+    #default show the grouplist
+    username = request.session['username']
+    print username
+    teacher = User.objects.get(username = username)
+    g_list = Group.objects.filter(teacher= teacher).order_by('-created_at')
+
+    context['GroupList'] = g_list
+    return render(request,'stu_managment.html',context)
+
+
+def exp_home(request):
+    context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
+    context['hello']='welcome to our platfowm'
+    context['currentTime']= showTime.formatTime2()
+    context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+    #default show exp list
+    username = request.session['username']
+    role = request.session['role']
+    if role=='teacher':
+        teacher = User.objects.get(username=username)
+        ExpList = Experiment.objects.filter(exp_owner=teacher).order_by('-exp_createtime')
+        print dir(ExpList[0])
+        context['ExpList'] = ExpList
+        pass
+    else:#this is a student user
+        pass
+    return render(request,'exp_managment.html',context)
+
+
+def repo_home(request):
+    context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
+    context['hello']='welcome to our platfowm'
+    context['currentTime']= showTime.formatTime2()
+    context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+    return render(request,'resource_managment.html',context)
+
+
+def teach_home(request):
+    context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
+    context['hello']='welcome to our platfowm'
+    context['currentTime']= showTime.formatTime2()
+    context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+    return render(request,'teacher_center.html',context)
 
 
 #!!!!!!!important!!!!!!
@@ -98,39 +164,125 @@ def conn_openstack(request):
 #    some public openstack resource operate function                     #
 #***********************************************************************#
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~User related operation~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def group_list(request):
-    u_list = user_operation.list_group()
-    return HttpResponse('List Group!')
+# def group_list(request):
+#     g_list = user_operation.list_group()
+#     context = {}
+#     context['GroupList'] = g_list
+#     return render(request,"stu_managment.html",context)
+
+def group_view(request,group_id):
+    try:
+        g = Group.objects.get(id=group_id)
+    except Group.DoesNotExist:
+        raise Http404
+    #get group details from db
+    t = g.teacher
+    s_list = g.student.all()
+    G_Detail_Dict = {'id':g.id,'created_at':g.created_at,'name': g.name, 'desc': g.desc, 'teacher': t, 'stulist': s_list, 'stucount': g.stuCount}
+    print G_Detail_Dict
+
+    #output the group detail-----------------------------UI--------------------------
+    c = {}
+    c['G_Detail_Dict']=G_Detail_Dict
+    return render(request,'group_detail.html',c)
+
+
+
+STU_CHECKBOX_CHOICES=(
+    ('lilei','lilei'),
+    ('alice','alice'),
+    ('mcy','mcy')
+)
+
+def validate_gname(gname):
+    if gname == "group1":
+        raise ValidationError('%s is used, please change another group name!' % gname)
+
+
+class AddGroupForm(forms.Form):
+    gname = forms.CharField(label='Gname',max_length=50,error_messages={'required': 'The username can not be null!','max_length':'The group name is too long'},validators=[validate_gname])
+    desc = forms.CharField(label='Gdesc',max_length=500,error_messages={'max_length':'The group name is too long'})
+    stulist = forms.MultipleChoiceField(label='Stulist',required=False,widget=forms.CheckboxSelectMultiple,choices=STU_CHECKBOX_CHOICES,)
+
+
+
 
 
 def group_create(request):
-    gname = 'group2'
-    currentuser = 'teacher1'
-    stuNamelist = ['mcy','lilei']
-    desc = 'hello'
+    #get input from UI-----------------------UI---------------------------------
 
-    gteacher = user_operation.find_user(currentuser)
-    stulist = []
-    for i in range(0,len(stuNamelist)):
-        stu = user_operation.find_stu(stuNamelist[i])
-        stulist.append(stu)
-    gcount = len(stuNamelist)
+    username = request.session['username']
+    # gname = 'group4'
+    # stuNamelist = ['mcy','lilei']
+    # desc = 'hello'
 
-    g = user_operation.create_group(gname,gteacher,gcount,stulist,desc)
-    return HttpResponse('Create Group!')
-
-
-def group_delete(request):
-    g_name = 'info_sec'
-    user_operation.delete_group(g_name)
-    return HttpResponse('Delete Group')
+    if request.method == 'POST':
+        rf = AddGroupForm(request.POST)
+        if rf.is_valid():
+            #get data from form
+            gname = rf.cleaned_data['gname']
+            desc = rf.cleaned_data['desc']
+            stuNamelist = rf.cleaned_data['stulist']
 
 
-def group_stu_get(request):
-    g_name = 'group2'
-    stu_list = user_operation.get_group_stu(g_name)
+            #insert into db
+            gteacher = User.objects.get(username=username)
+            stulist = []
+            for i in range(0,len(stuNamelist)):
+                stu = Student.objects.get(stu_username=stuNamelist[i])
+                stulist.append(stu)
+            gcount = len(stuNamelist)
 
-    return HttpResponse('Get group stu')
+            # g = user_operation.create_group(gname,gteacher,gcount,stulist,desc)
+
+            g = Group(name=gname, desc=desc, teacher=gteacher, stuCount=gcount)
+            g.save()
+            for stu in stulist:
+                g.student.add(stu)
+
+            #refresh the group list
+            return HttpResponseRedirect('/stu_home/')
+
+    else:
+        rf = AddGroupForm()
+        return render_to_response("group_create.html", {'rf': rf})
+    # return HttpResponse('Create Group!')
+
+
+def group_delete(request,group_id):
+    username=request.session['username']
+    #get the gname to delete
+    # g_name = 'group2'
+
+    try:
+        g = Group.objects.get(id=group_id)
+    except Group.DoesNotExist:
+        raise Http404
+
+    # delete from db
+    gteacher = User.objects.get(username=username)
+    g = Group.objects.filter(id=group_id).delete()
+
+    # refresh and output the group list------------------UI---------------------
+    return HttpResponseRedirect('/stu_home/')
+
+
+
+# def group_stu_get(request):
+#     #get the target gname-----------------UI------------------
+#     g_name = 'group2'
+#
+#     #get stu data from db
+#     # stu_list = user_operation.get_group_stu(g_name)
+#     g = Group.objects.get(name = g_name)
+#     stulist = g.student.all()
+#     print dir(stulist[0])
+#
+#     #output the result-------------------UI--------------------
+#     context = {}
+#     context['G_Stu_List'] = stulist
+#     return render(request,"group_stu_list.html",context)
+
 
 
 def group_get(request):
@@ -140,10 +292,30 @@ def group_get(request):
     return HttpResponse('Get current user group')
 
 
-def group_view(request):
-    g_name = 'group2'
-    g_dict = user_operation.view_group(g_name)
+
+
+
+
+def group_edit(request,group_id):
+
+    g = Group.objects.get(id=group_id)
+    print g
+
+    # group = get_object_or_404(Group,pk=int(group_id))
+    # if request.method=="POST":
+    #     form=AddGroupForm(in)
+
+    #edit the basic info
+
+
+
+    #add or delete student
+
+
+
     return HttpResponse('Show the group details')
+
+
 
 
 
@@ -197,7 +369,7 @@ def openstack_role_list(request):
 
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~List resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~List openstack  resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def flavor_list(request):
     # create conn to openstack
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
@@ -396,19 +568,43 @@ def network_create(request):
 
 
 #***********************************************************************#
-#                          some system public operate function         #
+#                          system exp  operate function         #
 #***********************************************************************#
 
-def exp_list(request):
-    expList = experiment_operation.list_experiment()
-    c = Context({'expList':expList})
-    return render_to_response('image_list.html',c)
+# def exp_list(request):
+#     expList = experiment_operation.list_experiment()
+#     c = Context({'expList':expList})
+#     return render_to_response('image_list.html',c)
 
 def exp_filter_by_user(request):
     currentuser = 'teacher2'
     elist = experiment_operation.filter_experiment_by_user(currentuser)
     c = Context({'expList': elist})
     return render_to_response('image_list.html', c)
+
+
+def exp_detail(request,exp_id):
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+
+    #get exp detail info from db
+    E_Detail_Dict = experiment_operation.view_experiment_detail(exp_id)
+    # output the group detail-----------------------------UI--------------------------
+    c = {}
+    c['E_Detail_Dict'] = E_Detail_Dict
+    return render(request, 'exp_detail.html', c)
+
+
+
+def exp_copy(request,exp_id):
+    #get input form user interface
+    input_exp_id = 1
+    current_username = 'teacher2'
+    e = experiment_operation.copy_experiment(input_exp_id,current_username)
+
+    return HttpResponse('copy an exp')
 
 
 def exp_create(request):
@@ -439,13 +635,21 @@ def exp_create(request):
     return HttpResponse('create new exp !')
 
 
-def exp_update(request):
+def exp_edit(request,exp_id):
     pass
 
 
-
-def exp_delete(request):
+def exp_share(request,exp_id):
     pass
+
+
+def exp_delivery(request,exp_id):
+    pass
+
+
+def exp_delete(request,exp_id):
+    pass
+
 
 
 def exp_network_launch(request):
@@ -519,21 +723,11 @@ def repo_exp_list(request):
 
 #Select needed experiment_template and copy another
 ##step1:choose one template and look into the details++++++++++++++++++++++++++++++++++++need to focus on UI+++++++++++++++++++=
-def exp_detail(request):
-    input_e_id = 1
-    edict = experiment_operation.view_experiment_detail(input_e_id)
 
-    return HttpResponse('Show exp details!')
 
 
 ##step2:make a copy
-def exp_copy(request):
-    #get input form user interface
-    input_exp_id = 1
-    current_username = 'teacher2'
-    e = experiment_operation.copy_experiment(input_exp_id,current_username)
 
-    return HttpResponse('copy an exp')
 
 
 #Launch exp instance based on this template

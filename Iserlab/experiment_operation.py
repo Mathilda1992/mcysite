@@ -2,7 +2,21 @@
 #Make Experiment as a kind of resource like image,VM,network, and below give some related operations
 
 from Iserlab import image_resource_operation,compute_resource_operation,network_resource_operation
-from Iserlab.models import Experiment,VMInstance,ExpInstance,User,Student,Group,VMImage,Network
+from Iserlab.models import Experiment,VMInstance,ExpInstance,User,Student,Group,VMImage,Network,Delivery
+
+#---------attrs for exp object--------
+#['DoesNotExist', 'MultipleObjectsReturned', '__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', u'__module__', '__ne__',
+# '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setstate__', '__sizeof__', '__str__', '__subclasshook__', '__unicode__', '__weakref__', '_base_manager',
+# '_check_column_name_clashes', '_check_field_name_clashes', '_check_fields', '_check_id_field', '_check_index_together', '_check_local_fields', '_check_long_column_names',
+# '_check_m2m_through_same_relationship', '_check_managers', '_check_model', '_check_ordering', '_check_swappable', '_check_unique_together', '_default_manager', '_deferred',
+# '_do_insert', '_do_update', '_get_FIELD_display', '_get_next_or_previous_by_FIELD', '_get_next_or_previous_in_order', '_get_pk_val', '_get_unique_checks', '_meta', '_perform_date_checks',
+# '_perform_unique_checks', '_save_parents', '_save_table', '_set_pk_val', '_state', 'check', 'clean', 'clean_fields', 'date_error_message', 'delete', 'delivery_set', 'exp_createtime',
+# 'exp_description', 'exp_guide', 'exp_image_count', 'exp_images', 'exp_name', 'exp_network', 'exp_owner', 'exp_owner_id', 'exp_reportDIR', 'exp_result', 'exp_updatetime', 'expinstance_set',
+# 'from_db', 'full_clean', 'get_deferred_fields', 'get_next_by_exp_createtime', 'get_next_by_exp_updatetime', 'get_previous_by_exp_createtime', 'get_previous_by_exp_updatetime', 'id',
+# 'is_shared', 'objects', 'pk', 'prepare_database_save', 'refresh_from_db', 'save', 'save_base', 'serializable_value', 'shared_time', 'unique_error_message', 'validate_unique']
+
+
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Get current user~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -29,8 +43,6 @@ def get_expNetwork(experiment_id):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~List experiment template~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def list_experiment():
     print("List Experiments:")
-    Experiment_list= []
-    # Fetch data from db
     Experiment_list = Experiment.objects.all()
     #return data****
     # [<Experiment: id=2,name=exp000>, <Experiment: id=1,name=exptest1>]
@@ -62,21 +74,30 @@ def view_experiment_detail(experiment_id):
     #analyse the info into a dict
     edict={'id':experiment_id}
     ##edict={}.fromkeys('id','name','owner','imageCount','imagelist','network','is_shared','description')
-    edict['name'] = e.exp_name
-    edict['imageCount'] = e.exp_image_count
+    edict['exp_name'] = e.exp_name
+    edict['exp_owner'] = e.exp_owner
+    edict['exp_createtime']=e.exp_createtime
+    edict['exp_updatetime']=e.exp_updatetime
+
+    edict['exp_image_count'] = e.exp_image_count
 
     imagelist = e.exp_images.all()
-    edict['imagelist'] = imagelist
+    edict['exp_images'] = imagelist
 
     network = e.exp_network.all()
-    edict['network'] = network
+    edict['exp_network'] = network
+
     edict['is_shared'] = e.is_shared
-    edict['description'] = e.exp_description
+    edict['shared_time'] = e.shared_time
+    # edict['delivery_history'] = Delivery.objects.filter(exp_id=e,teacher_username=e.exp_owner).order_by('-delivery_time')
+    edict['exp_description'] = e.exp_description
+    edict['exp_guide'] = e.exp_guide
+    edict['exp_result'] =e.exp_result
+    edict['exp_reportDIR']=e.exp_reportDIR
 
-
-    print edict
-    for key,value in edict.items():
-        print 'key=%s,value=%s' % (key,value)
+    # print edict
+    # for key,value in edict.items():
+    #     print 'key=%s,value=%s' % (key,value)
 
     return edict
 
