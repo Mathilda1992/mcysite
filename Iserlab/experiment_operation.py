@@ -78,18 +78,15 @@ def view_experiment_detail(experiment_id):
     edict['exp_owner'] = e.exp_owner
     edict['exp_createtime']=e.exp_createtime
     edict['exp_updatetime']=e.exp_updatetime
-
     edict['exp_image_count'] = e.exp_image_count
-
     imagelist = e.exp_images.all()
     edict['exp_images'] = imagelist
-
     network = e.exp_network.all()
     edict['exp_network'] = network
-
     edict['is_shared'] = e.is_shared
     edict['shared_time'] = e.shared_time
-    # edict['delivery_history'] = Delivery.objects.filter(exp_id=e,teacher_username=e.exp_owner).order_by('-delivery_time')
+    deliverys = Delivery.objects.filter(exp=e, teacher=e.exp_owner).order_by('-delivery_time')
+    edict['delivery_history'] = deliverys
     edict['exp_description'] = e.exp_description
     edict['exp_guide'] = e.exp_guide
     edict['exp_result'] =e.exp_result

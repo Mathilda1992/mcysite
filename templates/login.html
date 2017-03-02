@@ -4,21 +4,26 @@
     <meta charset="UTF-8">
     <title>Login</title>
 </head>
-
+<!---
  <style type="text/css">
     body{color:#efd;background:#453;padding:0 5em;margin:0}
     h1{padding:2em 1em;background:#675}
     h2{color:#bf8;border-top:1px dotted #fff;margin-top:2em}
     p{margin:1em 0}
   </style>
-
+--->
 <body>
-<h1>登录页面</h1>
+<h1>Login Page</h1>
 <form method = 'post' enctype = "multipart/form-data">
+    <!---
     <br><label>用户名：</label>{{ uf.username }}{{ uf.username.errors|safe }}
     <br><label>密码：</label>{{ uf.password }}{{ uf.password.errors|safe }}
+    --->
     <!---{{ uf.as_p }}--->
-    <br><input type="submit" value = "登录"><a href='/register/'>注册</a>|<a href = '/forgetps/'>忘记密码</a>
+    <table>
+        {{ uf.as_table }}
+    </table>
+    <br><input type="submit" value = "Login"><a href='/register/'>Register</a>|<a href = '/forgetps/'>Forget Password</a>
 </form>
 </body>
 </html>

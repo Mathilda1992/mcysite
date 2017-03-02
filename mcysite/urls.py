@@ -63,8 +63,8 @@ urlpatterns = [
     url(r'^new_add/(\d+)/(\d+)/$',add2,name='add2'),
     url(r'^bloglist/$',blog_list2),
     #test book example
-    url(r'^search/$',search),#failed
-    url(r'^contact/$',contact),#need to test
+    url(r'^search/$',search,name='search'),#failed
+    url(r'^contact/$',contact,name='contact'),#need to test
 
 
     #system operate
@@ -94,18 +94,30 @@ urlpatterns = [
     url(r'^exp_delete/(\d+)/$', exp_delete, name='exp_delete'),
     url(r'^exp_delivery/(\d+)/$', exp_delivery, name='exp_delivery'),
     url(r'^exp_share/(\d+)/$', exp_share, name='exp_share'),
+    url(r'^exp_launch/(\d+)/$', exp_launch, name='exp_launch'),
 
 
     url(r'^exp_filter_by_name/$',exp_filter_by_user,name='exp_filter_by_name'),
     url(r'^exp_network_launch/$',exp_network_launch,name='luanch_exp_network'),
 
-
     #repo operate
     url(r'^repo_home/$',repo_home,name='repo_home'),
-    url(r'^repo_exp_list/$',repo_exp_list,name='repo_exp_list'),
+    url(r'^repo_public_list/$',repo_home,name='repo_home'),
+    url(r'^repo_public_image_list/$', repo_public_image_list, name='repo_public_image_list'),
+    url(r'^repo_private_list/$',repo_private_list,name='repo_private_list'),
+    url(r'^repo_private_image_list/$',repo_private_image_list,name='repo_private_image_list'),
+
+
 
 
     #teaching statistic
     url(r'^teach_home/$',teach_home,name='teach_home'),
+
+    #delivery operate
+    url(r'^delivery_detail/(\d+)/$',delivery_detail,name='delivery_detail'),
+    url(r'^delivery_edit/(\d+)/$', delivery_edit, name='delivery_edit'),
+    url(r'^delivery_delete/(\d+)/$', delivery_delete, name='delivery_delete'),
+    url(r'^delivery_create/$', delivery_create, name='delivery_create'),
+
 
 ]

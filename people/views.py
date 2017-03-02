@@ -1,4 +1,5 @@
 from django.shortcuts import render,render_to_response
+from django.http import HttpResponse,HttpResponseRedirect
 import MySQLdb
 from people.models import Blog
 
@@ -8,7 +9,7 @@ from django.db.models import Q
 from people.models import Book
 
 
-from Iserlab.forms import ContactForm
+from people.forms import ContactForm
 
 
 
@@ -54,5 +55,14 @@ def search(request):
 
 
 def contact(request):
-    form = ContactForm()
-    return render_to_response('contact.html',{'form':form})
+    # form = ContactForm(initial={'sender':'user@example.com'})
+    if request.method == 'POST':
+        form =ContactForm(request.POST)
+        if form.is_valid():
+            return HttpResponseRedirect("/login/")
+    else:
+        form = ContactForm()
+    return render_to_response('contact.html', {'form': form})
+
+
+

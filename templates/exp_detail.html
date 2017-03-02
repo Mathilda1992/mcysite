@@ -14,13 +14,21 @@
 <div class="content">
     <div class="blog">
         <div class="title">
-            <a href="#"><h2>{{ E_Detail_Dict.name }}</h2></a>
+            <a href="#"><h2>{{ E_Detail_Dict.exp_name }}</h2></a>
         </div>
-        <p>显示当前group详情<a href="{% url 'exp_edit' E_Detail_Dict.id %}" >编辑实验</a>|<a href="/exp_home/" >关闭</a></p>
+        <div>
+            <p>显示当前group详情
+            <a href="{% url 'exp_edit' E_Detail_Dict.id %}" >编辑</a>|
+            <a href="{% url 'exp_launch' E_Detail_Dict.id %}" >启动</a>|
+            <a href="{% url 'exp_copy' E_Detail_Dict.id %}" >复制</a>|
+            <a href="{% url 'exp_delivery' E_Detail_Dict.id %}" >分发</a>|
+            <a href="{% url 'exp_share' E_Detail_Dict.id %}" >共享</a>|
+            <a href="/exp_home/" >关闭</a></p>
+        </div>
 
         <div class="info">
             <span class="catagory" style="color: #ff9900;">实验编号：{{ E_Detail_Dict.id }}</span>
-            <span class="catagory" style="color: #ff9900;">主机数量：{{ E_Detail_Dict.exp_image_count }}</span>
+            <span class="catagory" style="color: #ff9900;">包含主机数量：{{ E_Detail_Dict.exp_image_count }}</span>
             <span class="author" style="color: #4a86e8;">所有者：{{ E_Detail_Dict.exp_owner }}</span>
             <span class="author" style="color: #4a86e8;">是否共享：{{ E_Detail_Dict.is_shared }}</span>
             <span class="created" style="color: #6aa84e;">创建日期：{{ E_Detail_Dict.exp_createtime |date:"Y-m-d H:i" }}</span>
@@ -29,7 +37,50 @@
         <div class="summary">
             实验描述：{{ E_Detail_Dict.exp_description }}
         </div>
-        <p>实验拓扑：</p>
+        <div class="summary">
+            实验包含镜像列表：{{ E_Detail_Dict.exp_images }}
+        </div>
+        <div class="summary">
+            实验包含网络：{{ E_Detail_Dict.exp_network }}
+        </div>
+        <div>
+            <p>实验拓扑：</p>
+        </div>
+        <div>
+            实验指南：{{ E_Detail_Dict.exp_guide }}
+        </div>
+        <div>
+            实验结果参考（教师给出实验结果作为评分依据）：{{ E_Detail_Dict.exp_result }}
+        </div>
+        <div>
+            实验报告（学生所提交的实验报告所在repo目录）：{{ E_Detail_Dict.exp_reportDIR }}
+        </div>
+        <div>
+            分发历史记录:
+        <table>
+            <tr>
+                <td>Delivery Name</td>
+                <td>Delivery Time</td>
+                <td>Group</td>
+            </tr>
+
+            {% for item in E_Detail_Dict.delivery_history %}
+                <tr>
+                    <td><a href="{% url 'delivery_detail' item.id %}"><span class="author" style="color: #4a86e8">{{ item.name }}</span></a></td>
+                    <td><span class="created" style="color: #6aa84f">{{ item.delivery_time|date:"Y-m-d H:i" }}</span></td>
+                    <td><span class="category" style="color: #ff9900;">{{ item.stu.name }}</span></td>
+                </tr>
+            {% empty %}
+                <p>抱歉,Delivery History列表为空</p>
+            {% endfor %}
+        </table>
+
+
+        </div>
+
+
+
+
 
 
 

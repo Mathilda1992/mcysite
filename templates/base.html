@@ -21,15 +21,16 @@
 
 
 
-<div>
-    <p>欢迎来到Iserlab：基于OpenStack的网络攻防实验室</p>
-    <h1>您好，[{{ role }}]{{ username }}：{{ hello }}</h1><br>
-    <a href="/login/">退出</a>
-    <h2>当前时间 {{ currentTime }}</h2>
-    <h2>当前时间戳 {{ currentTimeStamp }}</h2>
+<div align="center">
+    <h1>欢迎来到Iserlab：基于OpenStack的网络攻防实验室</h1>
+    <p>您好，[{{ role }}]{{ username }}|<a href="/login/">退出</a></p>
+    <p>当前时间 {{ currentTime }}当前时间戳 {{ currentTimeStamp }}</p>
+
     <h2>{{ message1 }}</h2>
     <h2>{{ conn_result }}</h2>
     <h2>{{ message2 }}</h2>
+</div>
+<div>
     <ul>
         <li><a href="/stu_home/" >学员管理</a></li>
         <li><a href="/exp_home/" >实验管理</a></li>
@@ -47,7 +48,7 @@
 
 
 {% block footer %}
-<div>
+<div align="center">
     <p>本平台由中国人民大学信息安全实验室团队开发@2016-9-7</p>
 </div>
 {% endblock %}

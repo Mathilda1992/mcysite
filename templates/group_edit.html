@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Group</title>
+</head>
+<body>
+<h1>编辑群组页面</h1>
+<form method = 'post' enctype = "multipart/form-data">
+    <br><label>群组名称：</label>{{ rf.gname }}{{ rf.gname.errors|safe }}
+    <br><label>群组描述：</label>{{ rf.desc }}{{ rf.desc.errors|safe }}
+    <br><label>添加学生：</label>{{ rf.stulist }}
+
+
+{#    <table>#}
+{#        {{ rf.as_table }}#}
+{#    </table>#}
+
+
+    <br>
+    <input type="submit" value = "保存">
+    <a href="/stu_home/">取消</a>
+</form>
+
+</body>
+</html>

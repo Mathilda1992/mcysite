@@ -1,13 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>继承了base.html</p>
     <p>这里是实验内容管理页面， 默认是展示用户创建的的实验列表</p>
-    <br>
+
     <ul>
         <li><a href="/exp_home/" >实验列表</a></li>
         <li><a href="/exp_create/" >创建实验</a></li>
-
     </ul>
 
 
@@ -26,6 +24,7 @@
                 <a href="{% url 'exp_delete' item.id %}" >删除实验</a>|
                 <a href="{% url 'exp_delivery' item.id %}" >分发实验</a>|
                 <a href="{% url 'exp_share' item.id %}" >共享实验</a>
+                <a href="{% url 'exp_launch' item.id %}" >启动实验</a>
             </div>
         <div class="info">
             <span class="catagory" style="color: #ff9900;">实验编号：{{ item.id }}</span>

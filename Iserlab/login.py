@@ -29,6 +29,7 @@ system_admin_email = ['machenyi2011@163.com',]
 # Define the form model for login
 
 ROLE_CHOICES = (('teacher', 'Teacher Role'), ('student', 'Student Role'))
+
 class LoginForm(forms.Form):
     username = forms.CharField(label='USERNAME', max_length=100,error_messages={'required': 'The username can not be null!'})
     password = forms.CharField(label='PASSWORD', widget=forms.PasswordInput(),error_messages={'required': 'The password can not be null!'})
@@ -127,7 +128,6 @@ def logout(request):
 
 
 
-
 def register(request):
     if request.method == 'POST':
         rf = RegisterForm(request.POST)
@@ -155,15 +155,16 @@ def register(request):
                     #send_mail('Subject here', 'Here is the message', 'source_email', 'target_email_list', fail_silently=False)
                     send_mail('Apply for register','<Username>:'+username+'<Password>:'+password+'<Email>:'+email+'<Role>:'+role, 'machenyi2011@163.com',system_admin_email,fail_silently=False)
 
-                    return render_to_response("login.html")
+                    return HttpResponseRedirect("/login/")
+
                 else:
                     return HttpResponse("Register Failed!")
             else:
-                print "Different Password!"
                 return HttpResponse("Different Password!")
     else:
         rf = RegisterForm()
-        return render_to_response("register.html",{'rf':rf})
+
+    return render_to_response("register.html",{'rf':rf})
 
 
 

@@ -1,24 +1,52 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>继承了base.html</p>
     <p>这里是用户查看资源库中已有资源的页面，包含公共资源库和个人资源库，默认是展示用户个人的资源列表</p>
-    <br>
     <ul>
-        <li><a href="" >我的资源</a></li>
+        <li><a href="/repo_home/" >公共资源库</a></li>
         <ul>
-            <li><a href="" >实验模板</a></li>
-            <li><a href="" >查看详情</a>|<a href="" >分发实验模板</a>|<a href="" >删除实验模板</a>|<a href="" >编辑实验模板</a>|<a href="" >启动实验</a></li>
-            <li><a href="" >虚拟机镜像</a></li>
-            <li><a href="" >查看详情</a>|<a href="" >删除镜像</a></li>
-            <li><a href="" >上传镜像-Button</a></li>
+            <li><a href="/repo_home/" >实验资源列表</a></li>
+            <li><a href="" >镜像资源列表</a></li>
         </ul>
-        <li><a href="" >资源库</a></li>
+
+        <li><a href="/repo_private_list/" >我的资源</a></li>
         <ul>
-            <li><a href="" >实验模板</a></li>
-            <li><a href="" >查看详情</a>|<a href="" >分发实验模板</a>|<a href="" >编辑实验模板</a>|<a href="" >启动实验</a></li>
-            <li><a href="" >虚拟机镜像</a></li>
+            <li><a href="/repo_private_list/" >我的实验资源</a></li>
+            <li><a href="" >我的镜像资源</a></li>
+            <li><a href="" >上传镜像</a></li>
         </ul>
+
     </ul>
+
+    <div class="header">
+        <h1 align="center">Public Source Repo</h1>
+    </div>
+
+    {% for item in PublicExpList %}
+        <div align="center" class="blog">
+            <div class="title">
+                <a href="{% url 'exp_detail' item.id %}"><h2>{{ item.exp_name }}</h2></a>
+                <a href="{% url 'exp_detail' item.id %}" >详情</a>|
+                <a href="{% url 'exp_copy' item.id %}" >复制</a>|
+                <a href="{% url 'exp_delivery' item.id %}">分发</a>|
+                <a href="{% url 'exp_launch' item.id %}" >启动</a>
+            </div>
+        <div class="info">
+            <span class="author" style="color: #4a86e8;">标签：系统安全</span>
+            <span class="catagory" style="color: #ff9900;">实验编号：{{ item.id }}</span>
+            <span class="catagory" style="color: #ff9900;">主机数量：{{ item.exp_image_count }}</span>
+            <span class="author" style="color: #4a86e8;">上传者：{{ item.exp_owner }}</span>
+            <span class="created" style="color: #6aa84e;">共享时间：{{ item.shared_time |date:"Y-m-d H:i" }}</span>
+
+        </div>
+        <div class="summary">
+            {{ item.exp_description | truncatechars:100 }}
+        </div>
+        </div>
+    {% endfor %}
+
+
+
+
 
 {% endblock %}

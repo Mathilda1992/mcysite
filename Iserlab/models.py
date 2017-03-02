@@ -141,7 +141,7 @@ class VMImage(models.Model):
     keypair = models.CharField(max_length= 20,null = True,blank = True,default='mykey')
 
     def __unicode__(self):
-        return u'image_id=%s,name=%s,creater=%s,is_shared=%s' % (self.image_id,self.name,self.owner,self.is_shared)
+        return u'name=%s,creater=%s,is_shared=%s' % (self.name,self.owner,self.is_shared)
 
     class Meta:
         ordering = ['-created_at']
@@ -188,7 +188,7 @@ class Network(models.Model):
 
 
     def __unicode__(self):
-        return u'network_id=%s,name=%s,creator=%s,is_shared=%s' % (self.network_id,self.network_name,self.owner,self.is_shared)
+        return u'name=%s,creator=%s,is_shared=%s' % (self.network_name,self.owner,self.is_shared)
 
     class Meta:
         ordering = ['-created_at']
@@ -256,7 +256,7 @@ class NetworkCart(models.Model):
 class ExpInstance(models.Model):
     expInstance_id = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True,max_length=200)
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     creator = models.CharField(max_length=201)
@@ -276,7 +276,7 @@ class VMInstance(models.Model):
     server_id = models.CharField(max_length = 100)
     name = models.CharField(max_length = 255)
     owner = models.CharField(max_length= 20)
-    createtime = models.DateTimeField()
+    createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField()
     status = models.CharField(max_length = 20)
     ip = models.CharField(max_length = 20,blank = True)
@@ -296,16 +296,18 @@ class VMInstance(models.Model):
 #
 # # # #a relation table between exp and user
 class Delivery(models.Model):
-    exp_id = models.ForeignKey(Experiment)
-    teacher_username = models.ForeignKey(User)
-    stu_username = models.ForeignKey(Group)
+    name = models.CharField(max_length =100,default='delivery_record')
+    desc = models.TextField(max_length=200,null=True,blank=True)
+    exp = models.ForeignKey(Experiment)
+    teacher = models.ForeignKey(User)
+    stu = models.ForeignKey(Group)
     delivery_time = models.DateTimeField(auto_now_add = True,editable = True)
-    start_time = models.DateTimeField()#set when student can start the expriment
-    stop_time = models.DateTimeField()  # set when student should finish the expriment
+    start_time = models.DateTimeField(editable = True,null=True,blank=True)#set when student can start the expriment
+    stop_time = models.DateTimeField(editable = True,null=True,blank=True)  # set when student should finish the expriment
 
 
     def __unicode__(self):
-        return self.delivery_time
+        return self.name
 
     class Meta:
         ordering = ['-delivery_time']

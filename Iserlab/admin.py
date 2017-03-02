@@ -44,9 +44,9 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name','createtime')
 
 class DeliveryAdmin(admin.ModelAdmin):
-    list_display = ('exp_id','teacher_username','stu_username','delivery_time','start_time','stop_time',)
-    search_fields = ('teacher_username','stu_username','exp_id',)
-    list_filter = ('teacher_username','stu_username','exp_id',)
+    list_display = ('name','desc','exp','teacher','stu','delivery_time',)
+    search_fields = ('teacher','stu','exp',)
+    list_filter = ('teacher','stu','exp',)
 
 
 #
