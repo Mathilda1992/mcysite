@@ -23,7 +23,7 @@ from Iserlab import experiment_operation,repo_operation,user_operation
 from Iserlab import showTime
 
 #-------import models---------
-from Iserlab.models import User,Group,Student,Experiment,VMImage,Network,Delivery
+from Iserlab.models import User,Group,Student,Experiment,VMImage,Network,Delivery,Score
 
 #-------import forms----------
 from Iserlab.forms import *
@@ -116,14 +116,13 @@ def teach_home(request):
     context['currentTime']= showTime.formatTime2()
     context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
 
-    #default show the delivery history
+    #default show the exp situation list
     username = request.session['username']
     role = request.session['role']
     if role == 'teacher':
         teacher = User.objects.get(username=username)
         DeliveryList = Delivery.objects.filter(teacher=teacher).order_by('-delivery_time')
         context['DeliveryList'] = DeliveryList
-
     else:
         student = Student.objects.get(username=username)
 
@@ -132,8 +131,17 @@ def teach_home(request):
 
 
 #***********************************************************************#
-#                  Delivery Operate/Teaching center operate                             #
+#                  Teaching center operate                             #
 #***********************************************************************#
+#-----------Delivery Operate(only role=teacher has these function)-------------#
+def delivery_list(request):
+    username = request.session['username']
+    teacher = User.objects.get(username=username)
+    DeliveryList = Delivery.objects.filter(teacher=teacher).order_by('-delivery_time')
+    context={}
+    context['DeliveryList'] = DeliveryList
+    return render(request, 'delivery_list.html', context)
+
 def delivery_detail(request,d_id):
     pass
 
@@ -154,20 +162,132 @@ def delivery_delete(request,d_id):
 
 
 
-
-
 def delivery_create(request):
     pass
+    #pay attention to multi exps to multi group
+
 
 
 def delivery_list_by_teacher():
     pass
 
-
+#------role = stu operate -----
 def delivery_list_by_student():
     pass
 
 
+#----------teaching situation operation------------#
+def teach_situation_list(request):
+    pass
+
+
+def teach_situation_detail(request,d_id):
+    pass
+
+
+#-----score how this stu do this exp
+def teach_result_score(request,score_id):
+    #initial the form
+    s = Score.objects.get(id=score_id)
+    print s.score
+    print s.comment
+    attrs = {}
+    attrs['score']=s.score
+    attrs['comment']=s.comment
+    rf = ScoreForm(initial=attrs)
+
+    username = request.session['username']
+    print request.method
+    if request.method == 'POST':
+        print "&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+        sf = ScoreForm(request.POST)
+        #get data from form
+        if sf.is_valid():
+            score = sf.cleaned_data['score']
+            comment = sf.cleaned_data['comment']
+
+            #update into db
+            re = Score.objects.filter(id=score_id).update(score=score,comment=comment,score_time = datetime.datetime.now())
+            if re:
+                print "Score Success!"
+                print Score.objects.get(id=score_id).result_exp_id
+            return HttpResponseRedirect('/teach_result_list/')
+
+    else:
+        sf = ScoreForm()
+    return render_to_response("teach_result_score.html", {'sf': rf})
+
+
+
+
+def teach_result_report_download(request,score_id):
+    pass
+
+
+
+#----list all done result of this delivery
+def teach_result_list_by_delivery(request,d_id):
+    pass
+
+
+#---list all exp results-----from score db
+def teach_result_list(request):
+    username = request.session['username']
+    current_teacher = User.objects.get(username=username)
+    ResultList = Score.objects.filter(scorer=current_teacher,situation='Done',result_exp_id__isnull=False).order_by('-finishedTime')
+    context = {}
+    context['ResultList'] = ResultList
+
+    for item in ResultList:
+        print item.result_exp_id
+    return render(request, 'teach_result_list.html', context)
+
+
+
+
+def teach_score_list(request):
+    #default show scores by exp(distinct)
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    ScoreList = Score.objects.filter(scorer=t,situation='Done',score__gt=0).distinct()
+    context = {}
+
+    ExpScoreList=[]
+
+    #get average score for every exp,get stu list for every exp
+
+    for item in ScoreList:
+        e = Experiment.objects.get(id=item.exp.id)
+
+        a_list = Score.objects.filter(scorer=t,exp=e).order_by('-score_time')
+        e_totalscore = 0
+        e_stulist = []
+
+        for i in a_list:
+            e_totalscore = e_totalscore + i.score
+            e_stulist.append(i.stu)
+
+        avescore = e_totalscore/len(a_list)
+
+        ExpScoreDict = {}
+        ExpScoreDict['exp']= e
+        ExpScoreDict['ave']=avescore
+        ExpScoreDict['members']=len(e_stulist)
+        ExpScoreDict['stulist']=e_stulist
+
+        ExpScoreList.append(ExpScoreDict)
+
+    context['ExpScoreList']=ExpScoreList
+    return render(request,'teach_score_list.html',context)
+
+
+def teach_score_list_by_exp(request,exp_id):
+    pass
+
+
+def teach_score_list_by_delivery(request,d_id):
+    pass
+    #list group score for the exp, list scores of all stus in this group
 
 
 #***********************************************************************#
@@ -204,7 +324,7 @@ def repo_handle_upload_image(f):
 
 
 
-
+#----test-------
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -220,7 +340,7 @@ def handle_uploaded_file(f):
     with open('/home/mcy/upload/files/file_name.txt','wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
-
+#-----------------
 
 
 
@@ -384,6 +504,7 @@ def group_edit(request,group_id):
 
     #edit and update the group
     username = request.session['username']
+    print request.method
     if request.method == 'POST':
         rf = AddGroupForm(request.POST)
         if rf.is_valid():
@@ -819,9 +940,27 @@ def exp_launch(request,exp_id):
     username = request.session['username']
     role = request.session['role']
     if role == 'teacher':
+        e = Experiment.objects.get(id=exp_id)
         pass
     else:
         pass
+
+#teacher and student both have
+def exp_pause(request,exp_id):
+    pass
+
+
+#teacher and student both have
+def exp_end(request,exp_id):
+    pass
+
+#teacher and student both have
+def exp_clean(request,exp_id):
+    pass
+
+#only role=stu has this operation
+def exp_submit(request,exp_id):
+    pass
 
 
 

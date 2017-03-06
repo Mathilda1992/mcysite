@@ -210,7 +210,7 @@ class Experiment(models.Model):
     exp_image_count = models.IntegerField(null=True)
     exp_network = models.ManyToManyField(Network)
     exp_guide = models.TextField(null=True,blank = True)
-    exp_result = models.CharField(max_length = 150,null=True,blank = True)
+    exp_result = models.CharField(max_length = 500,null=True,blank = True)
     exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)
     is_shared  = models.CharField(max_length=10,null=True,default='False')
     shared_time = models.DateTimeField(auto_now_add = True,null=True,editable=True)
@@ -304,7 +304,12 @@ class Delivery(models.Model):
     delivery_time = models.DateTimeField(auto_now_add = True,editable = True)
     start_time = models.DateTimeField(editable = True,null=True,blank=True)#set when student can start the expriment
     stop_time = models.DateTimeField(editable = True,null=True,blank=True)  # set when student should finish the expriment
-
+    total_stu = models.IntegerField(default=0)
+    undo_count = models.IntegerField(default=0)
+    doing_count = models.IntegerField(default=0)
+    done_count = models.IntegerField(default=0)
+    average_time = models.CharField(max_length=100,null=True,blank=True)
+    average_score = models.DecimalField(null=True,blank=True,max_digits=5,decimal_places=2,editable=True)
 
     def __unicode__(self):
         return self.name
@@ -313,3 +318,21 @@ class Delivery(models.Model):
         ordering = ['-delivery_time']
 
 
+
+
+
+
+class Score(models.Model):
+    exp = models.ForeignKey(Experiment)
+    stu = models.ForeignKey(Student)
+    scorer = models.ForeignKey(User)
+    # score = models.DecimalField(editable=True,null=True,blank=True,max_digits=5,decimal_places=2)
+    score = models.IntegerField(editable=True,default=0)
+    score_time = models.DateTimeField(null=True,blank=True,editable=True)
+    comment = models.TextField(max_length=500,null=True,blank=True)
+    times = models.IntegerField(default=0)#how many times stu do this exp
+    situation = models.CharField(max_length=10,default='Undo')
+    finishedTime = models.DateTimeField(null=True,blank=True,editable=True)
+    result = models.CharField(max_length=500,null=True,blank=True)
+    result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
+    reportUrl = models.URLField(null=True,blank=True)

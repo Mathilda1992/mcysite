@@ -39,40 +39,27 @@ class LoginForm(forms.Form):
 
 
 class RegisterForm(forms.Form):
-    username = forms.CharField(label='USERNAME', max_length=100,
+    username = forms.CharField(label='Username', max_length=100,
                                help_text="The username should be English letter or number!",
                                error_messages={'required': 'The username can not be null!'},
                                validators=[validate_username])
-    password = forms.CharField(label='PASSWORD',
+    password = forms.CharField(label='Password',
                                widget=forms.PasswordInput(),
                                error_messages={'required': 'The password can not be null!'})
-    password_r = forms.CharField(label='PASSWORD REPEAT',
+    password_r = forms.CharField(label='Password Repeat',
                                  widget=forms.PasswordInput())
     # email = forms.CharField(label='EMAIL', error_messages={'required': 'The email can not be null!'})
-    email = forms.EmailField(label='EMAIL',
+    email = forms.EmailField(label='Email',
                              error_messages={'required': 'The email can not be null!',
                                              'invalid': 'Please input the correct email format!'})
-    role = forms.ChoiceField(label="ROLE",
+    role = forms.ChoiceField(label="Role",
                              choices= ROLE_CHOICES,
                              widget=forms.RadioSelect(),
                              error_messages={'required': 'The role must be chosen!'})
     #----test use----
-    major = forms.CharField(label='MAJOR',
-                            initial="CS",
-                            disabled=True,)
-    public = forms.BooleanField(label='public',
-                                initial=False,)
-    grade = forms.ChoiceField(label="Grade",
-                              choices=(('1','Grade1'),('2','Grade2'),('3','Grade3')),
-                              required=False,
-                              )
-    birth = forms.DateField(label='Birthday',
-                            widget=forms.SelectDateWidget(years=('1992','1992','1994','1995','1996','1997')),
-                            initial=datetime.date.today(),
-                            required=False,)
-    datetime = forms.DateTimeField(label='datetime',
-                                   initial=datetime.datetime.now(),
-                                   )
+    cources = forms.MultipleChoiceField(label="Cources",
+                                        choices=(('1','Math'),('2','Chinese'),('3','English')),
+                                        )
 
 
 

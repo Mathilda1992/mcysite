@@ -112,8 +112,16 @@ urlpatterns = [
 
     #teaching statistic
     url(r'^teach_home/$',teach_home,name='teach_home'),
+    url(r'^teach_result_list/$',teach_result_list,name='teach_result_list'),
+    url(r'^teach_score_list/$', teach_score_list, name='teach_score_list'),
+    url(r'^teach_situation_detail(\d+)/$',teach_situation_detail,name='teach_situation_detail'),
+    url(r'^teach_result_list_by_delivery(\d+)/$',teach_result_list_by_delivery,name='teach_result_list_by_delivery'),
+    url(r'^teach_score_list_by_delivery(\d+)/$',teach_score_list_by_delivery,name='teach_score_list_by_delivery'),
+    url(r'^teach_result_score(\d+)/$',teach_result_score,name='teach_result_score'),
+    url(r'^teach_result_report_download(\d+)/$',teach_result_report_download,name='teach_result_report_download'),
 
     #delivery operate
+    url(r'^delivery_list/$',delivery_list,name='delivery_list'),
     url(r'^delivery_detail/(\d+)/$',delivery_detail,name='delivery_detail'),
     url(r'^delivery_edit/(\d+)/$', delivery_edit, name='delivery_edit'),
     url(r'^delivery_delete/(\d+)/$', delivery_delete, name='delivery_delete'),

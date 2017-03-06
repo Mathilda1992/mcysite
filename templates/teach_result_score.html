@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teach Result Score</title>
+</head>
+<body>
+
+    <div class="header">
+        <h1 align="center">Experiment Result Score<a href="/teach_result_list/" >返回</a></h1>
+    </div>
+    <form method = 'post' enctype = "multipart/form-data">
+        {{ sf.as_p }}
+
+        <br>
+        <input type="submit" value = "保存">
+        <a href="/teach_result_list/">取消</a>
+    </form>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Exp Result List</title>
+</head>
+<body>
+    <div class="header">
+        <h1 align="center">Experiment Result List<a href="/teach_home/" >返回</a></h1>
+    </div>
+
+    {% for item in ResultList %}
+        <div align="center" class="blog">
+            <div class="title">
+                <h2><a href="{% url 'exp_detail' item.exp.id %}">{{ item.exp.exp_name }}</a>~
+                    {{ item.stu.stu_username }}</h2>
+                {% if item.result_exp_id %}
+                    <a href="{% url 'exp_launch' item.result_exp_id %}" >启动</a>|
+                {% endif %}
+
+                <a href="{% url 'teach_result_report_download' item.id %}" >下载实验报告</a>|
+                <a href="{% url 'teach_result_score' item.id %}" >评分</a>
+
+
+            </div>
+            <div class="info">
+                <span class="catagory" style="color: #ff9900;">实验名称：{{ item.exp.exp_name  }}</span>
+
+                <span class="author" style="color: #4a86e8;">操作学生：{{ item.stu.stu_username }}</span>
+
+                <span class="created" style="color: #6aa84e;">完成时间：{{ item.finishedTime |date:"Y-m-d H:i" }}</span>
+
+                <span class="author" style="color: #4a86e8;">操作次数：{{ item.times }}</span>
+
+                <span class="catagory" style="color: #ff9900;">结果模板：{{ item.result_exp_id  }}</span>
+
+                <span class="author" style="color: #4a86e8;">实验报告：{{ item.reportUrl  }}</span>
+
+                <span class="created" style="color: #6aa84e;">实验结果：{{ item.result}}</span>
+
+            </div>
+        </div>
+    {% endfor %}
+</body>
+</html>

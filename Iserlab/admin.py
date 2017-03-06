@@ -44,10 +44,12 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name','createtime')
 
 class DeliveryAdmin(admin.ModelAdmin):
-    list_display = ('name','desc','exp','teacher','stu','delivery_time',)
+    list_display = ('id','name','desc','exp','teacher','stu','delivery_time',)
     search_fields = ('teacher','stu','exp',)
     list_filter = ('teacher','stu','exp',)
 
+class SocreAdmin(admin.ModelAdmin):
+    list_display = ('id','exp','stu','score')
 
 #
 
@@ -63,3 +65,5 @@ admin.site.register(Tag,TagAdmin)
 admin.site.register(VMInstance)
 admin.site.register(ExpInstance)
 admin.site.register(Delivery,DeliveryAdmin)
+
+admin.site.register(Score,SocreAdmin)
