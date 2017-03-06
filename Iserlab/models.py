@@ -209,9 +209,9 @@ class Experiment(models.Model):
     exp_images = models.ManyToManyField(VMImage)#???
     exp_image_count = models.IntegerField(null=True)
     exp_network = models.ManyToManyField(Network)
-    exp_guide = models.TextField(blank = True)
-    exp_result = models.CharField(max_length = 150,blank = True)
-    exp_reportDIR =  models.CharField(max_length = 150,blank = True)
+    exp_guide = models.TextField(null=True,blank = True)
+    exp_result = models.CharField(max_length = 150,null=True,blank = True)
+    exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)
     is_shared  = models.CharField(max_length=10,null=True,default='False')
     shared_time = models.DateTimeField(auto_now_add = True,null=True,editable=True)
 

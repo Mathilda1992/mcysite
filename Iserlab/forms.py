@@ -2,7 +2,7 @@
 # this file is used to create forms,just like we create Models in models.py
 
 from django import forms
-
+import datetime
 
 
 TOPIC_CHOICES = (
@@ -26,11 +26,69 @@ class AddForm(forms.Form):
 
 
 
+IMAGES_CHECKBOX_CHOICES=(
+    ('1','cirros'),
+    ('3','cirros-111'),
+)
+
+NETWORKS_CHECKBOX_CHOICES=(
+    ('1','private_alice'),
+    ('2','private_exp1'),
+)
+
 class AddExpForm(forms.Form):
-    name = forms.CharField(label='name')
-    desc = forms.CharField(label='desc',widget=forms.Textarea(),required =False)
+    name = forms.CharField(label='Exp Name')
+    desc = forms.CharField(label='Description',
+                           widget=forms.Textarea(),
+                           required =False)
+    images = forms.MultipleChoiceField(label='Include Images',
+                                       widget=forms.CheckboxSelectMultiple,
+                                       choices=IMAGES_CHECKBOX_CHOICES,)
+    networks = forms.MultipleChoiceField(label='Use Networks',
+                                         widget=forms.CheckboxSelectMultiple,
+                                         choices=NETWORKS_CHECKBOX_CHOICES,)
+    shared = forms.BooleanField(label='Share to Public Repo',
+                                initial=False,)
+    guide = forms.FileField(label="Upload Guide",
+                            widget=forms.ClearableFileInput(),
+                            )
 
 
+
+class UploadImageForm(forms.Form):
+    name =forms.CharField(label='Image Name')
+    desc = forms.CharField(label='Description', widget=forms.Textarea(), required=False)
+    imageUrl = forms.URLField(label='Image Download URL',required=False,initial='http://')
+    imageFile = forms.ImageField(label='Upload Local Image File',)
+
+
+
+class AddNetworkForm(forms.Form):
+    pass
+
+
+#define report upload form for student
+class UploadFileForm(forms.Form):
+    title = forms.CharField(label='Title',max_length=50)
+    file = forms.FileField(label='Upload Report',)
+
+
+#define score form for teacher
+class ScoreForm(forms.Form):
+    score = forms.DecimalField(label='Score',
+                               required=True,
+                               max_value=100.00,
+                               min_value=0.00,
+                               max_digits=5,
+                               error_messages={'required': 'You must give a score.',
+                                               'invalid': 'Please input a decimal format value.',
+                                               'max_value': 'Please give a value less then 100.00.',
+                                               'min_value': 'Please give a value bigger than 0.00.',
+                                               'max_digits': 'Please give a value within 5 digits.'})
+    comment = forms.CharField(label='Comment',max_length=500,
+                              required=False,
+                              widget=forms.Textarea(),
+                              )
 
 
 
@@ -51,15 +109,28 @@ GROUP_CHECKBOX_CHOICES=(
 )
 
 class AddDeliveryForm(forms.Form):
-    name = forms.CharField(label='name',required=True,max_length=50,
+    name = forms.CharField(label='Name',
+                           max_length=50,
                            error_messages={'required': 'The delivery can not be null!','max_length':'The delivery name is too long'})
-    desc = forms.CharField(label='Gdesc', max_length=500, widget=forms.Textarea(), required=False,
+    desc = forms.CharField(label='Description', max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
                            initial="Replace with your description",
                            error_messages={'max_length': 'The description is too long'})
-    exp = forms.MultipleChoiceField(label='exp',required=True,widget=forms.CheckboxSelectMultiple,choices=EXP_CHECKBOX_CHOICES,)
-    group = forms.MultipleChoiceField(label="group",required=True,widget=forms.CheckboxSelectMultiple,choices=GROUP_CHECKBOX_CHOICES,)
-    startDate = forms.DateField(label='starttime',widget=forms.SelectDateWidget(years=EXP_YEAR_CHOICES))
-    endDate = forms.DateField(label='endtime', widget=forms.SelectDateWidget(years=EXP_YEAR_CHOICES))
+    exp = forms.MultipleChoiceField(label='Select Exp',
+                                    widget=forms.CheckboxSelectMultiple,
+                                    choices=EXP_CHECKBOX_CHOICES,)
+    group = forms.MultipleChoiceField(label="Select Group",
+                                      widget=forms.CheckboxSelectMultiple,
+                                      choices=GROUP_CHECKBOX_CHOICES,)
+    startDateTime = forms.DateField(label='Starttime',
+                                    widget=forms.DateInput(),
+                                    initial=datetime.datetime.now())
+    endDateTime = forms.DateField(label='Endtime',
+                                  widget=forms.DateInput(),
+                                  initial=datetime.datetime.now()
+                                  )
+
 
 
 

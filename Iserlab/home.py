@@ -25,7 +25,10 @@ from Iserlab import showTime
 #-------import models---------
 from Iserlab.models import User,Group,Student,Experiment,VMImage,Network,Delivery
 
+#-------import forms----------
+from Iserlab.forms import *
 
+#--------default argus used for connect to OpenStack Cloud----
 auth_username = 'admin'
 auth_password = 'os62511279'
 auth_url = 'http://202.112.113.220:5000/v2.0/'
@@ -151,17 +154,6 @@ def delivery_delete(request,d_id):
 
 
 
-def group_delete(request,group_id):
-    try:
-        g = Group.objects.get(id=group_id)
-    except Group.DoesNotExist:
-        raise Http404
-
-    # delete from db
-    result = Group.objects.filter(id=group_id).delete()
-    if result:
-        print "group delete success!"
-    return HttpResponseRedirect('/stu_home/')
 
 
 def delivery_create(request):
@@ -199,7 +191,37 @@ def repo_private_image_list(request):
 
 
 def repo_upload_image(request):
+    if request.method == 'POST':
+        form = UploadImageForm(request.POST,request.FILES)
+        if form.is_valid():
+            repo_handle_upload_image()
+
     pass
+
+
+def repo_handle_upload_image(f):
+    pass
+
+
+
+
+def upload_file(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(request.FILES['file'])
+            return HttpResponseRedirect('/success/url/')
+    else:
+        form = UploadFileForm()
+    return render(request, 'upload.html', {'form': form})
+
+
+def handle_uploaded_file(f):
+    with open('/home/mcy/upload/files/file_name.txt','wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+
 
 
 
@@ -300,9 +322,16 @@ def validate_gname(gname):
 
 
 class AddGroupForm(forms.Form):
-    gname = forms.CharField(label='Gname',max_length=50,error_messages={'required': 'The username can not be null!','max_length':'The group name is too long'},validators=[validate_gname])
-    desc = forms.CharField(label='Gdesc',max_length=500,widget=forms.Textarea(),required=False,initial="Replace with your feedbace",error_messages={'max_length':'The description is too long'})
-    stulist = forms.MultipleChoiceField(label='Stulist',required=False,widget=forms.CheckboxSelectMultiple,choices=STU_CHECKBOX_CHOICES,)
+    gname = forms.CharField(label='Gname',max_length=50,
+                            error_messages={'required': 'The username can not be null!','max_length':'The group name is too long'},validators=[validate_gname])
+    desc = forms.CharField(label='Gdesc',max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
+                           initial="Replace with your feedbace",
+                           error_messages={'max_length':'The description is too long'})
+    stulist = forms.MultipleChoiceField(label='Stulist',
+                                        required=False,
+                                        widget=forms.CheckboxSelectMultiple,choices=STU_CHECKBOX_CHOICES,)
 
 
 
