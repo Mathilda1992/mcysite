@@ -44,12 +44,12 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name','createtime')
 
 class DeliveryAdmin(admin.ModelAdmin):
-    list_display = ('id','name','desc','exp','teacher','stu','delivery_time',)
-    search_fields = ('teacher','stu','exp',)
-    list_filter = ('teacher','stu','exp',)
+    list_display = ('id','name','desc','exp','teacher','group','delivery_time',)
+    search_fields = ('teacher','group','exp',)
+    list_filter = ('teacher','group','exp',)
 
 class SocreAdmin(admin.ModelAdmin):
-    list_display = ('id','exp','stu','score')
+    list_display = ('id','exp','stu','createTime','situation','finishedTime','score','score_time')
 
 #
 

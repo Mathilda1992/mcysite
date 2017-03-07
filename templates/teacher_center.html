@@ -18,10 +18,10 @@
         <div align="center" class="blog">
             <div class="title">
                 <h2><a href="{% url 'exp_detail' item.exp.id %}">{{ item.exp.exp_name }}</a>~
-                    <a href="{% url 'group_view' item.stu.id %}">{{ item.stu.name }}</a></h2>
-                <a href="{% url 'teach_situation_detail' item.id %}" >进展详情</a>|
-                <a href="{% url 'teach_result_list_by_delivery' item.id %}" >验收结果</a>|
-                <a href="{% url 'teach_score_list_by_delivery' item.id %}" >查看成绩</a>
+                    <a href="{% url 'group_view' item.group.id %}">{{ item.group.name }}</a></h2>
+                <a href="{% url 'teach_situation_detail_by_delivery' item.id %}" >(本次分发)进展详情</a>|
+                <a href="{% url 'teach_result_list_by_delivery' item.id %}" >(本次分发)验收结果</a>|
+                <a href="{% url 'teach_score_list_by_delivery' item.id %}" >(本次分发)查看成绩</a>
 
 
             </div>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Situation Detail</title>
+</head>
+<body>
+
+    <div class="header">
+        <h1 align="center">Experiment Processing situation in Delivery:
+            <a href="{% url 'delivery_detail' Delivery.id %}">{{ Delivery.id }}</a>
+            <a href="/teach_home/">返回</a></h1>
+        <h3 align="center"><a href="{% url 'exp_detail' Delivery.exp.id %}">{{ Delivery.exp.exp_name }}</a>~
+            <a href="{% url 'group_view' Delivery.group.id %}">{{ Delivery.group.name }}</a></h3>
+    </div>
+
+    {% for item in ScoreList %}
+        <div align="center" class="blog">
+            <div class="title">
+                <h2>操作学生：<a href="{% url 'teach_score_list_by_stu' item.stu.id %}">{{ item.stu.stu_username }}</a>~进展情况：{{ item.situation }}</h2>
+
+                {% ifequal item.situation 'done' %}
+                    <a href="{% url 'exp_launch' item.result_exp_id %}" >启动检查实验</a>
+                    |<a href="{% url 'teach_result_score' item.id %}" >实验评分</a>
+                {% else %}
+                    {% ifequal item.situation 'doing' %}
+                        <a href="{% url 'teach_situation_detail_by_scoreID' item.id %}" >进展详情（观看学生实验操作过程）</a>
+                        {% else %}
+                            {% ifequal item.situation 'scored' %}
+                                <a href="{% url 'teach_score_list_by_scoreID' item.id %}" >查看成绩</a>
+                                {% else %}
+                                    <a href="">发邮件提醒学生尽快开始实验</a>
+                            {% endifequal %}
+
+                    {% endifequal %}
+
+                {% endifequal %}
+            </div>
+
+            <div class="info">
+                <span class="catagory" style="color: #ff9900;">实验次数：{{ item.times }}</span>
+                <span class="author" style="color: #4a86e8;">分数：{{ item.score }}</span>
+                <span class="created" style="color: #6aa84e;">提交时间：{{ item.finishedTime |date:"Y-m-d H:i" }}</span>
+                <span class="created" style="color: #6aa84e;">评分时间：{{ item.score_time |date:"Y-m-d H:i" }}</span>
+            </div>
+            <div class="summary">
+                实验结果：{{ item.result | truncatechars:500 }}
+            </div>
+            <div class="summary">
+                评价：{{ item.comment | truncatechars:500 }}
+            </div>
+        </div>
+    {% endfor %}
+
+
+</body>
+</html>

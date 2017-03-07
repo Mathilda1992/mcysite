@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Score list by student</title>
+</head>
+<body>
+    <div class="header">
+        <h1 align="center">Show all exp scores for student:{{ student.stu_username }}<a href="{% url 'teach_situation_detail_by_delivery' delivery_id %}">返回</a></h1>
+        <h3 align="center">实验数目：{{ score_count }}~总成绩：{{ total_score }}~平均成绩{{ ave_score }}</h3>
+    </div>
+
+    {% for item in ScoreList %}
+        <div align="center" class="blog">
+
+            <div class="info">
+                <span class="catagory" style="color: #ff9900;">实验名称：{{ item.exp.exp_name }}</span>
+                <span class="author" style="color: #4a86e8;">评分人：{{ item.scorer.username }}</span>
+                <span class="created" style="color: #6aa84e;">分数：{{ item.score }}</span>
+            </div>
+        </div>
+    {% endfor %}
+</body>
+</html>

@@ -127,7 +127,8 @@ class VMImage(models.Model):
     owner = models.ForeignKey(User)
     own_project = models.CharField(max_length= 32,null=True)
     is_public = models.CharField(max_length = 10,default = 'YES')
-    description = models.TextField(blank=True)
+
+    description = models.TextField(max_length=500,blank=True)
     status = models.CharField(max_length = 30,default = 'active')
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True,null=True,blank = True)
@@ -135,8 +136,8 @@ class VMImage(models.Model):
     min_disk = models.IntegerField(default = 0)
     min_ram = models.IntegerField(default = 0)
     tags = models.ManyToManyField('Tag')
-    is_shared = models.CharField(max_length=10, null=True, default='False')
-    shared_time = models.DateTimeField(auto_now_add=True, null=True,editable=True)
+    is_shared = models.BooleanField(default=False)
+    shared_time = models.DateTimeField(auto_now=True, null=True,editable=True)
     flavor = models.CharField(max_length= 10,null = True,blank = True,default='m1.tiny')
     keypair = models.CharField(max_length= 20,null = True,blank = True,default='mykey')
 
@@ -176,8 +177,8 @@ class Network(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
     owner = models.ForeignKey(User,null=True)#
-    is_shared = models.CharField(max_length=10,default='False',null=True)#
-    shared_time = models.DateTimeField(auto_now_add=True, null=True, editable=True)
+    is_shared = models.BooleanField(default=False)
+    shared_time = models.DateTimeField(auto_now=True, null=True, editable=True)
     #after finishing creation, fill below fields
     network_id = models.CharField(max_length=50, null=True, blank=True)
     subnet_id = models.CharField(max_length=50, null=True, blank=True)
@@ -198,7 +199,6 @@ class Network(models.Model):
 # #The db used to store exp template
 class Experiment(models.Model):
     #basic info
-    # exp_id = models.CharField(max_length = 10)
     exp_name = models.CharField(max_length = 150)
     exp_description = models.TextField(blank = True)
     exp_createtime = models.DateTimeField(auto_now_add = True,editable = True)
@@ -212,8 +212,9 @@ class Experiment(models.Model):
     exp_guide = models.TextField(null=True,blank = True)
     exp_result = models.CharField(max_length = 500,null=True,blank = True)
     exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)
-    is_shared  = models.CharField(max_length=10,null=True,default='False')
-    shared_time = models.DateTimeField(auto_now_add = True,null=True,editable=True)
+    # is_shared  = models.CharField(max_length=10,null=True,default='False')
+    is_shared = models.BooleanField(default=False)
+    shared_time = models.DateTimeField(null=True,blank=True,editable=True)
 
 
     def __unicode__(self):
@@ -277,7 +278,7 @@ class VMInstance(models.Model):
     name = models.CharField(max_length = 255)
     owner = models.CharField(max_length= 20)
     createtime = models.DateTimeField(auto_now_add=True)
-    updatetime = models.DateTimeField()
+    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     status = models.CharField(max_length = 20)
     ip = models.CharField(max_length = 20,blank = True)
     vncurl = models.URLField()
@@ -300,7 +301,7 @@ class Delivery(models.Model):
     desc = models.TextField(max_length=200,null=True,blank=True)
     exp = models.ForeignKey(Experiment)
     teacher = models.ForeignKey(User)
-    stu = models.ForeignKey(Group)
+    group = models.ForeignKey(Group)
     delivery_time = models.DateTimeField(auto_now_add = True,editable = True)
     start_time = models.DateTimeField(editable = True,null=True,blank=True)#set when student can start the expriment
     stop_time = models.DateTimeField(editable = True,null=True,blank=True)  # set when student should finish the expriment
@@ -320,19 +321,20 @@ class Delivery(models.Model):
 
 
 
-
-
 class Score(models.Model):
     exp = models.ForeignKey(Experiment)
     stu = models.ForeignKey(Student)
     scorer = models.ForeignKey(User)
+
+    createTime = models.DateTimeField(auto_now_add=True, editable=True)
+    finishedTime = models.DateTimeField(null=True,blank=True,editable=True)
     # score = models.DecimalField(editable=True,null=True,blank=True,max_digits=5,decimal_places=2)
     score = models.IntegerField(editable=True,default=0)
     score_time = models.DateTimeField(null=True,blank=True,editable=True)
     comment = models.TextField(max_length=500,null=True,blank=True)
     times = models.IntegerField(default=0)#how many times stu do this exp
-    situation = models.CharField(max_length=10,default='Undo')
-    finishedTime = models.DateTimeField(null=True,blank=True,editable=True)
+    situation = models.CharField(max_length=10,default='undo')#['undo','doing','done','scored']
+
     result = models.CharField(max_length=500,null=True,blank=True)
     result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
     reportUrl = models.URLField(null=True,blank=True)

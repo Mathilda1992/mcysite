@@ -177,12 +177,37 @@ def delivery_list_by_student():
 
 
 #----------teaching situation operation------------#
-def teach_situation_list(request):
+def teach_situation_detail_by_scoreID(request,score_id):
     pass
 
 
-def teach_situation_detail(request,d_id):
-    pass
+
+def teach_situation_detail_by_delivery(request,d_id):
+    request.session['delivery_id'] = d_id
+    print "************set session******"
+    try:
+        d = Delivery.objects.get(id = d_id)
+    except Delivery.DoesNotExist:
+        raise Http404
+    # get data from delivery db
+    t = d.teacher
+    g = d.group
+    print g.name
+    e = d.exp
+    stu_list = g.student.all()
+
+    list =[]
+    for stu in stu_list:
+        #get data from score db
+        score = Score.objects.get(stu=stu,exp=e,scorer=t)
+
+        list.append(score)
+    context={}
+    context['Delivery'] = d
+    context['ScoreList'] = list
+
+    return render(request,'teach_situation_detail_by_delivery.html',context)
+
 
 
 #-----score how this stu do this exp
@@ -207,7 +232,7 @@ def teach_result_score(request,score_id):
             comment = sf.cleaned_data['comment']
 
             #update into db
-            re = Score.objects.filter(id=score_id).update(score=score,comment=comment,score_time = datetime.datetime.now())
+            re = Score.objects.filter(id=score_id).update(situation='scored',score=score,comment=comment,score_time = datetime.datetime.now())
             if re:
                 print "Score Success!"
                 print Score.objects.get(id=score_id).result_exp_id
@@ -285,10 +310,41 @@ def teach_score_list_by_exp(request,exp_id):
     pass
 
 
+def teach_score_list_by_stu(request,stu_id):
+    username = request.session['username']
+    role = request.session['role']
+    d_id = request.session['delivery_id']
+    t = User.objects.get(username=username)
+    s = Student.objects.get(id= stu_id)
+    if role == 'teacher':
+        scores = Score.objects.filter(stu=s,situation="scored",scorer=t)
+    else:
+        scores = Score.objects.filter(stu = s,situation="scored")
+    #get the average score
+
+    total_score=0
+    for item in scores:
+        total_score+=item.score
+
+    context={}
+    context['student']=s
+    context['score_count']=len(scores)
+    context['total_score']=total_score
+    context['ave_score']=total_score/len(scores)
+    context['ScoreList']=scores
+    context['delivery_id']=d_id
+    print "************get session******"
+    print scores
+    return render(request,'teach_score_list_by_stu.html',context)
+
+
+
 def teach_score_list_by_delivery(request,d_id):
     pass
     #list group score for the exp, list scores of all stus in this group
 
+def teach_score_list_by_scoreID(request,score_id):
+    pass
 
 #***********************************************************************#
 #                 repo management operate function                     #
