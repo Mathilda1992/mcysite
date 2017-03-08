@@ -236,7 +236,6 @@ def delivery_create(request):
                                  start_time=startDateTime,stop_time=endDateTime,
                                  exp=elist[i],group=glist[j],total_stu=len(stulist))
                     d.save()
-
             #insert into db:score
             d_List = Delivery.objects.filter(name=name,teacher=teacher)
             for i in range(0,len(d_List)):
@@ -321,8 +320,6 @@ def teach_result_score(request,score_id):
     else:
         sf = ScoreForm()
     return render_to_response("teach_result_score.html", {'sf': rf})
-
-
 
 
 
@@ -1033,11 +1030,13 @@ def network_create(request):
 #     c = Context({'expList':expList})
 #     return render_to_response('image_list.html',c)
 
-def exp_filter_by_user(request):
-    currentuser = 'teacher2'
-    elist = experiment_operation.filter_experiment_by_user(currentuser)
-    c = Context({'expList': elist})
-    return render_to_response('image_list.html', c)
+
+#only role = stu has this function
+def exp_list_by_stu(request):
+    username = request.session['username']
+    role = request.session['role']
+    pass
+
 
 
 
@@ -1085,12 +1084,75 @@ def exp_edit(request,exp_id):
 
 #only role = teacher has this function
 def exp_share(request,exp_id):
-    pass
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+    #update the is_shared field in Experiment db
+    re = Experiment.objects.filter(id=exp_id).update(is_shared=True,shared_time=datetime.datetime.now())
+    print type(re)
+    c={}
+    c['update_result']=re
+    return render(request,'exp_share.html',c)
 
 
 #only role = teacher has this function
 def exp_delivery(request,exp_id):
-    pass
+    username = request.session['username']
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+
+    if request.method == 'POST':
+        rf = ExpDeliveryForm(request.POST)
+        if rf.is_valid():
+            # get data from the form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            group_idList = rf.cleaned_data['group']
+            startDateTime = rf.cleaned_data['startDateTime']
+            endDateTime = rf.cleaned_data['endDateTime']
+            # prepare other required data
+            teacher = User.objects.get(username=username)
+            delivery_time = datetime.datetime.now()
+
+            glist = []
+            for i in range(0, len(group_idList)):
+                g = Group.objects.get(id=group_idList[i])
+                glist.append(g)
+            # insert into db:delivery
+            for j in range(0, len(glist)):
+                stulist = glist[j].student.all()
+                d = Delivery(name=name, desc=desc, delivery_time=delivery_time, teacher=teacher,
+                             start_time=startDateTime, stop_time=endDateTime,
+                             exp=e, group=glist[j], total_stu=len(stulist))
+                d.save()
+                #send email to info stu
+
+            # insert into db:score
+            d_List = Delivery.objects.filter(name=name, teacher=teacher)
+            for i in range(0, len(d_List)):
+                stulist = d_List[i].group.student.all()
+                for j in range(0, len(stulist)):  # insert a record into score db for every stu
+                    new_score = Score(exp=d_List[i].exp, stu=stulist[j], scorer=teacher, delivery_id=d_List[i].id)
+                    new_score.save()
+        return HttpResponseRedirect('/exp_home/')
+    else:
+        rf = ExpDeliveryForm()
+    return render_to_response("exp_delivery.html", {'rf': rf})
+
+
+def delivery(request):
+    #Get the experiment to be delivery
+    #Get the student list to delivery
+    stu_List=[]
+    stu_List = list_stu()
+    stu_email_List=['machenyi2011@163.com','ken911121@126.com']
+    #Insert a record into db:Delivery
+    #After Delivery,system should notify students by email
+    send_mail('Subject here', 'Here is the message', 'machenyi2011@163.com', stu_email_List, fail_silently=False)
+    return HttpResponse('Delivery Success!')
 
 
 #only role = teacher has this function
@@ -1138,7 +1200,10 @@ def exp_pause(request,exp_id):
 
 
 #teacher and student both have
-def exp_end(request,exp_id):
+def exp_save(request,exp_id):
+    pass
+
+def exp_resume(request,exp_id):
     pass
 
 #teacher and student both have
@@ -1314,23 +1379,6 @@ def upload_imageFile():
 #***********************************************************************#
 
 
-def delivery(request):
-    #Get the experiment to be delivery
-
-
-    #Get the student list to delivery
-    stu_List=[]
-    stu_List = list_stu()
-    stu_email_List=['machenyi2011@163.com','ken911121@126.com']
-
-
-    #Insert a record into db:Delivery
-
-
-    #After Delivery,system should notify students by email
-    send_mail('Subject here', 'Here is the message', 'machenyi2011@163.com', stu_email_List, fail_silently=False)
-
-    return HttpResponse('Delivery Success!')
 
 
 # **********************************************************************#

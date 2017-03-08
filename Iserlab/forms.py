@@ -53,6 +53,12 @@ class AddExpForm(forms.Form):
                             widget=forms.ClearableFileInput(),
                             )
 
+class EditExpForm(forms.Form):
+    pass
+
+class SubmitExpForm(forms.Form):
+    pass
+
 
 
 class UploadImageForm(forms.Form):
@@ -109,7 +115,7 @@ GROUP_CHECKBOX_CHOICES=(
 )
 
 class AddDeliveryForm(forms.Form):
-    name = forms.CharField(label='Name',
+    name = forms.CharField(label='Delivery Name',
                            max_length=50,
                            error_messages={'required': 'The delivery can not be null!','max_length':'The delivery name is too long'})
     desc = forms.CharField(label='Description', max_length=500,
@@ -132,7 +138,7 @@ class AddDeliveryForm(forms.Form):
                                   )
 
 class EditDeliveryForm(forms.Form):
-    name = forms.CharField(label='Name',
+    name = forms.CharField(label='Delivery Name',
                            max_length=50,
                            error_messages={'required': 'The delivery can not be null!',
                                            'max_length': 'The delivery name is too long'})
@@ -153,4 +159,24 @@ class EditDeliveryForm(forms.Form):
                                   )
 
 
+class ExpDeliveryForm(forms.Form):
+    name = forms.CharField(label='Delivery Name',
+                           max_length=50,
+                           error_messages={'required': 'The delivery can not be null!',
+                                           'max_length': 'The delivery name is too long'})
+    desc = forms.CharField(label='Description', max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
+                           initial="Replace with your description",
+                           error_messages={'max_length': 'The description is too long'})
+
+    group = forms.MultipleChoiceField(label="Select Group",
+                                      widget=forms.CheckboxSelectMultiple,
+                                      choices=GROUP_CHECKBOX_CHOICES, )
+    startDateTime = forms.DateField(label='Starttime',
+                                    widget=forms.SelectDateWidget,
+                                    )
+    endDateTime = forms.DateField(label='Endtime',
+                                  widget=forms.SelectDateWidget,
+                                  )
 

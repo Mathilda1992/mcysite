@@ -57,13 +57,6 @@ class RegisterForm(forms.Form):
                              widget=forms.RadioSelect(),
                              error_messages={'required': 'The role must be chosen!'})
     #----test use----
-    cources = forms.MultipleChoiceField(label="Cources",
-                                        choices=(('1','Math'),('2','Chinese'),('3','English')),
-                                        )
-
-
-
-
 
     def clean(self):
         cleaned_data = super(RegisterForm,self).clean()

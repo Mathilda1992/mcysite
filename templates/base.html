@@ -30,14 +30,24 @@
     <h2>{{ conn_result }}</h2>
     <h2>{{ message2 }}</h2>
 </div>
-<div>
-    <ul>
-        <li><a href="/stu_home/" >学员管理</a></li>
-        <li><a href="/exp_home/" >实验管理</a></li>
-        <li><a href="/repo_home/" >资源库</a></li>
-        <li><a href="/teach_home/" >教学统计中心</a></li>
-    </ul>
+{% ifequal role 'teacher' %}
+    <div>
+        <ul>
+            <li><a href="/stu_home/" >学员管理</a></li>
+            <li><a href="/exp_home/" >实验管理</a></li>
+            <li><a href="/repo_home/" >资源库</a></li>
+            <li><a href="/teach_home/" >教学统计中心</a></li>
+        </ul>
+    </div>
+{% else %}
+    <div>
+        <ul>
+            <li><a href="/exp_home/" >实验管理</a></li>
+            <li><a href="/teach_home/" >成绩统计</a></li>
+        </ul>
 </div>
+{% endifequal %}
+
 
 
 

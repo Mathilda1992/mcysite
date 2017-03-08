@@ -179,3 +179,4 @@ def group_view(request,group_id):
     c['G_Detail_Dict']=G_Detail_Dict
     return render(request,'group_detail.html',c)
 
+
