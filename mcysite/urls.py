@@ -123,7 +123,7 @@ urlpatterns = [
     url(r'^teach_score_list_by_expID(\d+)/$', teach_score_list_by_expID, name='teach_score_list_by_expID'),
     url(r'^teach_score_list_by_scoreID(\d+)/$',teach_score_list_by_scoreID,name='teach_score_list_by_scoreID'),
     url(r'^teach_result_score(\d+)/$',teach_result_score,name='teach_result_score'),
-    url(r'^teach_result_report_download(\d+)/$',teach_result_report_download,name='teach_result_report_download'),
+    # url(r'^teach_result_report_download(\d+)/$',teach_result_report_download,name='teach_result_report_download'),
 
     #delivery operate
     url(r'^delivery_list/$',delivery_list,name='delivery_list'),

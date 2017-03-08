@@ -142,13 +142,6 @@ def delivery_list(request):
     context['DeliveryList'] = DeliveryList
     return render(request, 'delivery_list.html', context)
 
-def delivery_detail(request,d_id):
-    pass
-
-
-def delivery_edit(request,d_id):
-    pass
-
 
 def delivery_delete(request,d_id):
     try:
@@ -161,11 +154,100 @@ def delivery_delete(request,d_id):
     return HttpResponseRedirect('/teach_home/')
 
 
+def delivery_detail(request,d_id):
+    try:
+        d = Delivery.objects.get(id =d_id)
+    except Delivery.DoesNotExist:
+        raise Http404
+    #get delivery detail from db
+    context = {}
+    s_list = d.group.student.all()
+    D_detial_dict = {'id':d_id,'name':d.name,'desc':d.desc,'exp':d.exp,'teacher':d.teacher,'group':d.group,'stulist':s_list,
+                     'delivery_time':d.delivery_time,'start_time':d.start_time,'stop_time':d.stop_time,'total_stu':len(s_list),
+                     }
+    context['D_detail_dict']=D_detial_dict
+    return render(request,'delivery_detail.html',context)
 
+
+def delivery_edit(request,d_id):
+    try:
+        d = Delivery.objects.get(id=d_id)
+    except Delivery.DoesNotExist:
+        raise Http404
+    #initial the form
+    attrs = {}
+    attrs['name']=d.name
+    attrs['desc']=d.desc
+    attrs['exp']=d.exp.exp_name
+    attrs['group']=d.group.name
+    attrs['startDateTime']=d.start_time
+    attrs['endDateTime']=d.stop_time
+    gf = EditDeliveryForm(initial=attrs)
+
+    #edit and update the delivery
+    if request.method == 'POST':
+        rf = EditDeliveryForm(request.POST)
+        if rf.is_valid():
+            #get data from form
+            update_name = rf.cleaned_data['name']
+            update_desc = rf.cleaned_data['desc']
+            update_startDateTime = rf.cleaned_data['startDateTime']
+            update_endDateTime = rf.cleaned_data['endDateTime']
+            #update in db
+            re = Delivery.objects.filter(id=d_id).update(name=update_name,desc=update_desc,start_time=update_startDateTime,
+                                                         stop_time=update_endDateTime,update_time = datetime.datetime.now())
+            update_d = Delivery.objects.get(id=d_id)
+            return HttpResponseRedirect('/delivery_list/')
+    else:
+        rf = AddDeliveryForm()
+    return render_to_response("delivery_edit.html",{'rf':gf})
+
+
+#pay attention to multi exps to multi group
 def delivery_create(request):
-    pass
-    #pay attention to multi exps to multi group
+    username = request.session['username']
+    if request.method =='POST':
+        rf = AddDeliveryForm(request.POST)
+        if rf.is_valid():
+            #get data from the form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            exp_idList = rf.cleaned_data['exp']
+            group_idList = rf.cleaned_data['group']
+            startDateTime = rf.cleaned_data['startDateTime']
+            endDateTime = rf.cleaned_data['endDateTime']
+            #prepare other required data
+            teacher = User.objects.get(username=username)
+            delivery_time = datetime.datetime.now()
 
+            elist = []
+            glist = []
+            for i in range(0,len(exp_idList)):
+                e = Experiment.objects.get(id=exp_idList[i])
+                elist.append(e)
+            for i in range(0,len(group_idList)):
+                g = Group.objects.get(id = group_idList[i])
+                glist.append(g)
+            # insert into db:delivery
+            for i in range(0,len(elist)):
+                for j in range(0,len(glist)):
+                    stulist = glist[j].student.all()
+                    d = Delivery(name=name,desc=desc,delivery_time=delivery_time,teacher=teacher,
+                                 start_time=startDateTime,stop_time=endDateTime,
+                                 exp=elist[i],group=glist[j],total_stu=len(stulist))
+                    d.save()
+
+            #insert into db:score
+            d_List = Delivery.objects.filter(name=name,teacher=teacher)
+            for i in range(0,len(d_List)):
+                stulist = d_List[i].group.student.all()
+                for j in range(0,len(stulist)):#insert a record into score db for every stu
+                    new_score = Score(exp=d_List[i].exp,stu=stulist[j],scorer= teacher,delivery_id=d_List[i].id)
+                    new_score.save()
+        return HttpResponseRedirect('/teach_home/')
+    else:
+        rf = AddDeliveryForm()
+    return render_to_response("delivery_create.html",{'rf':rf})
 
 
 def delivery_list_by_teacher():
@@ -199,7 +281,7 @@ def teach_situation_detail_by_delivery(request,d_id):
     list =[]
     for stu in stu_list:
         #get data from score db
-        score = Score.objects.get(stu=stu,exp=e,scorer=t)
+        score = Score.objects.get(stu=stu,exp=e,scorer=t,delivery_id=d_id)
 
         list.append(score)
     context={}
@@ -231,7 +313,7 @@ def teach_result_score(request,score_id):
             comment = sf.cleaned_data['comment']
 
             #update into db
-            re = Score.objects.filter(id=score_id).update(situation='scored',score=score,comment=comment,score_time = datetime.datetime.now())
+            re = Score.objects.filter(id=score_id).update(situation='scored',score=score,comment=comment,scoreTime = datetime.datetime.now())
             if re:
                 print "Score Success!"
                 print Score.objects.get(id=score_id).result_exp_id
@@ -336,19 +418,21 @@ def teach_score_list_by_expID(request,exp_id):
     t =User.objects.get(username=username)
     e = Experiment.objects.get(id=exp_id)
     scores = Score.objects.filter(exp=e,situation="scored",scorer=t).order_by('-score')
+    if len(scores):
     #get the ave score for the exp
-    total_score = 0
-    for item in scores:
-        total_score+=item.score
-    context = {}
-    context['exp'] = e
-    context['score_count'] = len(scores)
-    context['total_score'] = total_score
-    context['ave_score'] = float(total_score) / len(scores)
-    context['ScoreList'] = scores
-    render(request,'teach_score_list_by_expID.html',context)
-    return render(request,'teach_score_list_by_expID.html',context)
-
+        total_score = 0
+        for item in scores:
+            total_score+=item.score
+        context = {}
+        context['exp'] = e
+        context['score_count'] = len(scores)
+        context['total_score'] = total_score
+        context['ave_score'] = float(total_score) / len(scores)
+        context['ScoreList'] = scores
+        render(request,'teach_score_list_by_expID.html',context)
+        return render(request,'teach_score_list_by_expID.html',context)
+    else:
+        return HttpResponseRedirect('/teach_score_list/')
 
 #teacher and student diff
 def teach_score_list_by_stuID(request,stu_id):
@@ -360,19 +444,20 @@ def teach_score_list_by_stuID(request,stu_id):
         scores = Score.objects.filter(stu=s,situation="scored",scorer=t).order_by('-finishedTime')
     else:
         scores = Score.objects.filter(stu = s,situation="scored").order_by('-finishedTime')
-    #get the average score for the stu
-    total_score=0
-    for item in scores:
-        total_score+=item.score
-    context={}
-    context['student']=s
-    context['score_count']=len(scores)
-    context['total_score']=total_score
-    context['ave_score']=float(total_score)/len(scores)
-    context['ScoreList']=scores
-
-    return render(request,'teach_score_list_by_stuID.html',context)
-
+    if len(scores):
+        #get the average score for the stu
+        total_score=0
+        for item in scores:
+            total_score+=item.score
+        context={}
+        context['student']=s
+        context['score_count']=len(scores)
+        context['total_score']=total_score
+        context['ave_score']=float(total_score)/len(scores)
+        context['ScoreList']=scores
+        return render(request,'teach_score_list_by_stuID.html',context)
+    else:
+        return HttpResponseRedirect('/teach_score_list/')
 
 #list scores of all stus in this delivery
 def teach_score_list_by_deliveryID(request,d_id):
@@ -380,19 +465,21 @@ def teach_score_list_by_deliveryID(request,d_id):
     t = User.objects.get(username=username)
     d = Delivery.objects.get(id=d_id)
     scores = Score.objects.filter(delivery_id=d_id,situation="scored",scorer=t).order_by('-score')
-    # get the average score
-    total_score = 0
-    for item in scores:
-        total_score += item.score
-    context = {}
-    context['exp'] = d.exp
-    context['score_count'] = len(scores)
-    context['total_score'] = total_score
-    context['ave_score'] = float(total_score) / len(scores)
-    context['ScoreList'] = scores
-    context['delivery_id'] = d_id
-    return render(request,'teach_score_list_by_deliveryID.html',context)
-
+    if len(scores):
+        # get the average score
+        total_score = 0
+        for item in scores:
+            total_score += item.score
+        context = {}
+        context['exp'] = d.exp
+        context['score_count'] = len(scores)
+        context['total_score'] = total_score
+        context['ave_score'] = float(total_score) / len(scores)
+        context['ScoreList'] = scores
+        context['delivery_id'] = d_id
+        return render(request,'teach_score_list_by_deliveryID.html',context)
+    else:
+        return HttpResponseRedirect('/teach_home/')
 
 def teach_score_list_by_scoreID(request,score_id):
     pass
@@ -595,8 +682,10 @@ def group_create(request):
 
 
 def group_edit(request,group_id):
-    g = Group.objects.get(id=group_id)
-    print g
+    try:
+        g = Group.objects.get(id=group_id)
+    except Group.DoesNotExist:
+        raise Http404
     s_list = g.student.all()
     s_name_list = []
     for item in s_list:
@@ -611,7 +700,6 @@ def group_edit(request,group_id):
 
     #edit and update the group
     username = request.session['username']
-    print request.method
     if request.method == 'POST':
         rf = AddGroupForm(request.POST)
         if rf.is_valid():
@@ -908,8 +996,6 @@ def VM_create(request):
 
 
 
-
-
 def image_create(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     #Get the uploaded image file name
@@ -918,10 +1004,8 @@ def image_create(request):
     # List current image list
     ImageList = image_resource_operation.list_images(conn)
 
-
     c = Context({'ImageList': ImageList})
     return render(request, 'image_list.html', c)
-
 
 
 
@@ -941,11 +1025,9 @@ def network_create(request):
 
 
 
-
 #***********************************************************************#
 #                          system exp  operate function         #
 #***********************************************************************#
-
 # def exp_list(request):
 #     expList = experiment_operation.list_experiment()
 #     c = Context({'expList':expList})
@@ -1018,11 +1100,9 @@ def exp_delete(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
-
     result = Experiment.objects.filter(id=exp_id).delete()
     if result:
         print "delete exp success!"
-
     return HttpResponseRedirect('/exp_home/')
 
 
@@ -1082,8 +1162,6 @@ def exp_vm_launch(request):
     pass
 
 
-
-
 #***********************************************************************#
 #                  Teacher add student user                             #
 #***********************************************************************#
@@ -1098,7 +1176,6 @@ def get_stu():
     stu_List=[]
     #db operation: get stu name list from db
     #--------------------------
-
     return stu_List
 
 def add_stu(request):
@@ -1109,17 +1186,9 @@ def add_stu(request):
     create_stu(username,password,email)
     stu_List=[]
     stu_List=get_stu()
-
     #show the stuList in html page
     #----------------------
-
     return HttpResponse('Add Student Successfully!')
-
-
-
-
-
-
 
 
 #***********************************************************************#

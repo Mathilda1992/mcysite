@@ -303,8 +303,9 @@ class Delivery(models.Model):
     teacher = models.ForeignKey(User)
     group = models.ForeignKey(Group)
     delivery_time = models.DateTimeField(auto_now_add = True,editable = True)
-    start_time = models.DateTimeField(editable = True,null=True,blank=True)#set when student can start the expriment
-    stop_time = models.DateTimeField(editable = True,null=True,blank=True)  # set when student should finish the expriment
+    update_time = models.DateTimeField(auto_now =True,blank=True,null=True,editable=True)
+    start_time = models.DateField(editable = True,null=True,blank=True)#set when student can start the expriment
+    stop_time = models.DateField(editable = True,null=True,blank=True)  # set when student should finish the expriment
     total_stu = models.IntegerField(default=0)
     undo_count = models.IntegerField(default=0)
     doing_count = models.IntegerField(default=0)
@@ -334,7 +335,6 @@ class Score(models.Model):
     comment = models.TextField(max_length=500,null=True,blank=True)
     times = models.IntegerField(default=0)#how many times stu do this exp
     situation = models.CharField(max_length=10,default='undo')#['undo','doing','done','scored','paused']
-
     result = models.CharField(max_length=500,null=True,blank=True)
     result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
     reportUrl = models.URLField(null=True,blank=True)

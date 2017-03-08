@@ -105,7 +105,7 @@ GROUP_CHECKBOX_CHOICES=(
     ('17','class111qqqqq0000'),
     ('15','group4'),
     ('13','group3'),
-
+    ('1','group1'),
 )
 
 class AddDeliveryForm(forms.Form):
@@ -124,14 +124,33 @@ class AddDeliveryForm(forms.Form):
                                       widget=forms.CheckboxSelectMultiple,
                                       choices=GROUP_CHECKBOX_CHOICES,)
     startDateTime = forms.DateField(label='Starttime',
-                                    widget=forms.DateInput(),
+                                    widget=forms.SelectDateWidget,
                                     initial=datetime.datetime.now())
     endDateTime = forms.DateField(label='Endtime',
-                                  widget=forms.DateInput(),
+                                  widget=forms.SelectDateWidget,
                                   initial=datetime.datetime.now()
                                   )
 
-
+class EditDeliveryForm(forms.Form):
+    name = forms.CharField(label='Name',
+                           max_length=50,
+                           error_messages={'required': 'The delivery can not be null!',
+                                           'max_length': 'The delivery name is too long'})
+    desc = forms.CharField(label='Description', max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
+                           initial="Replace with your description",
+                           error_messages={'max_length': 'The description is too long'})
+    exp = forms.CharField(label='Experiment',max_length=150,
+                          widget=forms.TextInput(attrs={'readonly':'readonly'}),)
+    group = forms.CharField(label='Group',max_length=50,
+                            widget=forms.TextInput(attrs={'readonly': 'readonly'}),)
+    startDateTime = forms.DateField(label='Starttime',
+                                    widget=forms.SelectDateWidget,
+                                    )
+    endDateTime = forms.DateField(label='Endtime',
+                                  widget=forms.SelectDateWidget,
+                                  )
 
 
 
