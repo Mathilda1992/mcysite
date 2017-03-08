@@ -5,18 +5,19 @@
     <title>Score list by student</title>
 </head>
 <body>
+<p>出现当前用户所有学生的平均成绩，可以点进去查看某个学生的所有实验成绩。</p>
     <div class="header">
-        <h1 align="center">Show all exp scores for student:{{ student.stu_username }}<a href="{% url 'teach_situation_detail_by_delivery' delivery_id %}">返回</a></h1>
-        <h3 align="center">实验数目：{{ score_count }}~总成绩：{{ total_score }}~平均成绩{{ ave_score }}</h3>
+        <h1 align="center">按学生查看成绩统计|<a href="/teach_score_list/" >返回</a></h1>
+
     </div>
 
-    {% for item in ScoreList %}
+    {% for item in StuScoreList %}
         <div align="center" class="blog">
 
             <div class="info">
-                <span class="catagory" style="color: #ff9900;">实验名称：{{ item.exp.exp_name }}</span>
-                <span class="author" style="color: #4a86e8;">评分人：{{ item.scorer.username }}</span>
-                <span class="created" style="color: #6aa84e;">分数：{{ item.score }}</span>
+                <span class="catagory" style="color: #ff9900;">学生：<a href="{% url 'teach_score_list_by_stuID' item.stu.id %}">{{ item.stu.stu_username }}</a></span>
+                <span class="author" style="color: #4a86e8;">实验数目：{{ item.exp_count }}</span>
+                <span class="created" style="color: #6aa84e;">平均成绩：{{ item.ave }}</span>
             </div>
         </div>
     {% endfor %}

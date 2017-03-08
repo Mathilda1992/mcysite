@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Score list by student</title>
+</head>
+<body>
+    <div class="header">
+        <h1 align="center">显示实验:{{ exp.exp_name }}成绩统计</h1>
+        <h3 align="center">实验总人数：{{ score_count }}~总成绩：{{ total_score }}~平均成绩{{ ave_score }}</h3>
+    </div>
+
+    {% for item in ScoreList %}
+        <div align="center" class="blog">
+
+            <div class="info">
+                <span class="catagory" style="color: #ff9900;">实验学生：{{ item.stu.stu_username }}</span>
+                <span class="author" style="color: #4a86e8;">分数：{{ item.score }}</span>
+                <span class="created" style="color: #6aa84e;">完成时间：{{ item.finishedTime|date:"Y-m-d H:i" }}</span>
+            </div>
+        </div>
+    {% endfor %}
+</body>
+</html>

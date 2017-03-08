@@ -325,15 +325,15 @@ class Score(models.Model):
     exp = models.ForeignKey(Experiment)
     stu = models.ForeignKey(Student)
     scorer = models.ForeignKey(User)
-
+    delivery_id = models.IntegerField(null=True,blank=True)
     createTime = models.DateTimeField(auto_now_add=True, editable=True)
+    startTime = models.DateTimeField(null=True,blank=True,editable=True)
     finishedTime = models.DateTimeField(null=True,blank=True,editable=True)
-    # score = models.DecimalField(editable=True,null=True,blank=True,max_digits=5,decimal_places=2)
     score = models.IntegerField(editable=True,default=0)
-    score_time = models.DateTimeField(null=True,blank=True,editable=True)
+    scoreTime = models.DateTimeField(null=True,blank=True,editable=True)
     comment = models.TextField(max_length=500,null=True,blank=True)
     times = models.IntegerField(default=0)#how many times stu do this exp
-    situation = models.CharField(max_length=10,default='undo')#['undo','doing','done','scored']
+    situation = models.CharField(max_length=10,default='undo')#['undo','doing','done','scored','paused']
 
     result = models.CharField(max_length=500,null=True,blank=True)
     result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)

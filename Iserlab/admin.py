@@ -49,7 +49,7 @@ class DeliveryAdmin(admin.ModelAdmin):
     list_filter = ('teacher','group','exp',)
 
 class SocreAdmin(admin.ModelAdmin):
-    list_display = ('id','exp','stu','createTime','situation','finishedTime','score','score_time')
+    list_display = ('id','exp','stu','createTime','situation','finishedTime','score','scoreTime')
 
 #
 

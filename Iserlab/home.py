@@ -177,7 +177,7 @@ def delivery_list_by_student():
 
 
 #----------teaching situation operation------------#
-def teach_situation_detail_by_scoreID(request,score_id):
+def teach_situation_detail_by_scoreID(request,score_id):#??????
     pass
 
 
@@ -224,7 +224,6 @@ def teach_result_score(request,score_id):
     username = request.session['username']
     print request.method
     if request.method == 'POST':
-        print "&&&&&&&&&&&&&&&&&&&&&&&&&&&"
         sf = ScoreForm(request.POST)
         #get data from form
         if sf.is_valid():
@@ -237,10 +236,10 @@ def teach_result_score(request,score_id):
                 print "Score Success!"
                 print Score.objects.get(id=score_id).result_exp_id
             return HttpResponseRedirect('/teach_result_list/')
-
     else:
         sf = ScoreForm()
     return render_to_response("teach_result_score.html", {'sf': rf})
+
 
 
 
@@ -250,98 +249,150 @@ def teach_result_report_download(request,score_id):
 
 
 
-#----list all done result of this delivery
-def teach_result_list_by_delivery(request,d_id):
-    pass
 
-
-#---list all exp results-----from score db
+#---list all exp results(situation=done)-----from score db
 def teach_result_list(request):
     username = request.session['username']
     current_teacher = User.objects.get(username=username)
     ResultList = Score.objects.filter(scorer=current_teacher,situation='Done',result_exp_id__isnull=False).order_by('-finishedTime')
     context = {}
     context['ResultList'] = ResultList
-
-    for item in ResultList:
-        print item.result_exp_id
     return render(request, 'teach_result_list.html', context)
 
 
 
-
+#equal to teach_score_list_by_exp
 def teach_score_list(request):
     #default show scores by exp(distinct)
     username = request.session['username']
     t = User.objects.get(username=username)
-    ScoreList = Score.objects.filter(scorer=t,situation='Done',score__gt=0).distinct()
-    context = {}
+    ScoreList = Score.objects.filter(scorer=t,situation='Scored')
+    #get distinct exp name
+    eIdList = []
+    for item in ScoreList:
+        eIdList.append(item.exp.id)
+    distinct_eIDList = list(set(eIdList))
 
     ExpScoreList=[]
-
-    #get average score for every exp,get stu list for every exp
-
-    for item in ScoreList:
-        e = Experiment.objects.get(id=item.exp.id)
-
-        a_list = Score.objects.filter(scorer=t,exp=e).order_by('-score_time')
+    #get average score for every exp,get stu list for specific exp
+    for i in distinct_eIDList:
+        e = Experiment.objects.get(id=i)
+        a_list = Score.objects.filter(scorer=t,exp=e,situation="scored").order_by('-scoreTime')
         e_totalscore = 0
         e_stulist = []
-
         for i in a_list:
             e_totalscore = e_totalscore + i.score
             e_stulist.append(i.stu)
-
-        avescore = e_totalscore/len(a_list)
+        avescore = float(e_totalscore)/len(a_list)
 
         ExpScoreDict = {}
         ExpScoreDict['exp']= e
         ExpScoreDict['ave']=avescore
         ExpScoreDict['members']=len(e_stulist)
         ExpScoreDict['stulist']=e_stulist
-
         ExpScoreList.append(ExpScoreDict)
-
+    context = {}
     context['ExpScoreList']=ExpScoreList
     return render(request,'teach_score_list.html',context)
 
 
-def teach_score_list_by_exp(request,exp_id):
-    pass
-
-
-def teach_score_list_by_stu(request,stu_id):
+#only role=teacher
+def teach_score_list_by_stu(request):
     username = request.session['username']
-    role = request.session['role']
-    d_id = request.session['delivery_id']
     t = User.objects.get(username=username)
-    s = Student.objects.get(id= stu_id)
-    if role == 'teacher':
-        scores = Score.objects.filter(stu=s,situation="scored",scorer=t)
-    else:
-        scores = Score.objects.filter(stu = s,situation="scored")
-    #get the average score
+    ScoreList = Score.objects.filter(scorer=t, situation='Scored')
+    #get distinct stu username
+    stuIdList=[]
+    for item in ScoreList:
+        stuIdList.append(item.stu.id)
+    distinct_stuIdList = list(set(stuIdList))
 
-    total_score=0
-    for item in scores:
-        total_score+=item.score
+    StuScoreList=[]
+    #get average score for every stu,get exp list for specific stu
+    for i in distinct_stuIdList:
+        stu = Student.objects.get(id = i)
+        a_list = Score.objects.filter(scorer=t,stu=stu,situation="scored").order_by('-scoreTime')
+        s_totalscore = 0
+        s_explist=[]
+        for i in a_list:
+            s_totalscore = s_totalscore+i.score
+            s_explist.append(i.exp)
+        avescore = float(s_totalscore)/len(a_list)
 
-    context={}
-    context['student']=s
-    context['score_count']=len(scores)
-    context['total_score']=total_score
-    context['ave_score']=total_score/len(scores)
-    context['ScoreList']=scores
-    context['delivery_id']=d_id
-    print "************get session******"
-    print scores
+        StuScoreDict={}
+        StuScoreDict['stu']=stu
+        StuScoreDict['ave']=avescore
+        StuScoreDict['exp_count']=len(s_explist)
+        StuScoreDict['explist']=s_explist
+        StuScoreList.append(StuScoreDict)
+    context = {}
+    context['StuScoreList']=StuScoreList
     return render(request,'teach_score_list_by_stu.html',context)
 
 
 
-def teach_score_list_by_delivery(request,d_id):
-    pass
-    #list group score for the exp, list scores of all stus in this group
+def teach_score_list_by_expID(request,exp_id):
+    username = request.session['username']
+    t =User.objects.get(username=username)
+    e = Experiment.objects.get(id=exp_id)
+    scores = Score.objects.filter(exp=e,situation="scored",scorer=t).order_by('-score')
+    #get the ave score for the exp
+    total_score = 0
+    for item in scores:
+        total_score+=item.score
+    context = {}
+    context['exp'] = e
+    context['score_count'] = len(scores)
+    context['total_score'] = total_score
+    context['ave_score'] = float(total_score) / len(scores)
+    context['ScoreList'] = scores
+    render(request,'teach_score_list_by_expID.html',context)
+    return render(request,'teach_score_list_by_expID.html',context)
+
+
+#teacher and student diff
+def teach_score_list_by_stuID(request,stu_id):
+    username = request.session['username']
+    role = request.session['role']
+    t = User.objects.get(username=username)
+    s = Student.objects.get(id= stu_id)
+    if role == 'teacher':
+        scores = Score.objects.filter(stu=s,situation="scored",scorer=t).order_by('-finishedTime')
+    else:
+        scores = Score.objects.filter(stu = s,situation="scored").order_by('-finishedTime')
+    #get the average score for the stu
+    total_score=0
+    for item in scores:
+        total_score+=item.score
+    context={}
+    context['student']=s
+    context['score_count']=len(scores)
+    context['total_score']=total_score
+    context['ave_score']=float(total_score)/len(scores)
+    context['ScoreList']=scores
+
+    return render(request,'teach_score_list_by_stuID.html',context)
+
+
+#list scores of all stus in this delivery
+def teach_score_list_by_deliveryID(request,d_id):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    d = Delivery.objects.get(id=d_id)
+    scores = Score.objects.filter(delivery_id=d_id,situation="scored",scorer=t).order_by('-score')
+    # get the average score
+    total_score = 0
+    for item in scores:
+        total_score += item.score
+    context = {}
+    context['exp'] = d.exp
+    context['score_count'] = len(scores)
+    context['total_score'] = total_score
+    context['ave_score'] = float(total_score) / len(scores)
+    context['ScoreList'] = scores
+    context['delivery_id'] = d_id
+    return render(request,'teach_score_list_by_deliveryID.html',context)
+
 
 def teach_score_list_by_scoreID(request,score_id):
     pass

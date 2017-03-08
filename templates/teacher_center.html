@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>这里是教学统计中心，教员可以查看学生实验情况，实验结果等功能，按照实验划分。默认展示已经分发的实验列表</p>
+    <p>这里是教学统计中心，教员可以进行查看学生实验情况，评价实验结果，查看成绩统计，集中进行实验分发管理等一系列与教学相关的业务操作。</p>
     <ul>
         <li><a href="/teach_home/" >实验进展情况</a></li>
-        <li><a href="/teach_result_list/">实验结果评价</a></li>
+        <li><a href="/teach_result_list/">评价实验结果</a></li>
         <li><a href="/teach_score_list/" >成绩统计</a></li>
         <li><a href="/delivery_list/" >分发历史记录</a></li>
         <li><a href="/delivery_create/" >新建分发任务</a></li>
@@ -20,25 +20,18 @@
                 <h2><a href="{% url 'exp_detail' item.exp.id %}">{{ item.exp.exp_name }}</a>~
                     <a href="{% url 'group_view' item.group.id %}">{{ item.group.name }}</a></h2>
                 <a href="{% url 'teach_situation_detail_by_delivery' item.id %}" >(本次分发)进展详情</a>|
-                <a href="{% url 'teach_result_list_by_delivery' item.id %}" >(本次分发)验收结果</a>|
-                <a href="{% url 'teach_score_list_by_delivery' item.id %}" >(本次分发)查看成绩</a>
+                <a href="{% url 'teach_score_list_by_deliveryID' item.id %}" >(本次分发)查看成绩</a>
 
 
             </div>
         <div class="info">
             <span class="catagory" style="color: #ff9900;">所属delivery：{{ item.id }}</span>
             <span class="catagory" style="color: #ff9900;">总人数：{{ item.total_stu }}人</span>
-            <span class="catagory" style="color: #ff9900;">未做：{{ item.undo_count }}人</span>
-            <span class="catagory" style="color: #ff9900;">正在做：{{ item.doing_count }}人</span>
-            <span class="catagory" style="color: #ff9900;">已完成：{{ item.done_count }}人</span>
-            <span class="author" style="color: #4a86e8;">平均时间：{{ item.average_time }}</span>
-            <span class="author" style="color: #4a86e8;">平均成绩：{{ item.average_score }}</span>
-
+            <span class="author" style="color: #4a86e8;">未做：{{ item.undo_count }}人</span>
+            <span class="author" style="color: #4a86e8;">正在做：{{ item.doing_count }}人</span>
+            <span class="author" style="color: #4a86e8;">已完成：{{ item.done_count }}人</span>
             <span class="created" style="color: #6aa84e;">开始时间：{{ item.start_time |date:"Y-m-d H:i" }}</span>
             <span class="created" style="color: #6aa84e;">结束时间：{{ item.stop_time |date:"Y-m-d H:i" }}</span>
-        </div>
-        <div class="summary">
-            {{ item.desc | truncatechars:100 }}
         </div>
         </div>
     {% endfor %}

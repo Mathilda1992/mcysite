@@ -112,13 +112,15 @@ urlpatterns = [
 
     #teaching statistic
     url(r'^teach_home/$',teach_home,name='teach_home'),
-    url(r'^teach_result_list/$',teach_result_list,name='teach_result_list'),
+    url(r'^teach_result_list/$',teach_result_list,name='teach_result_list'),#show all situation=done data from score db
     url(r'^teach_score_list/$', teach_score_list, name='teach_score_list'),
+    url(r'^teach_score_list_by_stu/$', teach_score_list_by_stu, name='teach_score_list_by_stu'),
     url(r'^teach_situation_detail_by_delivery(\d+)/$',teach_situation_detail_by_delivery,name='teach_situation_detail_by_delivery'),
     url(r'^teach_situation_detail_by_scoreID(\d+)/$',teach_situation_detail_by_scoreID,name='teach_situation_detail_by_scoreID'),
-    url(r'^teach_result_list_by_delivery(\d+)/$',teach_result_list_by_delivery,name='teach_result_list_by_delivery'),
-    url(r'^teach_score_list_by_delivery(\d+)/$',teach_score_list_by_delivery,name='teach_score_list_by_delivery'),
-    url(r'^teach_score_list_by_stu(\d+)/$', teach_score_list_by_stu, name='teach_score_list_by_stu'),
+    # url(r'^teach_result_list_by_delivery(\d+)/$',teach_result_list_by_delivery,name='teach_result_list_by_delivery'),
+    url(r'^teach_score_list_by_deliveryID(\d+)/$',teach_score_list_by_deliveryID,name='teach_score_list_by_deliveryID'),
+    url(r'^teach_score_list_by_stuID(\d+)/$', teach_score_list_by_stuID, name='teach_score_list_by_stuID'),
+    url(r'^teach_score_list_by_expID(\d+)/$', teach_score_list_by_expID, name='teach_score_list_by_expID'),
     url(r'^teach_score_list_by_scoreID(\d+)/$',teach_score_list_by_scoreID,name='teach_score_list_by_scoreID'),
     url(r'^teach_result_score(\d+)/$',teach_result_score,name='teach_result_score'),
     url(r'^teach_result_report_download(\d+)/$',teach_result_report_download,name='teach_result_report_download'),
