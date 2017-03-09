@@ -41,27 +41,35 @@ class AddExpForm(forms.Form):
     desc = forms.CharField(label='Description',
                            widget=forms.Textarea(),
                            required =False)
-    images = forms.MultipleChoiceField(label='Include Images',
+    images_idList = forms.MultipleChoiceField(label='Include Images',
                                        widget=forms.CheckboxSelectMultiple,
                                        choices=IMAGES_CHECKBOX_CHOICES,)
-    networks = forms.MultipleChoiceField(label='Use Networks',
+    networks_idList = forms.MultipleChoiceField(label='Use Networks',
                                          widget=forms.CheckboxSelectMultiple,
                                          choices=NETWORKS_CHECKBOX_CHOICES,)
-    shared = forms.BooleanField(label='Share to Public Repo',
-                                initial=False,)
-    guide = forms.FileField(label="Upload Guide",
-                            widget=forms.ClearableFileInput(),
-                            )
+    # shared = forms.BooleanField(label='Share to Public Repo',
+    #                             initial=False,)
+    # guide = forms.FileField(label="Upload Guide",
+    #                         widget=forms.ClearableFileInput(),
+    #                         )
+    guide = forms.CharField(label="Guide",
+                            widget=forms.Textarea(),
+                            required = False)
+    refer_result = forms.CharField(label="Refer Result",
+                                   widget=forms.Textarea(),
+                                   required=False,)
 
-class EditExpForm(forms.Form):
+
+class EditExpForm(forms.Form):# the same with AddExpForm
     pass
+
 
 class SubmitExpForm(forms.Form):
     pass
 
 
 
-class UploadImageForm(forms.Form):
+class CreateImageForm(forms.Form):
     name =forms.CharField(label='Image Name')
     desc = forms.CharField(label='Description', widget=forms.Textarea(), required=False)
     imageUrl = forms.URLField(label='Image Download URL',required=False,initial='http://')
@@ -111,7 +119,7 @@ GROUP_CHECKBOX_CHOICES=(
     ('17','class111qqqqq0000'),
     ('15','group4'),
     ('13','group3'),
-    ('1','group1'),
+    ('4','group1'),
 )
 
 class AddDeliveryForm(forms.Form):

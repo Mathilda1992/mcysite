@@ -180,3 +180,29 @@ def group_view(request,group_id):
     return render(request,'group_detail.html',c)
 
 
+def create_experiment(experiment_name,owner,imagelist,image_count,networklist,is_shared='False',description='description',guide='Please input exp guide here',result='Please input exp result here to refer',reportDIR='Please input report DIR here'):
+    print ("Create Experiment:")
+    #Insert a resocrd into db: experiment
+    e1 = Experiment(
+        exp_name=experiment_name,
+        # exp_owner = ownerlist[owner_index],
+        exp_owner = owner,
+        exp_image_count = image_count,
+        exp_description = description,
+        exp_guide = guide,
+        exp_result = result,
+        exp_reportDIR = reportDIR,
+        is_shared = is_shared
+    )
+    e1.save()
+
+    # for image_index in image_indexlist:
+    #     e1.exp_images.add(imagelist[i])
+    for image in imagelist:
+        e1.exp_images.add(image)
+    print "here is network@@@@@@@@"
+    print networklist
+    for network in networklist:
+        e1.exp_network.add(network)
+    print e1
+    return e1

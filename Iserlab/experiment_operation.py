@@ -67,10 +67,7 @@ def filter_experiment_by_shared():
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~View experiment template detail~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def view_experiment_detail(experiment_id):
-    print ("Find Experiment details:")
     e =  Experiment.objects.get(id = experiment_id)
-    print e
-
     #analyse the info into a dict
     edict={'id':experiment_id}
     ##edict={}.fromkeys('id','name','owner','imageCount','imagelist','network','is_shared','description')
@@ -95,7 +92,6 @@ def view_experiment_detail(experiment_id):
     # print edict
     # for key,value in edict.items():
     #     print 'key=%s,value=%s' % (key,value)
-
     return edict
 
 
@@ -134,7 +130,6 @@ def create_experiment(experiment_name,owner,imagelist,image_count,networklist,is
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Copy experiment template~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #when teacher directly use exp template in repo, it copy one
 def copy_experiment(experiment_id,current_username):
-    print ('Copy Experiment: ')
     #get source exp template from db
     source_e = Experiment.objects.get(id = experiment_id)
 
@@ -203,7 +198,6 @@ def delete_experiment(experiment_id):
     print ('Delete Experiment: ')
     e = Experiment.objects.get(id = experiment_id)
     e.delete()
-
     pass
 
 

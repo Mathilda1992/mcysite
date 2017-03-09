@@ -17,7 +17,7 @@
             <a href="#"><h2>{{ E_Detail_Dict.exp_name }}</h2></a>
         </div>
         <div>
-            <p>显示当前group详情
+            <p>显示当前Experiment详情
             <a href="{% url 'exp_edit' E_Detail_Dict.id %}" >编辑</a>|
             <a href="{% url 'exp_launch' E_Detail_Dict.id %}" >启动</a>|
             <a href="{% url 'exp_copy' E_Detail_Dict.id %}" >复制</a>|
@@ -38,11 +38,25 @@
             实验描述：{{ E_Detail_Dict.exp_description }}
         </div>
         <div class="summary">
-            实验包含镜像列表：{{ E_Detail_Dict.exp_images }}
+            实验包含镜像列表：
+            {% for item in E_Detail_Dict.exp_images %}
+                <ul>
+                <li><a href="">{{ item.name }}</a></li>
+                </ul>
+            {% endfor %}
+
         </div>
         <div class="summary">
-            实验包含网络：{{ E_Detail_Dict.exp_network }}
+            实验包含网络：
+            {% for item in E_Detail_Dict.exp_network %}
+                <ul>
+                <li>
+                    <a href="">{{ item.network_name }}</a>({{ item.cidr }})
+                </li>
+                </ul>
+            {% endfor %}
         </div>
+
         <div>
             <p>实验拓扑：</p>
         </div>

@@ -211,7 +211,7 @@ class Experiment(models.Model):
     exp_network = models.ManyToManyField(Network)
     exp_guide = models.TextField(null=True,blank = True)
     exp_result = models.CharField(max_length = 500,null=True,blank = True)
-    exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)
+    exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)#??
     # is_shared  = models.CharField(max_length=10,null=True,default='False')
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(null=True,blank=True,editable=True)

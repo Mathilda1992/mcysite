@@ -11,7 +11,7 @@ from django.http import Http404
 from django.core.mail import send_mail
 from django.core.mail import send_mass_mail
 
-import datetime
+import datetime,time
 
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
@@ -484,29 +484,73 @@ def teach_score_list_by_scoreID(request,score_id):
 #***********************************************************************#
 #                 repo management operate function                     #
 #***********************************************************************#
-def repo_public_image_list(request):
+
+def repo_image_detail(request,i_id):
     pass
 
 
-def repo_private_list(request):
+def repo_image_edit(request,i_id):
+    pass
+
+def repo_image_delete(request,i_id):
+    pass
+
+def repo_image_share(request,i_id):
+    pass
+
+def repo_network_detail(request,n_id):
+    pass
+
+def repo_network_edit(request,n_id):
+    pass
+
+def repo_network_delete(request,n_id):
+    pass
+
+
+#---------------------------------------------------#
+
+
+def repo_public_image_list(request):
+    PublicImageList = VMImage.objects.filter(is_shared=True).order_by("-shared_time")
+    context ={}
+    context['PublicImageList']=PublicImageList
+    return render(request,"repo_public_image_list.html",context)
+
+
+
+def repo_private_exp_list(request):
     username = request.session['username']
     teacher = User.objects.get(username=username)
     PrivateExpList = Experiment.objects.filter(exp_owner=teacher).order_by('-exp_createtime')
     context={}
     context['PrivateExpList'] = PrivateExpList
-    return render(request,"repo_private_list.html",context)
+    return render(request,"repo_private_exp_list.html",context)
+
 
 
 def repo_private_image_list(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    PrivateImageList = VMImage.objects.filter(owner=t).order_by('-created_at')
+    context = {}
+    context['PrivateImageList']=PrivateImageList
+    return render(request,"repo_private_image_list.html",context)
+
+
+def repo_private_network_list(request):
+    pass
+
+def repo_create_network(request):
     pass
 
 
-def repo_upload_image(request):
+def repo_create_image(request):
+
     if request.method == 'POST':
-        form = UploadImageForm(request.POST,request.FILES)
+        form = CreateImageForm(request.POST,request.FILES)
         if form.is_valid():
             repo_handle_upload_image()
-
     pass
 
 
@@ -515,7 +559,7 @@ def repo_handle_upload_image(f):
 
 
 
-#----test-------
+#----test----------------
 def upload_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -531,7 +575,7 @@ def handle_uploaded_file(f):
     with open('/home/mcy/upload/files/file_name.txt','wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
-#-----------------
+#--------------------------
 
 
 
@@ -1042,44 +1086,176 @@ def exp_list_by_stu(request):
 
 #only role = teacher has this function
 def exp_copy(request,exp_id):
-    #get input form user interface
-    input_exp_id = 1
-    current_username = 'teacher2'
-    e = experiment_operation.copy_experiment(input_exp_id,current_username)
-    return HttpResponse('copy an exp')
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+    imageList = e.exp_images.all()
+    networkList = e.exp_network.all()
+    images_idList=[]
+    networks_idList=[]
+    for item in imageList:
+        images_idList.append(item.id)
+    for item in networkList:
+        networks_idList.append(item.id)
+    #initial the form
+    attrs = {}
+    attrs['name']=e.exp_name + "_copy"
+    attrs['desc']=e.exp_description
+    attrs['images_idList']= images_idList
+    attrs['networks_idList']=networks_idList
+    attrs['guide']=e.exp_guide
+    attrs['refer_result']=e.exp_result
+    gf = AddExpForm(initial=attrs)
+
+    #insert a new record into db
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    if request.method == 'POST':
+        rf = AddExpForm(request.POST)
+        if rf.is_valid():
+            #get input data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            images_idList = rf.cleaned_data['images_idList']
+            networks_idList = rf.cleaned_data['networks_idList']
+            guide = rf.cleaned_data['guide']
+            refer_result=rf.cleaned_data['refer_result']
+            #get images
+            imageList=[]
+            for i in images_idList:
+                imageList.append(VMImage.objects.get(id=i))
+            networkList=[]
+            for i in networks_idList:
+                networkList.append(Network.objects.get(id=i))
+            #get networks
+
+            e = Experiment(exp_name=name,exp_description=desc,exp_owner=t,exp_image_count=len(imageList),
+                           exp_guide=guide,exp_result=refer_result)
+            e.save()
+            for item in imageList:
+                e.exp_images.add(item)
+            for item in networkList:
+                e.exp_network.add(item)
+
+            #refresh the exp list
+                return HttpResponseRedirect('/exp_home/')
+    else:
+        rf = AddExpForm()
+    return render_to_response("exp_copy.html",{'rf':gf})
+
 
 
 #only role = teacher has this function
 def exp_create(request):
-    #get paras from UI interface
-    exp_name = 'new_create_exp555'
-    owner_name = 'teacher1'
-    networkNameList = ['private_alice']
-    description = 'this is a copy one'
-    guide = 'hello'
-    result = 'hello'
-    reportDIR = 'hello'
-    imageNameList = ['cirros','cirros-111']
-    image_count = len(imageNameList)
-    is_shared = False
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    if request.method == 'POST':
+        rf = AddExpForm(request.POST)
+        if rf.is_valid():
+            #get input data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            images_idList = rf.cleaned_data['images_idList']
+            networks_idList = rf.cleaned_data['networks_idList']
+            guide = rf.cleaned_data['guide']
+            refer_result=rf.cleaned_data['refer_result']
+            #get images
+            imageList=[]
+            for i in images_idList:
+                imageList.append(VMImage.objects.get(id=i))
+            networkList=[]
+            for i in networks_idList:
+                networkList.append(Network.objects.get(id=i))
+            #get networks
 
-    owner = experiment_operation.get_currentuser(owner_name)
-    imagelist = []
-    for i in range(0,len(imageNameList)):
-        image = repo_operation.get_VMImage(imageNameList[i])
-        imagelist.append(image)
-    networklist = []
-    for i in range(0,len(networkNameList)):
-        network = repo_operation.get_network(networkNameList[i])
-        networklist.append(network)
-    exp = experiment_operation.create_experiment(exp_name,owner,imagelist,image_count,networklist,is_shared,description,guide,result,reportDIR)
-    print 'The new created exp is:'
-    print exp
-    return HttpResponse('create new exp !')
+            e = Experiment(exp_name=name,exp_description=desc,exp_owner=t,exp_image_count=len(imageList),
+                           exp_guide=guide,exp_result=refer_result)
+            e.save()
+            for item in imageList:
+                e.exp_images.add(item)
+            for item in networkList:
+                e.exp_network.add(item)
+
+            #refresh the exp list
+                return HttpResponseRedirect('/exp_home/')
+    else:
+        rf = AddExpForm()
+    return render_to_response("exp_create.html",{'rf':rf})
+
+
 
 #only role = teacher has this function
 def exp_edit(request,exp_id):
-    pass
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+
+    imageList = e.exp_images.all()
+    networkList = e.exp_network.all()
+
+    images_idList=[]
+    networks_idList=[]
+    for item in imageList:
+        images_idList.append(item.id)
+    for item in networkList:
+        networks_idList.append(item.id)
+
+    #initial the form
+    attrs = {}
+    attrs['name']=e.exp_name
+    attrs['desc']=e.exp_description
+    attrs['images_idList']= images_idList
+    attrs['networks_idList']=networks_idList
+    attrs['guide']=e.exp_guide
+    attrs['refer_result']=e.exp_result
+    gf = AddExpForm(initial=attrs)
+
+    #edit and update the exp
+    if request.method == 'POST':
+        rf = AddExpForm(request.POST)
+        if rf.is_valid():
+            #get input data from form
+            update_name = rf.cleaned_data['name']
+            update_desc = rf.cleaned_data['desc']
+            update_images_idList = rf.cleaned_data['images_idList']
+            update_networks_idList = rf.cleaned_data['networks_idList']
+            update_guide = rf.cleaned_data['guide']
+            update_refer_result = rf.cleaned_data['refer_result']
+
+            update_imageList =[]
+            update_networkList=[]
+            for i in update_images_idList:
+                update_imageList.append(VMImage.objects.get(id=i))
+            for i in update_networks_idList:
+                update_networkList.append(Network.objects.get(id=i))
+
+            #update basic info for exp
+            re = Experiment.objects.filter(id=exp_id).update(exp_name=update_name,exp_description=update_desc,
+                                                             exp_image_count=len(update_imageList),exp_guide=update_guide,
+                                                             exp_result=update_refer_result,exp_updatetime=datetime.datetime.now())
+            update_e = Experiment.objects.get(id=exp_id)
+            #update image list and network list for exp
+            for i in range(0,len(update_imageList)):
+                if update_imageList[i] not in imageList:
+                    update_e.exp_images.add(update_imageList[i])
+            for j in range(0,len(imageList)):
+                if imageList[j] not in update_imageList:
+                    update_e.exp_images.remove(imageList[j])
+
+            for item in update_networkList:
+                if item not in networkList:
+                    update_e.exp_network.add(item)
+            for item in networkList:
+                if item not in update_networkList:
+                    update_e.exp_network.remove(item)
+            #refersh the exp list
+            return HttpResponseRedirect('/exp_home/')
+    else:
+        rf = AddExpForm()
+    return render_to_response("exp_edit.html",{'rf':gf})
+
 
 
 #only role = teacher has this function
@@ -1090,10 +1266,7 @@ def exp_share(request,exp_id):
         raise Http404
     #update the is_shared field in Experiment db
     re = Experiment.objects.filter(id=exp_id).update(is_shared=True,shared_time=datetime.datetime.now())
-    print type(re)
-    c={}
-    c['update_result']=re
-    return render(request,'exp_share.html',c)
+    return HttpResponseRedirect('/exp_home/')
 
 
 #only role = teacher has this function
@@ -1103,6 +1276,10 @@ def exp_delivery(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
+
+    attrs = {}
+    attrs['name']="delivery_"+ e.exp_name+"_"+ time.strftime('%Y-%m-%d %X',time.localtime())
+    gf = AddExpForm(initial=attrs)
 
     if request.method == 'POST':
         rf = ExpDeliveryForm(request.POST)
@@ -1128,7 +1305,13 @@ def exp_delivery(request,exp_id):
                              start_time=startDateTime, stop_time=endDateTime,
                              exp=e, group=glist[j], total_stu=len(stulist))
                 d.save()
-                #send email to info stu
+                #send email to inform stu
+                stu_emailList = []
+                for item in stulist:
+                    stu_emailList.append(item.stu_email)
+                email_subject = "Here is an Experiment to do!"
+                message = "Hello, "+ username +" has deliveried an experiment:"+e.exp_name+"to you."
+                send_mail(email_subject, message, 'machenyi2011@163.com', stu_emailList,fail_silently=False)
 
             # insert into db:score
             d_List = Delivery.objects.filter(name=name, teacher=teacher)
@@ -1140,19 +1323,8 @@ def exp_delivery(request,exp_id):
         return HttpResponseRedirect('/exp_home/')
     else:
         rf = ExpDeliveryForm()
-    return render_to_response("exp_delivery.html", {'rf': rf})
+    return render_to_response("exp_delivery.html", {'rf': gf})
 
-
-def delivery(request):
-    #Get the experiment to be delivery
-    #Get the student list to delivery
-    stu_List=[]
-    stu_List = list_stu()
-    stu_email_List=['machenyi2011@163.com','ken911121@126.com']
-    #Insert a record into db:Delivery
-    #After Delivery,system should notify students by email
-    send_mail('Subject here', 'Here is the message', 'machenyi2011@163.com', stu_email_List, fail_silently=False)
-    return HttpResponse('Delivery Success!')
 
 
 #only role = teacher has this function
@@ -1193,6 +1365,7 @@ def exp_launch(request,exp_id):
         pass
     else:
         pass
+
 
 #teacher and student both have
 def exp_pause(request,exp_id):
@@ -1293,7 +1466,7 @@ def repo_exp_list(request):
 
 
 #***********************************************************************#
-#                  Teacher use VMImage resource in repo                 #
+#                  Teacher list resource in private repo                 #
 #***********************************************************************#
 #Models:VMImage(id,name,owner,is_public,created_time)
 def repo_image_list(request):
@@ -1315,9 +1488,6 @@ def upload_imageFile():
     image_name='Uploaded_Image_Name'
     print 'Upload image file %s successfully!' % image_name
     return image_name
-
-
-
 
 
 

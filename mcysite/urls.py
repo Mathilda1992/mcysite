@@ -95,17 +95,25 @@ urlpatterns = [
     url(r'^exp_delivery/(\d+)/$', exp_delivery, name='exp_delivery'),
     url(r'^exp_share/(\d+)/$', exp_share, name='exp_share'),
     url(r'^exp_launch/(\d+)/$', exp_launch, name='exp_launch'),
+    url(r'^exp_submit/(\d+)/$', exp_submit, name='exp_submit'),
 
 
-    url(r'^exp_filter_by_name/$',exp_filter_by_user,name='exp_filter_by_name'),
+
     url(r'^exp_network_launch/$',exp_network_launch,name='luanch_exp_network'),
 
     #repo operate
     url(r'^repo_home/$',repo_home,name='repo_home'),
     url(r'^repo_public_list/$',repo_home,name='repo_home'),
     url(r'^repo_public_image_list/$', repo_public_image_list, name='repo_public_image_list'),
-    url(r'^repo_private_list/$',repo_private_list,name='repo_private_list'),
+    url(r'^repo_private_exp_list/$',repo_private_exp_list,name='repo_private_exp_list'),
     url(r'^repo_private_image_list/$',repo_private_image_list,name='repo_private_image_list'),
+    url(r'^repo_create_image/$',repo_create_image,name='repo_create_image'),
+    url(r'^repo_create_network/$', repo_create_network, name='repo_create_network'),
+    url(r'^repo_private_network_list/$',repo_private_network_list,name='repo_private_network_list'),
+
+    url(r'^repo_image_detail/(\d+)$',repo_image_detail,name='repo_image_detail'),
+    url(r'^repo_image_edit/(\d+)$',repo_image_edit,name='repo_image_edit'),
+    url(r'^repo_image_edit/(\d+)$', repo_image_edit, name='repo_image_edit'),
 
 
 
