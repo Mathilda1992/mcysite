@@ -507,6 +507,24 @@ def repo_network_edit(request,n_id):
 def repo_network_delete(request,n_id):
     pass
 
+def repo_ImageCart_list(request):
+    pass
+
+def repo_NetworkCart_list(request):
+    pass
+
+def repo_ImageCart_add(request,i_id):
+    pass
+
+def repo_NetworkCart_add(rquest,n_id):
+    pass
+
+def repo_ImageCart_delete(request,i_id):
+    pass
+
+def repo_Network_delete(request,n_id):
+    pass
+
 
 #---------------------------------------------------#
 

@@ -227,7 +227,7 @@ class Experiment(models.Model):
 
 # The db table used to store chosen VMImages info by user--#relation table
 class ImageCart(models.Model):
-    user_id = models.ForeignKey(User)
+    user = models.ForeignKey(User)
     image_id = models.ForeignKey(VMImage)
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
@@ -241,7 +241,7 @@ class ImageCart(models.Model):
 
 # relation table
 class NetworkCart(models.Model):
-    user_id = models.ForeignKey(User)
+    user = models.ForeignKey(User)
     network_id = models.ForeignKey(Network)
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
