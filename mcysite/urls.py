@@ -18,15 +18,16 @@ from django.contrib import admin
 
 
 from Iserlab.login import *
-
 from Iserlab.home import *
-from Iserlab.views import *
 from people.views import *
 from blog.views import *
 
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^download_file/$', download_file, name='download_file'),
+
+
     url(r'^$',home,name='home'),
     url(r'^home/$',home,name='home'),
     url(r'^time/$',current_datetime,name = 'current_datetime'),
@@ -57,10 +58,10 @@ urlpatterns = [
 
 
     #test
-    url(r'^index/$',index,name='index'),
-    url(r'^add/$',add,name='add'),
-    url(r'^add/(\d+)/(\d+)/$',old_add2_redirect),
-    url(r'^new_add/(\d+)/(\d+)/$',add2,name='add2'),
+    # url(r'^index/$',index,name='index'),
+    # url(r'^add/$',add,name='add'),
+    # url(r'^add/(\d+)/(\d+)/$',old_add2_redirect),
+    # url(r'^new_add/(\d+)/(\d+)/$',add2,name='add2'),
     url(r'^bloglist/$',blog_list2),
     #test book example
     url(r'^search/$',search,name='search'),#failed
@@ -98,7 +99,6 @@ urlpatterns = [
     url(r'^exp_submit/(\d+)/$', exp_submit, name='exp_submit'),
 
 
-
     url(r'^exp_network_launch/$',exp_network_launch,name='luanch_exp_network'),
 
     #repo operate
@@ -107,15 +107,28 @@ urlpatterns = [
     url(r'^repo_public_image_list/$', repo_public_image_list, name='repo_public_image_list'),
     url(r'^repo_private_exp_list/$',repo_private_exp_list,name='repo_private_exp_list'),
     url(r'^repo_private_image_list/$',repo_private_image_list,name='repo_private_image_list'),
+    url(r'^repo_private_network_list/$',repo_private_network_list,name='repo_private_network_list'),
     url(r'^repo_create_image/$',repo_create_image,name='repo_create_image'),
     url(r'^repo_create_network/$', repo_create_network, name='repo_create_network'),
-    url(r'^repo_private_network_list/$',repo_private_network_list,name='repo_private_network_list'),
 
+    url(r'^repo_public_exp_delete/(\d+)$',repo_public_exp_delete,name='repo_public_exp_delete'),
+    url(r'^repo_public_image_delete/(\d+)$',repo_public_image_delete,name='repo_public_image_delete'),
     url(r'^repo_image_detail/(\d+)$',repo_image_detail,name='repo_image_detail'),
     url(r'^repo_image_edit/(\d+)$',repo_image_edit,name='repo_image_edit'),
-    url(r'^repo_image_edit/(\d+)$', repo_image_edit, name='repo_image_edit'),
+    url(r'^repo_image_delete/(\d+)$',repo_image_delete,name='repo_image_delete'),
+    url(r'^repo_image_share/(\d+)$', repo_image_share, name='repo_image_share'),
+    url(r'^repo_network_detail/(\d+)$', repo_network_detail, name='repo_network_detail'),
+    url(r'^repo_network_edit/(\d+)$', repo_network_edit, name='repo_network_edit'),
+    url(r'^repo_network_delete/(\d+)$', repo_network_delete, name='repo_network_delete'),
 
-
+    url(r'^repo_ImageCart_list/$',repo_ImageCart_list,name='repo_ImageCart_list'),
+    url(r'^repo_ImageCart_clear/$',repo_ImageCart_clear,name='repo_ImageCart_clear'),
+    url(r'^repo_ImageCart_add(\d+)/$', repo_ImageCart_add, name='repo_ImageCart_add'),
+    url(r'^repo_ImageCart_delete/(\d+)$', repo_ImageCart_delete, name='repo_ImageCart_delete'),
+    url(r'^repo_NetworkCart_list/$',repo_NetworkCart_list,name='repo_NetworkCart_list'),
+    url(r'^repo_NetworkCart_clear/$',repo_NetworkCart_clear,name='repo_NetworkCart_clear'),
+    url(r'^repo_NetworkCart_add/(\d+)$', repo_NetworkCart_add, name='repo_NetworkCart_add'),
+    url(r'^repo_NetworkCart_delete/(\d+)$', repo_NetworkCart_delete, name='repo_NetworkCart_delete'),
 
 
     #teaching statistic

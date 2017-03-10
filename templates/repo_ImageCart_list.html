@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Cart</title>
+</head>
+<body>
+    <div class="header">
+        <h1 align="center">显示Image Cart里的内容|<a href="/repo_ImageCart_clear/">清空购物车</a></h1>
+    </div>
+
+    {% for item in CartList %}
+        <div align="center" class="blog">
+            <div class="title">
+                <a href="{% url 'repo_image_detail' item.id %}"><h2>{{ item.image.name }}</h2></a>
+                <a href="{% url 'repo_ImageCart_delete' item.image.id %}" >删除</a>
+            </div>
+        <div class="info">
+
+            <span class="catagory" style="color: #ff9900;">镜像编号：{{ item.image.id }}</span>
+
+            <span class="author" style="color: #4a86e8;">所有者：{{ item.user.username }}</span>
+
+            <span class="created" style="color: #6aa84e;">加入时间：{{ item.createtime |date:"Y-m-d H:i" }}</span>
+        </div>
+    {% endfor %}
+
+</body>
+</html>

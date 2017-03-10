@@ -1,9 +1,10 @@
+# -*- coding: UTF-8 -*-
 #This page just include those data wanted to be show on home.html
 
 from django.shortcuts import render,render_to_response
 from django.http import HttpResponse,Http404
 from django.template import Context
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,StreamingHttpResponse
 #from django.core.context_processors import csrf
 from django import forms
 from django.http import Http404
@@ -23,7 +24,7 @@ from Iserlab import experiment_operation,repo_operation,user_operation
 from Iserlab import showTime
 
 #-------import models---------
-from Iserlab.models import User,Group,Student,Experiment,VMImage,Network,Delivery,Score
+from Iserlab.models import User,Group,Student,Experiment,VMImage,Network,Delivery,Score,ImageCart,NetworkCart
 
 #-------import forms----------
 from Iserlab.forms import *
@@ -104,7 +105,6 @@ def repo_home(request):
         context['PublicExpList']=PublicExpList
     else:
         pass
-
     return render(request,'resource_managment.html',context)
 
 
@@ -162,8 +162,9 @@ def delivery_detail(request,d_id):
     #get delivery detail from db
     context = {}
     s_list = d.group.student.all()
-    D_detial_dict = {'id':d_id,'name':d.name,'desc':d.desc,'exp':d.exp,'teacher':d.teacher,'group':d.group,'stulist':s_list,
-                     'delivery_time':d.delivery_time,'start_time':d.start_time,'stop_time':d.stop_time,'total_stu':len(s_list),
+    D_detial_dict = {'id':d_id,'name':d.name,'desc':d.desc,'exp':d.exp,'teacher':d.teacher,'group':d.group,
+                     'stulist':s_list,'delivery_time':d.delivery_time,'start_time':d.start_time,
+                     'stop_time':d.stop_time,'total_stu':len(s_list),
                      }
     context['D_detail_dict']=D_detial_dict
     return render(request,'delivery_detail.html',context)
@@ -174,15 +175,6 @@ def delivery_edit(request,d_id):
         d = Delivery.objects.get(id=d_id)
     except Delivery.DoesNotExist:
         raise Http404
-    #initial the form
-    attrs = {}
-    attrs['name']=d.name
-    attrs['desc']=d.desc
-    attrs['exp']=d.exp.exp_name
-    attrs['group']=d.group.name
-    attrs['startDateTime']=d.start_time
-    attrs['endDateTime']=d.stop_time
-    gf = EditDeliveryForm(initial=attrs)
 
     #edit and update the delivery
     if request.method == 'POST':
@@ -199,7 +191,15 @@ def delivery_edit(request,d_id):
             update_d = Delivery.objects.get(id=d_id)
             return HttpResponseRedirect('/delivery_list/')
     else:
-        rf = AddDeliveryForm()
+        # initial the form
+        attrs = {}
+        attrs['name'] = d.name
+        attrs['desc'] = d.desc
+        attrs['exp'] = d.exp.exp_name
+        attrs['group'] = d.group.name
+        attrs['startDateTime'] = d.start_time
+        attrs['endDateTime'] = d.stop_time
+        gf = EditDeliveryForm(initial=attrs)
     return render_to_response("delivery_edit.html",{'rf':gf})
 
 
@@ -485,48 +485,167 @@ def teach_score_list_by_scoreID(request,score_id):
 #                 repo management operate function                     #
 #***********************************************************************#
 
+def repo_ImageCart_list(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    imageList = ImageCart.objects.filter(user=t).order_by("-createtime")
+    context={}
+    context["CartList"] = imageList
+    return render(request,"repo_ImageCart_list.html",context)
+
+
+def repo_ImageCart_clear(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    result = ImageCart.objects.filter(user=t).delete()
+    if result:
+        print "clear th imagecart success!"
+    return HttpResponseRedirect('/repo_ImageCart_list/')
+
+def repo_ImageCart_add(request,i_id):
+    try:
+        image = VMImage.objects.get(id=i_id)
+    except VMImage.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    cart = ImageCart.objects.filter(image=image)
+    if cart:
+        print "This image already in Cart!"
+        return HttpResponse("This image already in Cart!")
+    else:
+        new = ImageCart(user=t,image=image)
+        new.save()
+        print "repo_ImageCart_add Success!"
+        return HttpResponse("repo_ImageCart_add Success!")
+
+
+def repo_NetworkCart_clear(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    result = NetworkCart.objects.filter(user=t).delete()
+    if result:
+        print "clear th NetworkCart success!"
+    return HttpResponseRedirect('/repo_NetworkCart_list/')
+
+
+def repo_NetworkCart_list(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    networkList = NetworkCart.objects.filter(user=t).order_by("-createtime")
+    context = {}
+    context["CartList"] = networkList
+    return render(request, "repo_NetworkCart_list.html", context)
+
+
+def repo_NetworkCart_add(request,n_id):
+    try:
+        net = Network.objects.get(id=n_id)
+    except Network.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    cart = NetworkCart.objects.filter(network=net)
+    if cart:
+        print "already in cart"
+        return HttpResponse("This net already in Cart")
+    else:
+        new = NetworkCart(user=t,network=net)
+        new.save()
+        print "repo_NetworkCart_add success"
+        return HttpResponse("repo_NetworkCart_add success")
+
+
+def repo_ImageCart_delete(request,i_id):
+    try:
+        cart = ImageCart.objects.get(id=i_id)
+    except ImageCart.DoesNotExist:
+        raise Http404
+    result = ImageCart.objects.filter(id=i_id).delete()
+    if result:
+        print "delete success"
+    return HttpResponseRedirect('/repo_ImageCart_list/')
+
+
+def repo_NetworkCart_delete(request,n_id):
+    try:
+        cart = NetworkCart.objects.get(id=n_id)
+    except NetworkCart.DoesNotExist:
+        raise Http404
+    result = NetworkCart.objects.filter(id=n_id).delete()
+    if result:
+        print "delete success"
+    return HttpResponseRedirect('/repo_NetworkCart_list/')
+
+
 def repo_image_detail(request,i_id):
-    pass
+    try:
+        image = VMImage.objects.get(id=i_id)
+    except VMImage.DoesNotExist:
+        raise Http404
+    #get image detail from db
+    context = {}
+    context['DetailDict'] = image
+    return render(request,'repo_image_detail.html',context)
 
 
 def repo_image_edit(request,i_id):
     pass
 
+
 def repo_image_delete(request,i_id):
-    pass
+    try:
+        image = VMImage.objects.get(id=i_id)
+    except VMImage.DoesNotExist:
+        raise Http404
+    result = VMImage.objects.filter(id=i_id).delete()
+    if result:
+        print "delete success"
+    return HttpResponseRedirect('/repo_private_image_list/')
+
+
 
 def repo_image_share(request,i_id):
-    pass
+    try:
+        image = VMImage.objects.get(id=i_id)
+    except VMImage.DoesNotExist:
+        raise Http404
+    re = VMImage.objects.filter(id=i_id).update(is_shared=True)
+    if re:
+        print "repo_image_share Success!"
+    return HttpResponseRedirect('/repo_private_image_list/')
+
 
 def repo_network_detail(request,n_id):
     pass
 
+
 def repo_network_edit(request,n_id):
     pass
 
+
 def repo_network_delete(request,n_id):
-    pass
-
-def repo_ImageCart_list(request):
-    pass
-
-def repo_NetworkCart_list(request):
-    pass
-
-def repo_ImageCart_add(request,i_id):
-    pass
-
-def repo_NetworkCart_add(rquest,n_id):
-    pass
-
-def repo_ImageCart_delete(request,i_id):
-    pass
-
-def repo_Network_delete(request,n_id):
-    pass
-
+    try:
+        net = Network.objects.get(id=n_id)
+    except Network.DoesNotExist:
+        raise Http404
+    re = Network.objects.filter(id=n_id).delete()
+    if re:
+        if re:
+            print "repo_image_share Success!"
+        return HttpResponseRedirect('/repo_private_network_list/')
 
 #---------------------------------------------------#
+def repo_public_image_delete(request,i_id):#actually this operation is to set is_shared to False
+    try:
+        image = VMImage.objects.get(id=i_id)
+    except VMImage.DoesNotExist:
+        raise Http404
+    re = VMImage.objects.filter(id=i_id).update(is_shared=False)
+    if re:
+        print "repo_public_image_delete Success!"
+    return HttpResponseRedirect('/repo_public_image_list/')
+
 
 
 def repo_public_image_list(request):
@@ -534,6 +653,19 @@ def repo_public_image_list(request):
     context ={}
     context['PublicImageList']=PublicImageList
     return render(request,"repo_public_image_list.html",context)
+
+
+
+def repo_public_exp_delete(request,e_id):
+    try:
+        e= Experiment.objects.get(id=e_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+    #update is_shared field to False in Experiment db
+    re = Experiment.objects.filter(id=e_id).update(is_shared = False)
+    if re:
+        print "repo_public_exp_delete success!"
+    return HttpResponseRedirect('/repo_home/')
 
 
 
@@ -556,24 +688,88 @@ def repo_private_image_list(request):
     return render(request,"repo_private_image_list.html",context)
 
 
+
 def repo_private_network_list(request):
-    pass
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    NetList = Network.objects.filter(owner=t).order_by('-created_at')
+    context={}
+    context['NetList']= NetList
+    return render(request,"repo_private_network_list.html",context)
+
+
 
 def repo_create_network(request):
     pass
 
 
 def repo_create_image(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    # if request.method == 'POST':
+    #     form = CreateImageForm(request.POST,request.FILES)
+    #     if form.is_valid():
+    #         repo_handle_upload_image()
+    # pass
+    if request.method =="POST":
+        myfile = request.FILES.get("myfile",None)
+        if not myfile:
+            return HttpResponse("no file to choose")
+        save_path = "/home/mcy/upload/files"
+        destination = open(os.path.join(save_path,myfile.name),'wb+')
+        for chunk in myfile.chunks():
+            destination.write(chunk)
+        destination.close()
 
-    if request.method == 'POST':
-        form = CreateImageForm(request.POST,request.FILES)
-        if form.is_valid():
-            repo_handle_upload_image()
-    pass
+        #get data from form
+        rf = CreateImageForm(request.POST)
+
+        name = rf.data['name']
+        desc = rf.data['desc']
+
+        #insert into db
+        file_path = save_path+'/'+myfile.name
+        new = VMImage(name=name,description=desc,path=file_path,owner=t)
+        new.save()
+
+        # response = "congrats. your file \"" + myfile.name + "\" has been uploaded."
+        return HttpResponseRedirect("/repo_home/")
+
+    else:
+        rf = CreateImageForm()
+
+    return render(request,'repo_create_image.html',{'rf':rf})
 
 
 def repo_handle_upload_image(f):
     pass
+
+
+
+def download_file(request):
+    # do something...
+
+    #使用迭代器加载文件，实现大文件的下载
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name) as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+
+    the_file_name = "/home/mcy/upload/files/localrc.txt"
+
+    #使用StreamingHttpResponse配合迭代器返回文件到页面
+    response = StreamingHttpResponse(file_iterator(the_file_name))
+
+    # 设置内容的格式使之能下载到硬盘而非显示在页面
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
+
+    return response
+
 
 
 
@@ -1347,7 +1543,6 @@ def exp_delivery(request,exp_id):
 
 #only role = teacher has this function
 def exp_delete(request,exp_id):
-    username = request.session['username']
     try:
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
@@ -1364,10 +1559,8 @@ def exp_detail(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
-
     #get exp detail info from db
     E_Detail_Dict = experiment_operation.view_experiment_detail(exp_id)
-
     # output the group detail-----------------------------UI--------------------------
     c = {}
     c['E_Detail_Dict'] = E_Detail_Dict

@@ -51,6 +51,7 @@ class DeliveryAdmin(admin.ModelAdmin):
 class SocreAdmin(admin.ModelAdmin):
     list_display = ('id','exp','stu','createTime','situation','finishedTime','score','scoreTime')
 
+
 #
 
 admin.site.register(User,UserAdmin)
@@ -67,3 +68,5 @@ admin.site.register(ExpInstance)
 admin.site.register(Delivery,DeliveryAdmin)
 
 admin.site.register(Score,SocreAdmin)
+admin.site.register(ImageCart)
+admin.site.register(NetworkCart)

@@ -7,24 +7,25 @@
 <body>
 
      <div class="header">
-        <h1 align="center">Public Image Source Repo</h1>
+        <h1 align="center">公共镜像资源<a href="/repo_home/" >返回</a></h1>
     </div>
 
-    {% for item in PublicExpList %}
+     {% for item in PublicImageList %}
         <div align="center" class="blog">
             <div class="title">
-                <a href="{% url 'exp_detail' item.id %}"><h2>{{ item.exp_name }}</h2></a>
-                <a href="{% url 'exp_detail' item.id %}" >详情</a>|
-                <a href="{% url 'exp_copy' item.id %}" >复制</a>|
-                <a href="{% url 'exp_delivery' item.id %}">分发</a>|
-                <a href="{% url 'exp_launch' item.id %}" >启动</a>
+                <a href="{% url 'repo_image_detail' item.id %}"><h2>{{ item.name }}</h2></a>
+                <a href="{% url 'repo_image_detail' item.id %}" >详情</a>|
+                <a href="{% url 'repo_public_image_delete' item.id %}" >删除</a>
+                {% ifequal item.is_shared False %}
+                    |<a href="{% url 'repo_image_share' item.id %}" >共享</a>
+                {% endifequal %}
+                |<a href="{% url 'repo_ImageCart_add' item.id %}" >加入购物车</a>
             </div>
         <div class="info">
-            <span class="author" style="color: #4a86e8;">标签：系统安全</span>
-            <span class="catagory" style="color: #ff9900;">实验编号：{{ item.id }}</span>
-            <span class="catagory" style="color: #ff9900;">主机数量：{{ item.exp_image_count }}</span>
-            <span class="author" style="color: #4a86e8;">上传者：{{ item.exp_owner }}</span>
-            <span class="created" style="color: #6aa84e;">共享时间：{{ item.shared_time |date:"Y-m-d H:i" }}</span>
+            <span class="catagory" style="color: #ff9900;">镜像名称：{{ item.name }}</span>
+            <span class="author" style="color: #4a86e8;">共享者：{{ item.owner.username }}</span>
+            <span class="created" style="color: #6aa84e;">共享日期：{{ item.shared_time |date:"Y-m-d H:i" }}</span>
+
 
         </div>
         <div class="summary">

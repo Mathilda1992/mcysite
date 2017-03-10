@@ -6,5 +6,39 @@
 </head>
 <body>
 
+    <div class="header">
+        <span>显示镜像详情</span>
+    </div>
+
+    <div class="content">
+        <div class="blog">
+            <div class="title">
+                <h2><a href="#">{{ DetailDict.name }}</a>
+                    |<a href="{% url 'repo_image_edit' DetailDict.id %}" >编辑</a></h2>
+            </div>
+            <div class="info">
+                <span class="category" style="color: #ff9900;">镜像ID：{{ DetailDict.id }}</span>
+                <span class="author" style="color: #4a86e8">镜像名称：{{ DetailDict.name }}</span>
+                <span class="created" style="color: #6aa84f">创建时间：{{ DetailDict.start_time|date:"Y-m-d H:i" }}</span>
+                <span class="created" style="color: #6aa84f">更新时间：{{ DetailDict.stop_time|date:"Y-m-d H:i" }}</span>
+
+            </div>
+            <div class="summary">
+                min_disk：{{ DetailDict.min_disk}}
+            </div>
+            <div class="summary">
+                min_ram：{{ DetailDict.min_ram }}
+            </div>
+            <div class="summary">
+                is_shared：{{ DetailDict.is_shared }}
+            </div>
+            <div class="summary">
+                镜像描述：{{ DetailDict.desc }}
+            </div>
+
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

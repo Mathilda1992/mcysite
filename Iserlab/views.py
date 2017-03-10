@@ -163,21 +163,6 @@ def group_edit(request,group_id):
     return render_to_response("group_edit.html", {'rf': gf})
 
 
-def group_view(request,group_id):
-    try:
-        g = Group.objects.get(id=group_id)
-    except Group.DoesNotExist:
-        raise Http404
-    #get group details from db
-    t = g.teacher
-    s_list = g.student.all()
-    G_Detail_Dict = {'id':g.id,'created_at':g.created_at,'name': g.name, 'desc': g.desc, 'teacher': t, 'stulist': s_list, 'stucount': g.stuCount}
-    print G_Detail_Dict
-
-    #output the group detail-----------------------------UI--------------------------
-    c = {}
-    c['G_Detail_Dict']=G_Detail_Dict
-    return render(request,'group_detail.html',c)
 
 
 def create_experiment(experiment_name,owner,imagelist,image_count,networklist,is_shared='False',description='description',guide='Please input exp guide here',result='Please input exp result here to refer',reportDIR='Please input report DIR here'):
@@ -206,3 +191,71 @@ def create_experiment(experiment_name,owner,imagelist,image_count,networklist,is
         e1.exp_network.add(network)
     print e1
     return e1
+
+def group_view(request,group_id):
+    try:
+        g = Group.objects.get(id=group_id)
+    except Group.DoesNotExist:
+        raise Http404
+    #get group details from db
+    t = g.teacher
+    s_list = g.student.all()
+    G_Detail_Dict = {'id':g.id,'created_at':g.created_at,'name': g.name, 'desc': g.desc, 'teacher': t, 'stulist': s_list, 'stucount': g.stuCount}
+    print G_Detail_Dict
+
+    #output the group detail-----------------------------UI--------------------------
+    c = {}
+    c['G_Detail_Dict']=G_Detail_Dict
+    return render(request,'group_detail.html',c)
+
+
+def delivery_detail(request,d_id):
+    try:
+        d = Delivery.objects.get(id =d_id)
+    except Delivery.DoesNotExist:
+        raise Http404
+    #get delivery detail from db
+    context = {}
+    s_list = d.group.student.all()
+    D_detial_dict = {'id':d_id,'name':d.name,'desc':d.desc,'exp':d.exp,'teacher':d.teacher,'group':d.group,
+                     'stulist':s_list,'delivery_time':d.delivery_time,'start_time':d.start_time,
+                     'stop_time':d.stop_time,'total_stu':len(s_list),
+                     }
+    context['D_detail_dict']=D_detial_dict
+    return render(request,'delivery_detail.html',context)
+
+
+#only role = teacher has this function
+def exp_share(request,exp_id):
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+    #update the is_shared field in Experiment db
+    re = Experiment.objects.filter(id=exp_id).update(is_shared=True,shared_time=datetime.datetime.now())
+    return HttpResponseRedirect('/exp_home/')
+
+
+def exp_delete(request,exp_id):
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+    result = Experiment.objects.filter(id=exp_id).delete()
+    if result:
+        print "delete exp success!"
+    return HttpResponseRedirect('/exp_home/')
+
+
+
+def exp_detail(request,exp_id):
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+    #get exp detail info from db
+    E_Detail_Dict = experiment_operation.view_experiment_detail(exp_id)
+    # output the group detail-----------------------------UI--------------------------
+    c = {}
+    c['E_Detail_Dict'] = E_Detail_Dict
+    return render(request, 'exp_detail.html', c)

@@ -72,8 +72,9 @@ class SubmitExpForm(forms.Form):
 class CreateImageForm(forms.Form):
     name =forms.CharField(label='Image Name')
     desc = forms.CharField(label='Description', widget=forms.Textarea(), required=False)
-    imageUrl = forms.URLField(label='Image Download URL',required=False,initial='http://')
-    imageFile = forms.ImageField(label='Upload Local Image File',)
+    myfile = forms.FileField(label='Upload Local Image File',required=True)
+    # imageUrl = forms.URLField(label='Image Download URL',required=False,initial='http://')
+    # imageFile = forms.ImageField(label='Upload Local Image File',required=True)
 
 
 

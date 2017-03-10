@@ -127,12 +127,11 @@ class VMImage(models.Model):
     owner = models.ForeignKey(User)
     own_project = models.CharField(max_length= 32,null=True)
     is_public = models.CharField(max_length = 10,default = 'YES')
-
     description = models.TextField(max_length=500,blank=True)
     status = models.CharField(max_length = 30,default = 'active')
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True,null=True,blank = True)
-    size = models.BigIntegerField()
+    size = models.BigIntegerField(null=True)
     min_disk = models.IntegerField(default = 0)
     min_ram = models.IntegerField(default = 0)
     tags = models.ManyToManyField('Tag')
@@ -140,6 +139,7 @@ class VMImage(models.Model):
     shared_time = models.DateTimeField(auto_now=True, null=True,editable=True)
     flavor = models.CharField(max_length= 10,null = True,blank = True,default='m1.tiny')
     keypair = models.CharField(max_length= 20,null = True,blank = True,default='mykey')
+    path=models.CharField(max_length=300,null=True)
 
     def __unicode__(self):
         return u'name=%s,creater=%s,is_shared=%s' % (self.name,self.owner,self.is_shared)
@@ -160,9 +160,6 @@ class Tag(models.Model):
     class Meta:
         ordering = ['name']
 # #
-
-
-
 
 
 
@@ -228,11 +225,11 @@ class Experiment(models.Model):
 # The db table used to store chosen VMImages info by user--#relation table
 class ImageCart(models.Model):
     user = models.ForeignKey(User)
-    image_id = models.ForeignKey(VMImage)
+    image= models.ForeignKey(VMImage)
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return self.name
+        return u'id=%s' % (self.id)
 
     class Meta:
         ordering = ['-createtime']
@@ -242,11 +239,11 @@ class ImageCart(models.Model):
 # relation table
 class NetworkCart(models.Model):
     user = models.ForeignKey(User)
-    network_id = models.ForeignKey(Network)
+    network = models.ForeignKey(Network)
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return self.createtime
+        return u'id=%s' % (self.id)
 
     class Meta:
         ordering = ['-createtime']

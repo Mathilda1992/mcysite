@@ -2,9 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>repo_private_network_list</title>
 </head>
 <body>
+    <div class="header">
+        <h1 align="center">我的网络资源<a href="/repo_home/" >返回</a></h1>
+    </div>
 
+    {% for item in NetList %}
+        <div align="center" class="blog">
+            <div class="title">
+                <a href="{% url 'repo_network_detail' item.id %}"><h2>{{ item.name }}</h2></a>
+                <a href="{% url 'repo_network_detail' item.id %}" >详情</a>|
+                <a href="{% url 'repo_network_edit' item.id %}" >编辑</a>|
+                <a href="{% url 'repo_network_delete' item.id %}" >删除</a>
+
+                |<a href="{% url 'repo_NetworkCart_add' item.id %}" >加入购物车</a>
+            </div>
+        <div class="info">
+            <span class="catagory" style="color: #ff9900;">网络名称：{{ item.network_name }}</span>
+            <span class="author" style="color: #4a86e8;">CIDR：{{ item.cidr }}</span>
+            <span class="created" style="color: #6aa84e;">创建日期：{{ item.created_at |date:"Y-m-d H:i" }}</span>
+            <span class="created" style="color: #6aa84e;">更新日期：{{ item.updated_at |date:"Y-m-d H:i" }}</span>
+
+        </div>
+        <div class="network_description">
+            {{ item.exp_description | truncatechars:100 }}
+        </div>
+        </div>
+    {% endfor %}
 </body>
 </html>

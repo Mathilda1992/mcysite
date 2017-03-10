@@ -5,48 +5,48 @@
     <title>Delivery_detail</title>
 </head>
 <body>
-<div class="header">
-    <span>显示分发详情</span>
-</div>
+    <div class="header">
+        <span>显示分发详情</span>
+    </div>
 
-<div class="content">
-    <div class="blog">
-        <div class="title">
-            <h2><a href="#">{{ D_detail_dict.name }}</a>|<a href="{% url 'delivery_edit' D_detail_dict.id %}" >编辑</a></h2>
-        </div>
-        <div class="info">
-            <span class="category" style="color: #ff9900;">目标实验：{{ D_detail_dict.exp.exp_name }}</span>
-            <span class="author" style="color: #4a86e8">目标群组：{{ D_detail_dict.group.name }}</span>
-            <span class="created" style="color: #6aa84f">起始时间：{{ D_detail_dict.start_time|date:"Y-m-d H:i" }}</span>
-            <span class="created" style="color: #6aa84f">终止时间：{{ D_detail_dict.stop_time|date:"Y-m-d H:i" }}</span>
+    <div class="content">
+        <div class="blog">
+            <div class="title">
+                <h2><a href="#">{{ D_detail_dict.name }}</a>|<a href="{% url 'delivery_edit' D_detail_dict.id %}" >编辑</a></h2>
+            </div>
+            <div class="info">
+                <span class="category" style="color: #ff9900;">目标实验：{{ D_detail_dict.exp.exp_name }}</span>
+                <span class="author" style="color: #4a86e8">目标群组：{{ D_detail_dict.group.name }}</span>
+                <span class="created" style="color: #6aa84f">起始时间：{{ D_detail_dict.start_time|date:"Y-m-d H:i" }}</span>
+                <span class="created" style="color: #6aa84f">终止时间：{{ D_detail_dict.stop_time|date:"Y-m-d H:i" }}</span>
 
-        </div>
-        <div class="summary">
-            分发ID：{{ D_detail_dict.id}}
-        </div>
-        <div class="summary">
-            分发名称：{{ D_detail_dict.name }}
-        </div>
-        <div class="summary">
-            分发日期：{{ D_detail_dict.delivery_time|date:"Y-m-d H:i" }}
-        </div>
-        <div class="summary">
-            分发描述：{{ D_detail_dict.desc }}
-        </div>
-        <p>学生列表：（总人数：{{ D_detail_dict.total_stu }}）</p>
-        <div class="info">
-            {% for item in D_detail_dict.stulist %}
-                <li>
-                    学生ID：<span class="category" style="color: #ff9900;">{{ item.id }}</span>
-                    学生用户名：<span class="author" style="color: #4a86e8">{{ item.stu_username }}</span>
-                    邮箱：<span class="created" style="color: #6aa84f">{{ item.stu_email }}</span>
-                </li>
-            {% empty %}
-                <p>抱歉,Student列表为空</p>
-            {% endfor %}
+            </div>
+            <div class="summary">
+                分发ID：{{ D_detail_dict.id}}
+            </div>
+            <div class="summary">
+                分发名称：{{ D_detail_dict.name }}
+            </div>
+            <div class="summary">
+                分发日期：{{ D_detail_dict.delivery_time|date:"Y-m-d H:i" }}
+            </div>
+            <div class="summary">
+                分发描述：{{ D_detail_dict.desc }}
+            </div>
+            <p>学生列表：（总人数：{{ D_detail_dict.total_stu }}）</p>
+            <div class="info">
+                {% for item in D_detail_dict.stulist %}
+                    <li>
+                        学生ID：<span class="category" style="color: #ff9900;">{{ item.id }}</span>
+                        学生用户名：<span class="author" style="color: #4a86e8">{{ item.stu_username }}</span>
+                        邮箱：<span class="created" style="color: #6aa84f">{{ item.stu_email }}</span>
+                    </li>
+                {% empty %}
+                    <p>抱歉,Student列表为空</p>
+                {% endfor %}
 
+            </div>
         </div>
     </div>
-</div>
 </body>
 </html>
