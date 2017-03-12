@@ -113,7 +113,7 @@ class Group(models.Model):
 
 
     def __unicode__(self):
-        return u'gname=%s,teacher=%s' % (self.name,self.teacher)
+        return u'%s' % (self.name)
 #
 
 #
@@ -139,7 +139,7 @@ class VMImage(models.Model):
     shared_time = models.DateTimeField(auto_now=True, null=True,editable=True)
     flavor = models.CharField(max_length= 10,null = True,blank = True,default='m1.tiny')
     keypair = models.CharField(max_length= 20,null = True,blank = True,default='mykey')
-    path=models.CharField(max_length=300,null=True)
+    path=models.CharField(max_length=300,null=True,blank=True)
 
     def __unicode__(self):
         return u'name=%s,creater=%s,is_shared=%s' % (self.name,self.owner,self.is_shared)
@@ -229,7 +229,7 @@ class ImageCart(models.Model):
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return u'id=%s' % (self.id)
+        return u'%s' % (self.image.name)
 
     class Meta:
         ordering = ['-createtime']
@@ -243,7 +243,7 @@ class NetworkCart(models.Model):
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return u'id=%s' % (self.id)
+        return u'%s' % (self.network.network_name)
 
     class Meta:
         ordering = ['-createtime']

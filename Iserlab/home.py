@@ -17,7 +17,6 @@ import datetime,time
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
-
 from Iserlab import createconn_openstackSDK
 from Iserlab import image_resource_operation,compute_resource_operation,network_resource_operation,identity_resource_operation
 from Iserlab import experiment_operation,repo_operation,user_operation
@@ -38,6 +37,10 @@ region_name = 'RegionOne'
 
 
 system_admin_email = 'machenyi2011@163.com'
+
+
+
+#-----------form defination--------
 
 
 def home(request):
@@ -245,7 +248,7 @@ def delivery_create(request):
                     new_score.save()
         return HttpResponseRedirect('/teach_home/')
     else:
-        rf = AddDeliveryForm()
+        rf = AddDeliveryForm(request)
     return render_to_response("delivery_create.html",{'rf':rf})
 
 
@@ -941,17 +944,11 @@ def group_edit(request,group_id):
         g = Group.objects.get(id=group_id)
     except Group.DoesNotExist:
         raise Http404
+
     s_list = g.student.all()
     s_name_list = []
     for item in s_list:
         s_name_list.append(item.stu_username)
-
-    #initial the form
-    attrs = {}
-    attrs['gname']=g.name
-    attrs['desc']=g.desc
-    attrs['stulist']= s_name_list
-    gf = AddGroupForm(initial=attrs)
 
     #edit and update the group
     username = request.session['username']
@@ -989,7 +986,12 @@ def group_edit(request,group_id):
             # refresh the group list
             return HttpResponseRedirect('/stu_home/')
     else:
-        rf = AddGroupForm()
+        # initial the form
+        attrs = {}
+        attrs['gname'] = g.name
+        attrs['desc'] = g.desc
+        attrs['stulist'] = s_name_list
+        gf = AddGroupForm(initial=attrs)
     return render_to_response("group_edit.html", {'rf': gf})
 
 
@@ -1312,15 +1314,6 @@ def exp_copy(request,exp_id):
         images_idList.append(item.id)
     for item in networkList:
         networks_idList.append(item.id)
-    #initial the form
-    attrs = {}
-    attrs['name']=e.exp_name + "_copy"
-    attrs['desc']=e.exp_description
-    attrs['images_idList']= images_idList
-    attrs['networks_idList']=networks_idList
-    attrs['guide']=e.exp_guide
-    attrs['refer_result']=e.exp_result
-    gf = AddExpForm(initial=attrs)
 
     #insert a new record into db
     username = request.session['username']
@@ -1355,7 +1348,15 @@ def exp_copy(request,exp_id):
             #refresh the exp list
                 return HttpResponseRedirect('/exp_home/')
     else:
-        rf = AddExpForm()
+        # initial the form
+        attrs = {}
+        attrs['name'] = e.exp_name + "_copy"
+        attrs['desc'] = e.exp_description
+        attrs['images_idList'] = images_idList
+        attrs['networks_idList'] = networks_idList
+        attrs['guide'] = e.exp_guide
+        attrs['refer_result'] = e.exp_result
+        gf = AddExpForm(request, initial=attrs)
     return render_to_response("exp_copy.html",{'rf':gf})
 
 
@@ -1394,7 +1395,7 @@ def exp_create(request):
             #refresh the exp list
                 return HttpResponseRedirect('/exp_home/')
     else:
-        rf = AddExpForm()
+        rf = AddExpForm(request)
     return render_to_response("exp_create.html",{'rf':rf})
 
 
@@ -1405,26 +1406,14 @@ def exp_edit(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
-
     imageList = e.exp_images.all()
     networkList = e.exp_network.all()
-
     images_idList=[]
     networks_idList=[]
     for item in imageList:
         images_idList.append(item.id)
     for item in networkList:
         networks_idList.append(item.id)
-
-    #initial the form
-    attrs = {}
-    attrs['name']=e.exp_name
-    attrs['desc']=e.exp_description
-    attrs['images_idList']= images_idList
-    attrs['networks_idList']=networks_idList
-    attrs['guide']=e.exp_guide
-    attrs['refer_result']=e.exp_result
-    gf = AddExpForm(initial=attrs)
 
     #edit and update the exp
     if request.method == 'POST':
@@ -1467,7 +1456,15 @@ def exp_edit(request,exp_id):
             #refersh the exp list
             return HttpResponseRedirect('/exp_home/')
     else:
-        rf = AddExpForm()
+        # initial the form
+        attrs = {}
+        attrs['name'] = e.exp_name
+        attrs['desc'] = e.exp_description
+        attrs['images_idList'] = images_idList
+        attrs['networks_idList'] = networks_idList
+        attrs['guide'] = e.exp_guide
+        attrs['refer_result'] = e.exp_result
+        gf = AddExpForm(request,initial=attrs)
     return render_to_response("exp_edit.html",{'rf':gf})
 
 

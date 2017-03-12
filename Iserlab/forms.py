@@ -3,6 +3,7 @@
 
 from django import forms
 import datetime
+from Iserlab.models import *
 
 
 TOPIC_CHOICES = (
@@ -43,10 +44,10 @@ class AddExpForm(forms.Form):
                            required =False)
     images_idList = forms.MultipleChoiceField(label='Include Images',
                                        widget=forms.CheckboxSelectMultiple,
-                                       choices=IMAGES_CHECKBOX_CHOICES,)
+                                       )
     networks_idList = forms.MultipleChoiceField(label='Use Networks',
                                          widget=forms.CheckboxSelectMultiple,
-                                         choices=NETWORKS_CHECKBOX_CHOICES,)
+                                         )
     # shared = forms.BooleanField(label='Share to Public Repo',
     #                             initial=False,)
     # guide = forms.FileField(label="Upload Guide",
@@ -58,6 +59,18 @@ class AddExpForm(forms.Form):
     refer_result = forms.CharField(label="Refer Result",
                                    widget=forms.Textarea(),
                                    required=False,)
+
+    def __init__(self,request,*args,**kwargs):
+        super(AddExpForm,self).__init__(*args,**kwargs)
+        t= self.get_currentuser(request)
+        self.fields['images_idList'].choices = [(i.pk,str(i)) for i in ImageCart.objects.filter(user=t)]
+        self.fields['networks_idList'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.filter(user=t)]
+
+
+    def get_currentuser(self,request):
+        username = request.session['username']
+        t = User.objects.get(username=username)
+        return t
 
 
 class EditExpForm(forms.Form):# the same with AddExpForm
@@ -132,12 +145,12 @@ class AddDeliveryForm(forms.Form):
                            required=False,
                            initial="Replace with your description",
                            error_messages={'max_length': 'The description is too long'})
+
     exp = forms.MultipleChoiceField(label='Select Exp',
-                                    widget=forms.CheckboxSelectMultiple,
-                                    choices=EXP_CHECKBOX_CHOICES,)
+                                    widget=forms.CheckboxSelectMultiple, )
     group = forms.MultipleChoiceField(label="Select Group",
                                       widget=forms.CheckboxSelectMultiple,
-                                      choices=GROUP_CHECKBOX_CHOICES,)
+                                      )
     startDateTime = forms.DateField(label='Starttime',
                                     widget=forms.SelectDateWidget,
                                     initial=datetime.datetime.now())
@@ -145,6 +158,19 @@ class AddDeliveryForm(forms.Form):
                                   widget=forms.SelectDateWidget,
                                   initial=datetime.datetime.now()
                                   )
+
+    def __init__(self,request,*args,**kwargs):
+        super(AddDeliveryForm,self).__init__(*args,**kwargs)
+        t= self.get_currentuser(request)
+        self.fields['exp'].choices = [(i.pk,str(i)) for i in Experiment.objects.filter(exp_owner=t)]
+        self.fields['group'].choices = [(i.pk,str(i)) for i in Group.objects.filter(teacher=t)]
+
+
+    def get_currentuser(self,request):
+        username = request.session['username']
+        t = User.objects.get(username=username)
+        return t
+
 
 class EditDeliveryForm(forms.Form):
     name = forms.CharField(label='Delivery Name',
