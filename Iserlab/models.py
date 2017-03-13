@@ -113,7 +113,7 @@ class Group(models.Model):
 
 
     def __unicode__(self):
-        return u'%s' % (self.name)
+        return u'%s,%s' % (self.name,self.teacher)
 #
 
 #
@@ -142,7 +142,7 @@ class VMImage(models.Model):
     path=models.CharField(max_length=300,null=True,blank=True)
 
     def __unicode__(self):
-        return u'name=%s,creater=%s,is_shared=%s' % (self.name,self.owner,self.is_shared)
+        return u'name=%s,creater=%s' % (self.name,self.owner)
 
     class Meta:
         ordering = ['-created_at']
@@ -182,7 +182,7 @@ class Network(models.Model):
     tenant_id = models.CharField(max_length=50,null=True,blank=True)
     allocation_pools_start = models.CharField(max_length=30,null=True,blank=True)
     allocation_pools_end = models.CharField(max_length=30, null=True, blank=True)
-    enable_dhcp = models.CharField(max_length=10,null=True,blank=True)
+    enable_dhcp = models.BooleanField(default=True)
 
 
     def __unicode__(self):
@@ -197,7 +197,7 @@ class Network(models.Model):
 class Experiment(models.Model):
     #basic info
     exp_name = models.CharField(max_length = 150)
-    exp_description = models.TextField(blank = True)
+    exp_description = models.TextField(blank = True,max_length=500)
     exp_createtime = models.DateTimeField(auto_now_add = True,editable = True)
     exp_updatetime = models.DateTimeField(auto_now = True,blank = True)#the default value is equal to created_time
     exp_owner = models.ForeignKey(User)
@@ -207,6 +207,7 @@ class Experiment(models.Model):
     exp_image_count = models.IntegerField(null=True)
     exp_network = models.ManyToManyField(Network)
     exp_guide = models.TextField(null=True,blank = True)
+    exp_guide_path = models.CharField(max_length=300,null=True,blank=True)
     exp_result = models.CharField(max_length = 500,null=True,blank = True)
     exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)#??
     # is_shared  = models.CharField(max_length=10,null=True,default='False')
@@ -335,3 +336,4 @@ class Score(models.Model):
     result = models.CharField(max_length=500,null=True,blank=True)
     result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
     reportUrl = models.URLField(null=True,blank=True)
+    report_path = models.CharField(max_length=300, null=True, blank=True)

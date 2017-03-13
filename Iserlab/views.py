@@ -118,12 +118,6 @@ def group_edit(request,group_id):
     for item in s_list:
         s_name_list.append(item.stu_username)
 
-    #initial the form
-    attrs = {}
-    attrs['gname']=g.name
-    attrs['desc']=g.desc
-    attrs['stulist']= s_name_list
-    gf = AddGroupForm(initial=attrs)
 
     #edit and update the group
     username = request.session['username']
@@ -159,10 +153,48 @@ def group_edit(request,group_id):
             # refresh the group list
             return HttpResponseRedirect('/stu_home/')
     else:
-        rf = AddGroupForm()
+        # initial the form
+        attrs = {}
+        attrs['gname'] = g.name
+        attrs['desc'] = g.desc
+        attrs['stulist'] = s_name_list
+        gf = AddGroupForm(initial=attrs)
     return render_to_response("group_edit.html", {'rf': gf})
 
 
+def repo_create_image(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    # if request.method == 'POST':
+    #     form = CreateImageForm(request.POST,request.FILES)
+    #     if form.is_valid():
+    #         repo_handle_upload_image()
+    # pass
+    if request.method =="POST":
+        myfile = request.FILES.get("myfile",None)
+        if not myfile:
+            return HttpResponse("no file to choose")
+        save_path = "/home/mcy/upload/files"
+        destination = open(os.path.join(save_path,myfile.name),'wb+')
+        for chunk in myfile.chunks():
+            destination.write(chunk)
+        destination.close()
+
+        #get data from form
+        rf = CreateImageForm(request.POST)
+        name = rf.data['name']
+        desc = rf.data['desc']
+
+        #insert into db
+        file_path = save_path+'/'+myfile.name
+        new = VMImage(name=name,description=desc,path=file_path,owner=t)
+        new.save()
+
+        # response = "congrats. your file \"" + myfile.name + "\" has been uploaded."
+        return HttpResponseRedirect("/repo_home/")
+    else:
+        rf = CreateImageForm()
+    return render(request,'repo_create_image.html',{'rf':rf})
 
 
 def create_experiment(experiment_name,owner,imagelist,image_count,networklist,is_shared='False',description='description',guide='Please input exp guide here',result='Please input exp result here to refer',reportDIR='Please input report DIR here'):

@@ -86,9 +86,12 @@ def exp_home(request):
         ExpList = Experiment.objects.filter(exp_owner=teacher).order_by('-exp_createtime')
         # print dir(ExpList[0])
         context['ExpList'] = ExpList
-        pass
+
     else:#this is a student user
-        pass
+        student = Student.objects.get(stu_username=username)
+        #list all exps those were deliveried to this student
+        ScoreList = Score.objects.filter(stu=student).order_by('-createTime')
+        context['ScoreList']=ScoreList
     return render(request,'exp_managment.html',context)
 
 
@@ -254,7 +257,7 @@ def delivery_create(request):
                     new_score.save()
         return HttpResponseRedirect('/teach_home/')
     else:
-        rf = AddDeliveryForm(request)
+        rf = AddDeliveryForm()
     return render_to_response("delivery_create.html",{'rf':rf})
 
 
@@ -527,6 +530,7 @@ def repo_ImageCart_list(request):
     return render(request,"repo_ImageCart_list.html",context)
 
 
+
 def repo_ImageCart_clear(request):
     username = request.session['username']
     t = User.objects.get(username=username)
@@ -534,6 +538,8 @@ def repo_ImageCart_clear(request):
     if result:
         print "clear th imagecart success!"
     return HttpResponseRedirect('/repo_ImageCart_list/')
+
+
 
 def repo_ImageCart_add(request,i_id):
     try:
@@ -553,6 +559,7 @@ def repo_ImageCart_add(request,i_id):
         return HttpResponse("repo_ImageCart_add Success!")
 
 
+
 def repo_NetworkCart_clear(request):
     username = request.session['username']
     t = User.objects.get(username=username)
@@ -560,6 +567,7 @@ def repo_NetworkCart_clear(request):
     if result:
         print "clear th NetworkCart success!"
     return HttpResponseRedirect('/repo_NetworkCart_list/')
+
 
 
 def repo_NetworkCart_list(request):
@@ -575,6 +583,7 @@ def repo_NetworkCart_list(request):
     networkList = NetworkCart.objects.filter(user=t).order_by("-createtime")
     context["CartList"] = networkList
     return render(request, "repo_NetworkCart_list.html", context)
+
 
 
 def repo_NetworkCart_add(request,n_id):
@@ -595,6 +604,7 @@ def repo_NetworkCart_add(request,n_id):
         return HttpResponse("repo_NetworkCart_add success")
 
 
+
 def repo_ImageCart_delete(request,i_id):
     try:
         cart = ImageCart.objects.get(id=i_id)
@@ -604,6 +614,7 @@ def repo_ImageCart_delete(request,i_id):
     if result:
         print "delete success"
     return HttpResponseRedirect('/repo_ImageCart_list/')
+
 
 
 def repo_NetworkCart_delete(request,n_id):
@@ -617,6 +628,7 @@ def repo_NetworkCart_delete(request,n_id):
     return HttpResponseRedirect('/repo_NetworkCart_list/')
 
 
+
 def repo_image_detail(request,i_id):
     try:
         image = VMImage.objects.get(id=i_id)
@@ -628,8 +640,33 @@ def repo_image_detail(request,i_id):
     return render(request,'repo_image_detail.html',context)
 
 
+
 def repo_image_edit(request,i_id):
-    pass
+    try:
+        image = VMImage.objects.get(id=i_id)
+    except VMImage.DoesNotExist:
+        raise Http404
+    if request.method == 'POST':
+        rf = EditImageForm(request.POST)
+        if rf.is_valid():
+            #get data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            re = VMImage.objects.filter(id=i_id).update(name=name,description=desc)
+
+            #openstack API
+
+            if re:
+                messages.success(request,"Update Image Success!")
+            return HttpResponseRedirect('/repo_private_image_list/')
+    else:
+        #initial the form
+        attrs ={}
+        attrs['name']=image.name
+        attrs['desc']=image.description
+        gf = EditImageForm(initial=attrs)
+    return render_to_response("repo_image_edit.html",{'rf':gf})
+
 
 
 def repo_image_delete(request,i_id):
@@ -638,6 +675,8 @@ def repo_image_delete(request,i_id):
     except VMImage.DoesNotExist:
         raise Http404
     result = VMImage.objects.filter(id=i_id).delete()
+    #openstack API
+
     if result:
         print "delete success"
     return HttpResponseRedirect('/repo_private_image_list/')
@@ -656,11 +695,59 @@ def repo_image_share(request,i_id):
 
 
 def repo_network_detail(request,n_id):
-    pass
+    try:
+        network = Network.objects.get(id=n_id)
+    except Network.DoesNotExist:
+        raise Http404
+    #get network detail from db
+    context = {}
+    context['DetailDict'] = network
+    return render(request,'repo_network_detail.html',context)
 
 
 def repo_network_edit(request,n_id):
-    pass
+    try:
+        net = Network.objects.get(id=n_id)
+    except Network.DoesNotExist:
+        raise Http404
+    if request.method == 'POST':
+        rf = AddNetworkForm(request.POST)
+        if rf.is_valid():
+            # get data from form input
+            name = rf.cleaned_data['name']
+            subnet_name = rf.cleaned_data['subnet_name']
+            desc = rf.cleaned_data['desc']
+            ip_version = rf.cleaned_data['ip_version']
+            cidr = rf.cleaned_data['cidr']
+            gateway = rf.cleaned_data['gateway']
+            allocation_pools_start = rf.cleaned_data['allocation_pools_start']
+            allocation_pools_end = rf.cleaned_data['allocation_pools_end']
+            enable_dhcp = rf.cleaned_data['enable_dhcp']
+            #update the data in db
+            re = Network.objects.filter(id=n_id).update(network_name=name,network_description=desc,subnet_name=subnet_name,
+                                                        ip_version=ip_version,cidr=cidr,gateway_ip=gateway,
+                                                        allocation_pools_start=allocation_pools_start,
+                                                        allocation_pools_end=allocation_pools_end,enable_dhcp=enable_dhcp,
+                                                        updated_at=datetime.datetime.now())
+            #openstack API
+
+            if re:
+                messages.success(request,"Edit Network Success")
+            return HttpResponseRedirect('/repo_private_network_list/')
+    else:
+        #initial the form
+        attrs = {}
+        attrs['name'] = net.network_name
+        attrs['subnet_name'] = net.subnet_name
+        attrs['network_description']=net.network_description
+        attrs['ip_version']=net.ip_version
+        attrs['cidr']=net.cidr
+        attrs['gateway']=net.gateway_ip
+        attrs['allocation_pools_start']=net.allocation_pools_start
+        attrs['allocation_pools_end']=net.allocation_pools_end
+        attrs['enable_dhcp']=net.enable_dhcp
+        gf = AddNetworkForm(initial=attrs)
+    return render_to_response("repo_network_edit.html",{'rf':gf})
 
 
 def repo_network_delete(request,n_id):
@@ -738,7 +825,6 @@ def repo_private_image_list(request):
     context['currentTime'] = showTime.formatTime2()
     context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
 
-
     username = request.session['username']
     t = User.objects.get(username=username)
     PrivateImageList = VMImage.objects.filter(owner=t).order_by('-created_at')
@@ -764,7 +850,32 @@ def repo_private_network_list(request):
 
 
 def repo_create_network(request):
-    pass
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    if request.method == 'POST':
+        rf = AddNetworkForm(request.POST)
+        if rf.is_valid():
+            #get data from form input
+            name = rf.cleaned_data['name']
+            subnet_name = rf.cleaned_data['subnet_name']
+            desc = rf.cleaned_data['desc']
+            ip_version = rf.cleaned_data['ip_version']
+            cidr = rf.cleaned_data['cidr']
+            gateway = rf.cleaned_data['gateway']
+            allocation_pools_start = rf.cleaned_data['allocation_pools_start']
+            allocation_pools_end=rf.cleaned_data['allocation_pools_end']
+            enable_dhcp=rf.cleaned_data['enable_dhcp']
+
+            #insert into db
+            n = Network(owner=t,network_name=name,network_description=desc,subnet_name=subnet_name,ip_version=ip_version,
+                        cidr=cidr,gateway_ip=gateway,allocation_pools_start=allocation_pools_start,
+                        allocation_pools_end=allocation_pools_end,enable_dhcp=enable_dhcp)
+            n.save()
+            return HttpResponseRedirect('/repo_home/')
+    else:
+        rf = AddNetworkForm()
+    return render(request,'repo_create_network.html',{'rf':rf})
+
 
 
 def repo_create_image(request):
@@ -779,7 +890,7 @@ def repo_create_image(request):
         myfile = request.FILES.get("myfile",None)
         if not myfile:
             return HttpResponse("no file to choose")
-        save_path = "/home/mcy/upload/files"
+        save_path = "/home/mcy/upload/files/images"
         destination = open(os.path.join(save_path,myfile.name),'wb+')
         for chunk in myfile.chunks():
             destination.write(chunk)
@@ -787,7 +898,6 @@ def repo_create_image(request):
 
         #get data from form
         rf = CreateImageForm(request.POST)
-
         name = rf.data['name']
         desc = rf.data['desc']
 
@@ -798,10 +908,8 @@ def repo_create_image(request):
 
         # response = "congrats. your file \"" + myfile.name + "\" has been uploaded."
         return HttpResponseRedirect("/repo_home/")
-
     else:
         rf = CreateImageForm()
-
     return render(request,'repo_create_image.html',{'rf':rf})
 
 
@@ -1353,10 +1461,37 @@ def network_create(request):
 
 
 #only role = stu has this function
-def exp_list_by_stu(request):
+def exp_list_undo(request):
     username = request.session['username']
-    role = request.session['role']
-    pass
+    student = Student.objects.get(stu_username=username)
+    ScoreList = Score.objects.filter(stu=student,situation='undo').order_by('-createTime')
+    context={}
+    context['ScoreList'] = ScoreList
+    return render(request,'exp_list_undo.html',context)
+
+def exp_list_doing(request):
+    username = request.session['username']
+    student = Student.objects.get(stu_username=username)
+    ScoreList = Score.objects.filter(stu=student,situation='doing').order_by('-createTime')
+    context={}
+    context['ScoreList'] = ScoreList
+    return render(request,'exp_list_doing.html',context)
+
+def exp_list_done(request):
+    username = request.session['username']
+    student = Student.objects.get(stu_username=username)
+    ScoreList = Score.objects.filter(stu=student,situation='done').order_by('-createTime')
+    context={}
+    context['ScoreList'] = ScoreList
+    return render(request,'exp_list_done.html',context)
+
+def exp_list_scored(request):
+    username = request.session['username']
+    student = Student.objects.get(stu_username=username)
+    ScoreList = Score.objects.filter(stu=student,situation='scored').order_by('-createTime')
+    context={}
+    context['ScoreList'] = ScoreList
+    return render(request,'exp_list_scored.html',context)
 
 
 
@@ -1426,37 +1561,48 @@ def exp_copy(request,exp_id):
 def exp_create(request):
     username = request.session['username']
     t = User.objects.get(username=username)
+    print request.user
     if request.method == 'POST':
+        guideFile = request.FILES.get("guide_file",None)
+        if not guideFile:
+            return HttpResponse("no file to choose")
+            # messages.error(request,"no file to choose")
+        save_path = "/home/mcy/upload/files"
+        destination = open(os.path.join(save_path,guideFile.name),'wb+')
+        for chunk in guideFile.chunks():
+            destination.write(chunk)
+        destination.close()
+
         rf = AddExpForm(request.POST)
-        if rf.is_valid():
-            #get input data from form
-            name = rf.cleaned_data['name']
-            desc = rf.cleaned_data['desc']
-            images_idList = rf.cleaned_data['images_idList']
-            networks_idList = rf.cleaned_data['networks_idList']
-            guide = rf.cleaned_data['guide']
-            refer_result=rf.cleaned_data['refer_result']
-            #get images
-            imageList=[]
-            for i in images_idList:
-                imageList.append(VMImage.objects.get(id=i))
-            networkList=[]
-            for i in networks_idList:
-                networkList.append(Network.objects.get(id=i))
-            #get networks
+        # if rf.is_valid():
+        #get input data from form
+        name = rf.data['name']
+        desc = rf.data['desc']
+        images_idList = rf.data['images_idList']
+        networks_idList = rf.data['networks_idList']
+        guide = rf.data['guide']
+        refer_result=rf.data['refer_result']
+        #get images
+        imageList=[]
+        for i in images_idList:
+            imageList.append(VMImage.objects.get(id=i))
+        networkList=[]
+        for i in networks_idList:
+            networkList.append(Network.objects.get(id=i))
+        #get networks
+        exp_guide_path = save_path+'/'+guideFile.name
+        e = Experiment(exp_name=name,exp_description=desc,exp_owner=t,exp_image_count=len(imageList),
+                       exp_guide=guide,exp_result=refer_result,exp_guide_path=exp_guide_path)
+        e.save()
+        for item in imageList:
+            e.exp_images.add(item)
+        for item in networkList:
+            e.exp_network.add(item)
 
-            e = Experiment(exp_name=name,exp_description=desc,exp_owner=t,exp_image_count=len(imageList),
-                           exp_guide=guide,exp_result=refer_result)
-            e.save()
-            for item in imageList:
-                e.exp_images.add(item)
-            for item in networkList:
-                e.exp_network.add(item)
-
-            #refresh the exp list
-                return HttpResponseRedirect('/exp_home/')
+        #refresh the exp list
+        return HttpResponseRedirect('/exp_home/')
     else:
-        rf = AddExpForm(request)
+        rf = AddExpForm()
     return render_to_response("exp_create.html",{'rf':rf})
 
 
@@ -1551,10 +1697,6 @@ def exp_delivery(request,exp_id):
     except Experiment.DoesNotExist:
         raise Http404
 
-    attrs = {}
-    attrs['name']="delivery_"+ e.exp_name+"_"+ time.strftime('%Y-%m-%d %X',time.localtime())
-    gf = AddExpForm(initial=attrs)
-
     if request.method == 'POST':
         rf = ExpDeliveryForm(request.POST)
         if rf.is_valid():
@@ -1596,7 +1738,10 @@ def exp_delivery(request,exp_id):
                     new_score.save()
         return HttpResponseRedirect('/exp_home/')
     else:
-        rf = ExpDeliveryForm()
+        attrs = {}
+        attrs['name'] = "delivery_" + e.exp_name + "_" + time.strftime('%Y-%m-%d %X', time.localtime())
+        gf = ExpDeliveryForm(initial=attrs)
+
     return render_to_response("exp_delivery.html", {'rf': gf})
 
 
@@ -1655,10 +1800,46 @@ def exp_clean(request,exp_id):
     pass
 
 #only role=stu has this operation
-def exp_submit(request,exp_id):
+def exp_submit(request,d_id):
+    username = request.session['username']
+    role = request.session['role']
+    if role=="teacher":
+        return HttpResponse("Teacher do not have this function")
+    else:
+        s = Student.objects.get(username=username)
+
+        if request.method == 'POST':
+            # get data from form
+            reportFile = request.FILES.get("reportFile",None)
+            if not reportFile:
+                return HttpResponse("no file to choose")
+            save_path = "/home/mcy/upload/files/report"
+            destination = open(os.path.join(save_path, reportFile.name), 'wb+')
+            for chunk in reportFile.chunks():
+                destination.write.chunks()
+            destination.close()
+            file_path=save_path+'/'+reportFile.name
+
+            rf = SubmitExpForm(request.POST)
+            result = rf.data['result']
+
+            #update Score db
+            re = Score.objects.filter(stu=s,delivery_id=d_id).update(result=result,report_path=file_path)
+            if re:
+                messages.success(request,"Submit Exp Result Success!")
+            return HttpResponseRedirect('/exp_home/')
+        else:
+            rf = SubmitExpForm()
+    return render(request,"exp_submit.html",{'rf':rf})
+
+
+
+def exp_guide_download(reuqest,exp_id):
+
     pass
 
-
+def exp_report_download(request,score_id):
+    pass
 
 def exp_network_launch(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
@@ -1740,13 +1921,7 @@ def repo_exp_list(request):
 #                  Teacher list resource in private repo                 #
 #***********************************************************************#
 #Models:VMImage(id,name,owner,is_public,created_time)
-def repo_image_list(request):
-    pass
 
-
-
-def repo_network_list(request):
-    pass
 
 
 #***********************************************************************#

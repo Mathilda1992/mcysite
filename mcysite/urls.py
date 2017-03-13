@@ -98,8 +98,13 @@ urlpatterns = [
     url(r'^exp_launch/(\d+)/$', exp_launch, name='exp_launch'),
     url(r'^exp_submit/(\d+)/$', exp_submit, name='exp_submit'),
 
-
+    url(r'^exp_guide_download/(\d+)/$', exp_guide_download, name='exp_guide_download'),
     url(r'^exp_network_launch/$',exp_network_launch,name='luanch_exp_network'),
+
+    url(r'^exp_list_undo/$',exp_list_undo,name='exp_list_undo'),
+    url(r'^exp_list_doing/$', exp_list_doing, name='exp_list_doing'),
+    url(r'^exp_list_done/$', exp_list_done, name='exp_list_done'),
+    url(r'^exp_list_scored/$', exp_list_scored, name='exp_list_scored'),
 
     #repo operate
     url(r'^repo_home/$',repo_home,name='repo_home'),

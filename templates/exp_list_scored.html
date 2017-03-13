@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Scored Exp</title>
+</head>
+<body>
+
+    <div class="header">
+            <h1 align="center">Scored Experiments</h1>
+            <p align="center" >
+                <a href="/exp_home/">All Exp</a>|
+                <a href="/exp_list_undo/">Undo Exp</a>|
+                <a href="/exp_list_doing/">Doing Exp</a>|
+                <a href="/exp_list_done/">Done Exp</a>|
+                <a href="/exp_list_scored/">Scored Exp</a>
+            </p>
+        </div>
+
+
+        {% for item in ScoreList %}
+            <div align="center" class="blog">
+
+                <div class="info">
+                    <span class="catagory" style="color: #ff9900;">实验名称：{{ item.exp.exp_name }}</span>
+                    <span class="author" style="color: #4a86e8;">分发者：{{ item.scorer  }}</span>
+                    <span class="author" style="color: #4a86e8;">所属分发：{{ item.delivery_id  }}</span>
+                    <span class="created" style="color: #6aa84e;">分发时间：{{ item.createTime |date:"Y-m-d H:i" }}</span>
+                    <span class="created" style="color: #6aa84e;">实验状态：{{ item.situation }}</span>
+
+                </div>
+
+                <div class="summary">
+                    分数：{{ item.score }}
+                </div>
+                <div class="summary">
+                    评价：{{ item.comment}}
+                </div>
+                <div class="summary">
+                    评价时间：{{ item.scoreTime |date:"Y-m-d H:i"}}
+                </div>
+            </div>
+        {% endfor %}
+
+</body>
+</html>

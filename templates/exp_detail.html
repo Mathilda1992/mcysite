@@ -23,6 +23,7 @@
             <a href="{% url 'exp_copy' E_Detail_Dict.id %}" target="_blank">复制</a>|
             <a href="{% url 'exp_delivery' E_Detail_Dict.id %}" target="_blank">分发</a>|
             <a href="{% url 'exp_share' E_Detail_Dict.id %}" >共享</a>|
+            <a href="{% url 'exp_guide_download' E_Detail_Dict.id%}">下载实验指导书</a>|
             <a href="javascript:window.opener=null;window.open('','_self');window.close()" >关闭</a></p>
         </div>
 
@@ -63,32 +64,34 @@
         <div>
             实验指南：{{ E_Detail_Dict.exp_guide }}
         </div>
-        <div>
-            实验结果参考（教师给出实验结果作为评分依据）：{{ E_Detail_Dict.exp_result }}
-        </div>
-        <div>
-            实验报告（学生所提交的实验报告所在repo目录）：{{ E_Detail_Dict.exp_reportDIR }}
-        </div>
-        <div>
-            分发历史记录:
-        <table>
-            <tr>
-                <td>Delivery Name</td>
-                <td>Delivery Time</td>
-                <td>Group</td>
-            </tr>
 
-            {% for item in E_Detail_Dict.delivery_history %}
+        {% ifequal role 'teacher' %}
+            <div>
+                实验结果参考（教师给出实验结果作为评分依据）：{{ E_Detail_Dict.exp_result }}
+            </div>
+            <div>
+                实验报告（学生所提交的实验报告所在repo目录）：{{ E_Detail_Dict.exp_reportDIR }}
+            </div>
+            <div>
+                分发历史记录:
+            <table>
                 <tr>
-                    <td><a href="{% url 'delivery_detail' item.id %}"><span class="author" style="color: #4a86e8">{{ item.name }}</span></a></td>
-                    <td><span class="created" style="color: #6aa84f">{{ item.delivery_time|date:"Y-m-d H:i" }}</span></td>
-                    <td><span class="category" style="color: #ff9900;">{{ item.stu.name }}</span></td>
+                    <td>Delivery Name</td>
+                    <td>Delivery Time</td>
+                    <td>Group</td>
                 </tr>
-            {% empty %}
-                <p>抱歉,Delivery History列表为空</p>
-            {% endfor %}
-        </table>
 
+                {% for item in E_Detail_Dict.delivery_history %}
+                    <tr>
+                        <td><a href="{% url 'delivery_detail' item.id %}"><span class="author" style="color: #4a86e8">{{ item.name }}</span></a></td>
+                        <td><span class="created" style="color: #6aa84f">{{ item.delivery_time|date:"Y-m-d H:i" }}</span></td>
+                        <td><span class="category" style="color: #ff9900;">{{ item.stu.name }}</span></td>
+                    </tr>
+                {% empty %}
+                    <p>抱歉,Delivery History列表为空</p>
+                {% endfor %}
+            </table>
+        {% endifequal %}
 
         </div>
 
