@@ -13,9 +13,9 @@
         <ul>
             <li><a href="/repo_private_exp_list/" >我的实验资源</a></li>
             <li><a href="/repo_private_image_list/" >我的镜像资源</a></li>
-            <li><a href="/repo_create_image/" >创建镜像</a></li>
+            <li><a href="/repo_create_image/" target="_blank">创建镜像</a></li>
             <li><a href="/repo_private_network_list/">我的网络资源</a></li>
-            <li><a href="/repo_create_network/">创建网络</a></li>
+            <li><a href="/repo_create_network/" target="_blank">创建网络</a></li>
         </ul>
         <li><a href="/repo_ImageCart_list/">购物车</a></li>
         <ul>
@@ -31,10 +31,10 @@
     {% for item in PublicExpList %}
         <div align="center" class="blog">
             <div class="title">
-                <a href="{% url 'exp_detail' item.id %}"><h2>{{ item.exp_name }}</h2></a>
-                <a href="{% url 'exp_detail' item.id %}" >详情</a>|
-                <a href="{% url 'exp_copy' item.id %}" >复制</a>|
-                <a href="{% url 'exp_delivery' item.id %}">分发</a>|
+                <a href="{% url 'exp_detail' item.id %}" target="_blank"><h2>{{ item.exp_name }}</h2></a>
+                <a href="{% url 'exp_detail' item.id %}" target="_blank">详情</a>|
+                <a href="{% url 'exp_copy' item.id %}" target="_blank">复制</a>|
+                <a href="{% url 'exp_delivery' item.id %}" target="_blank">分发</a>|
                 <a href="{% url 'exp_launch' item.id %}" >启动</a>
                 {% ifequal item.exp_owner.username username %}
                     |<a href="{% url 'repo_public_exp_delete' item.id %}" >删除</a>

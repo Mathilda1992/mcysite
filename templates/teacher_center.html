@@ -7,7 +7,7 @@
         <li><a href="/teach_result_list/">评价实验结果</a></li>
         <li><a href="/teach_score_list/" >成绩统计</a></li>
         <li><a href="/delivery_list/" >分发历史记录</a></li>
-        <li><a href="/delivery_create/" >新建分发任务</a></li>
+        <li><a href="/delivery_create/" target="_blank">新建分发任务</a></li>
     </ul>
 
     <div class="header">
@@ -17,9 +17,9 @@
     {% for item in DeliveryList %}
         <div align="center" class="blog">
             <div class="title">
-                <h2><a href="{% url 'exp_detail' item.exp.id %}">{{ item.exp.exp_name }}</a>~
-                    <a href="{% url 'group_view' item.group.id %}">{{ item.group.name }}</a></h2>
-                <a href="{% url 'teach_situation_detail_by_delivery' item.id %}" >(本次分发)进展详情</a>|
+                <h2><a href="{% url 'exp_detail' item.exp.id %}" target="_blank">{{ item.exp.exp_name }}</a>~
+                    <a href="{% url 'group_view' item.group.id %}" target="_blank">{{ item.group.name }}</a></h2>
+                <a href="{% url 'teach_situation_detail_by_delivery' item.id %}" target="_blank">(本次分发)进展详情</a>|
                 <a href="{% url 'teach_score_list_by_deliveryID' item.id %}" >(本次分发)查看成绩</a>
 
 

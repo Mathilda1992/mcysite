@@ -5,7 +5,7 @@
 
     <ul>
         <li><a href="/exp_home/" >实验列表</a></li>
-        <li><a href="/exp_create/" >创建实验</a></li>
+        <li><a href="/exp_create/" target="_blank">创建实验</a></li>
     </ul>
 
 
@@ -18,15 +18,15 @@
         <div align="center" class="blog">
 
             <div class="title">
-                <a href="{% url 'exp_detail' item.id %}"><h2>{{ item.exp_name }}</h2></a>
-                <a href="{% url 'exp_detail' item.id %}" >查看详情</a>
-                |<a href="{% url 'exp_launch' item.id %}" >启动实验</a>
+                <a href="{% url 'exp_detail' item.id %}" target="_blank"><h2>{{ item.exp_name }}</h2></a>
+                <a href="{% url 'exp_detail' item.id %}" target="_blank">查看详情</a>
+                |<a href="{% url 'exp_launch' item.id %}" target="_blank">启动实验</a>
 
                 {% ifequal role "teacher" %}
-                    |<a href="{% url 'exp_edit' item.id %}" >编辑实验</a>
-                    |<a href="{% url 'exp_copy' item.id %}" >复制实验</a>
+                    |<a href="{% url 'exp_edit' item.id %}" target="_blank">编辑实验</a>
+                    |<a href="{% url 'exp_copy' item.id %}" target="_blank">复制实验</a>
                     |<a href="{% url 'exp_delete' item.id %}" >删除实验</a>
-                    |<a href="{% url 'exp_delivery' item.id %}" >分发实验</a>
+                    |<a href="{% url 'exp_delivery' item.id %}" target="_blank">分发实验</a>
                     {% ifequal item.is_shared False %}
                         |<a href="{% url 'exp_share' item.id %}" >共享实验</a>
                     {% endifequal %}

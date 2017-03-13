@@ -18,12 +18,12 @@
         </div>
         <div>
             <p>显示当前Experiment详情
-            <a href="{% url 'exp_edit' E_Detail_Dict.id %}" >编辑</a>|
+            <a href="{% url 'exp_edit' E_Detail_Dict.id %}" target="_blank">编辑</a>|
             <a href="{% url 'exp_launch' E_Detail_Dict.id %}" >启动</a>|
-            <a href="{% url 'exp_copy' E_Detail_Dict.id %}" >复制</a>|
-            <a href="{% url 'exp_delivery' E_Detail_Dict.id %}" >分发</a>|
+            <a href="{% url 'exp_copy' E_Detail_Dict.id %}" target="_blank">复制</a>|
+            <a href="{% url 'exp_delivery' E_Detail_Dict.id %}" target="_blank">分发</a>|
             <a href="{% url 'exp_share' E_Detail_Dict.id %}" >共享</a>|
-            <a href="/exp_home/" >关闭</a></p>
+            <a href="javascript:window.opener=null;window.open('','_self');window.close()" >关闭</a></p>
         </div>
 
         <div class="info">

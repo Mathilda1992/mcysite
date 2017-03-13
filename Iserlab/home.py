@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 #This page just include those data wanted to be show on home.html
-
+from django.contrib import messages
 from django.shortcuts import render,render_to_response
 from django.http import HttpResponse,Http404
 from django.template import Context
@@ -138,10 +138,16 @@ def teach_home(request):
 #***********************************************************************#
 #-----------Delivery Operate(only role=teacher has these function)-------------#
 def delivery_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     teacher = User.objects.get(username=username)
     DeliveryList = Delivery.objects.filter(teacher=teacher).order_by('-delivery_time')
-    context={}
     context['DeliveryList'] = DeliveryList
     return render(request, 'delivery_list.html', context)
 
@@ -334,10 +340,16 @@ def teach_result_report_download(request,score_id):
 
 #---list all exp results(situation=done)-----from score db
 def teach_result_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     current_teacher = User.objects.get(username=username)
     ResultList = Score.objects.filter(scorer=current_teacher,situation='Done',result_exp_id__isnull=False).order_by('-finishedTime')
-    context = {}
     context['ResultList'] = ResultList
     return render(request, 'teach_result_list.html', context)
 
@@ -345,6 +357,13 @@ def teach_result_list(request):
 
 #equal to teach_score_list_by_exp
 def teach_score_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     #default show scores by exp(distinct)
     username = request.session['username']
     t = User.objects.get(username=username)
@@ -373,13 +392,19 @@ def teach_score_list(request):
         ExpScoreDict['members']=len(e_stulist)
         ExpScoreDict['stulist']=e_stulist
         ExpScoreList.append(ExpScoreDict)
-    context = {}
     context['ExpScoreList']=ExpScoreList
     return render(request,'teach_score_list.html',context)
 
 
 #only role=teacher
 def teach_score_list_by_stu(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     t = User.objects.get(username=username)
     ScoreList = Score.objects.filter(scorer=t, situation='Scored')
@@ -407,7 +432,6 @@ def teach_score_list_by_stu(request):
         StuScoreDict['exp_count']=len(s_explist)
         StuScoreDict['explist']=s_explist
         StuScoreList.append(StuScoreDict)
-    context = {}
     context['StuScoreList']=StuScoreList
     return render(request,'teach_score_list_by_stu.html',context)
 
@@ -489,10 +513,16 @@ def teach_score_list_by_scoreID(request,score_id):
 #***********************************************************************#
 
 def repo_ImageCart_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     t = User.objects.get(username=username)
     imageList = ImageCart.objects.filter(user=t).order_by("-createtime")
-    context={}
     context["CartList"] = imageList
     return render(request,"repo_ImageCart_list.html",context)
 
@@ -533,10 +563,16 @@ def repo_NetworkCart_clear(request):
 
 
 def repo_NetworkCart_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     t = User.objects.get(username=username)
     networkList = NetworkCart.objects.filter(user=t).order_by("-createtime")
-    context = {}
     context["CartList"] = networkList
     return render(request, "repo_NetworkCart_list.html", context)
 
@@ -652,8 +688,14 @@ def repo_public_image_delete(request,i_id):#actually this operation is to set is
 
 
 def repo_public_image_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     PublicImageList = VMImage.objects.filter(is_shared=True).order_by("-shared_time")
-    context ={}
     context['PublicImageList']=PublicImageList
     return render(request,"repo_public_image_list.html",context)
 
@@ -673,30 +715,49 @@ def repo_public_exp_delete(request,e_id):
 
 
 def repo_private_exp_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     teacher = User.objects.get(username=username)
     PrivateExpList = Experiment.objects.filter(exp_owner=teacher).order_by('-exp_createtime')
-    context={}
     context['PrivateExpList'] = PrivateExpList
     return render(request,"repo_private_exp_list.html",context)
 
 
 
 def repo_private_image_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
+
     username = request.session['username']
     t = User.objects.get(username=username)
     PrivateImageList = VMImage.objects.filter(owner=t).order_by('-created_at')
-    context = {}
     context['PrivateImageList']=PrivateImageList
     return render(request,"repo_private_image_list.html",context)
 
 
 
 def repo_private_network_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     t = User.objects.get(username=username)
     NetList = Network.objects.filter(owner=t).order_by('-created_at')
-    context={}
     context['NetList']= NetList
     return render(request,"repo_private_network_list.html",context)
 
@@ -1477,6 +1538,8 @@ def exp_share(request,exp_id):
         raise Http404
     #update the is_shared field in Experiment db
     re = Experiment.objects.filter(id=exp_id).update(is_shared=True,shared_time=datetime.datetime.now())
+    if re:
+        messages.success(request,"Share exp success!")
     return HttpResponseRedirect('/exp_home/')
 
 

@@ -1,21 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Teach Score List</title>
-</head>
-<body>
-<p>（默认）出现所有实验的平均成绩，可以点进去查看某个实验的所有学生成绩。</p>
+{% extends "base.html" %}
+
+{% block content %}
+    <p>这里是教学统计中心，教员可以进行查看学生实验情况，评价实验结果，查看成绩统计，集中进行实验分发管理等一系列与教学相关的业务操作。</p>
+    <ul>
+        <li><a href="/teach_home/" >实验进展情况</a></li>
+        <li><a href="/teach_result_list/">评价实验结果</a></li>
+        <li><a href="/teach_score_list/" >成绩统计</a></li>
+        <li><a href="/delivery_list/" >分发历史记录</a></li>
+        <li><a href="/delivery_create/" target="_blank">新建分发任务</a></li>
+    </ul>
+
+
+
+    <p>（默认）出现所有实验的平均成绩，可以点进去查看某个实验的所有学生成绩。</p>
     <div class="header">
-        <h1 align="center">成绩统计|<a href="/teach_home/" >返回</a></h1>
-        <p align="center" ><a href="/teach_score_list/">按实验查看</a>|<a href="/teach_score_list_by_stu/">按学生查看</a></p>
+        <h1 align="center">成绩统计</h1>
+            <p align="center" ><a href="/teach_score_list/">按实验查看</a>|<a href="/teach_score_list_by_stu/">按学生查看</a></p>
     </div>
+
+
 
     {% for item in ExpScoreList %}
         <div align="center" class="blog">
 
             <div class="info">
-                <span class="catagory" style="color: #ff9900;">实验名称：<a href="{% url 'teach_score_list_by_expID' item.exp.id %}">{{ item.exp.exp_name }}</a></span>
+                <span class="catagory" style="color: #ff9900;">实验名称：<a href="{% url 'teach_score_list_by_expID' item.exp.id %}" target="_blank">{{ item.exp.exp_name }}</a></span>
                 <span class="author" style="color: #4a86e8;">实验人数：{{ item.members  }}</span>
                 <span class="created" style="color: #6aa84e;">平均分数：{{ item.ave }}</span>
 {#                <span class="created" style="color: #6aa84e;">最高分：{{ item.ave }}</span>#}
@@ -29,5 +38,11 @@
     {% endfor %}
 
 
-</body>
-</html>
+
+
+
+{% endblock %}
+
+
+
+

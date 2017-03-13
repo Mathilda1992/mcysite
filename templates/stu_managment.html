@@ -5,7 +5,7 @@
 
     <ul>
         <li><a href="/stu_home/" >群组列表</a></li>
-        <li><a href="/group_create/" >新增群组</a></li>
+        <li><a href="/group_create/" target="_blank">新增群组</a></li>
     </ul>
 
     <div class="header">
@@ -15,9 +15,9 @@
     {% for item in GroupList %}
         <div align="center" class="blog">
             <div class="title">
-                <a href="{% url 'group_view' item.id %}"><h2>{{ item.name }}</h2></a>
-                <a href="{% url 'group_view' item.id %}" >查看群组</a>|
-                <a href="{% url 'group_edit' item.id %}" >编辑群组</a>|
+                <a href="{% url 'group_view' item.id %}" target="_blank"><h2>{{ item.name }}</h2></a>
+                <a href="{% url 'group_view' item.id %}" target="_blank">查看群组</a>|
+                <a href="{% url 'group_edit' item.id %}" target="_blank">编辑群组</a>|
                 <a href="{% url 'group_delete' item.id %}" >删除群组</a>
             </div>
         <div class="info">

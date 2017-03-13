@@ -8,10 +8,10 @@
 
     <div class="header">
         <h1 align="center">Experiment Processing situation in Delivery:
-            <a href="{% url 'delivery_detail' Delivery.id %}">{{ Delivery.id }}</a>
-            <a href="/teach_home/">返回</a></h1>
-        <h3 align="center"><a href="{% url 'exp_detail' Delivery.exp.id %}">{{ Delivery.exp.exp_name }}</a>~
-            <a href="{% url 'group_view' Delivery.group.id %}">{{ Delivery.group.name }}</a></h3>
+            <a href="{% url 'delivery_detail' Delivery.id %}" target="_blank">{{ Delivery.id }}</a>
+            <a href="javascript:window.opener=null;window.open('','_self');window.close()" >关闭</a>
+        <h3 align="center"><a href="{% url 'exp_detail' Delivery.exp.id %}" target="_blank">{{ Delivery.exp.exp_name }}</a>~
+            <a href="{% url 'group_view' Delivery.group.id %}" target="_blank">{{ Delivery.group.name }}</a></h3>
     </div>
 
     {% for item in ScoreList %}
@@ -27,11 +27,11 @@
                         {% else %}
                             {% ifequal item.situation 'done' %}
                                     <a href="{% url 'exp_launch' item.result_exp_id %}" >查看实验</a>
-                                    |<a href="{% url 'teach_result_score' item.id %}" >实验评分</a>
+                                    |<a href="{% url 'teach_result_score' item.id %}" target="_blank">实验评分</a>
                                 {% else %}
                                     {% ifequal item.situation 'scored' %}
                                         <a href="{% url 'exp_launch' item.result_exp_id %}" >查看实验</a>
-                                        |<a href="{% url 'teach_result_score' item.id %}" >修改成绩</a>
+                                        |<a href="{% url 'teach_result_score' item.id %}" target="_blank">修改成绩</a>
                                     {% else %}
                                         <a href="{% url 'exp_launch' item.result_exp_id %}" >查看实验</a>
                                     {% endifequal %}

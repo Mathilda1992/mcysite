@@ -1,18 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Image Cart</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
+    <p>这里是用户查看资源库中已有资源的页面，包含公共资源库和个人资源库，默认是展示用户个人的资源列表</p>
+    <ul>
+        <li><a href="/repo_home/" >公共资源库</a></li>
+        <ul>
+            <li><a href="/repo_home/" >公共实验资源</a></li>
+            <li><a href="/repo_public_image_list/" >公共镜像资源</a></li>
+        </ul>
+
+        <li><a href="/repo_private_list/" >我的资源</a></li>
+        <ul>
+            <li><a href="/repo_private_exp_list/" >我的实验资源</a></li>
+            <li><a href="/repo_private_image_list/" >我的镜像资源</a></li>
+            <li><a href="/repo_create_image/" target="_blank">创建镜像</a></li>
+            <li><a href="/repo_private_network_list/">我的网络资源</a></li>
+            <li><a href="/repo_create_network/" target="_blank">创建网络</a></li>
+        </ul>
+        <li><a href="/repo_ImageCart_list/">购物车</a></li>
+        <ul>
+            <li><a href="/repo_ImageCart_list/">镜像购物车</a></li>
+            <li><a href="/repo_NetworkCart_list/">网络购物车</a></li>
+        </ul>
+    </ul>
+
     <div class="header">
-        <h1 align="center">显示Image Cart里的内容|<a href="/repo_ImageCart_clear/">清空购物车</a></h1>
+        <h1 align="center">镜像购物车|<a href="/repo_ImageCart_clear/">清空购物车</a></h1>
     </div>
+
 
     {% for item in CartList %}
         <div align="center" class="blog">
             <div class="title">
-                <a href="{% url 'repo_image_detail' item.id %}"><h2>{{ item.image.name }}</h2></a>
+                <a href="{% url 'repo_image_detail' item.id %}" target="_blank"><h2>{{ item.image.name }}</h2></a>
                 <a href="{% url 'repo_ImageCart_delete' item.image.id %}" >删除</a>
             </div>
         <div class="info">
@@ -25,5 +45,18 @@
         </div>
     {% endfor %}
 
-</body>
-</html>
+
+
+
+
+
+
+
+{% endblock %}
+
+
+
+
+
+
+
