@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+        <div class="header">
+        <h1 align="center">按群组显示实验成绩</h1>
+             <p align="center" ><a href="/teach_home/">所有成绩</a>|<a href="/teach_score_list_by_group/">按群组查看</a></p>
+        <h3 align="center">群组总数：{{ group_count }}</h3>
+        </div>
+
+
+        {% for item in GroupScoreList %}
+            <div align="center" class="blog">
+                <div class="info">
+                    <span class="catagory" style="color: #ff9900;">群组名称：<a href="{% url 'teach_score_list_by_groupID' item.group.id %}">{{ item.group.name }}</a></span>
+                    <span class="author" style="color: #4a86e8;">实验数目：{{ item.exp_count }}</span>
+                    <span class="created" style="color: #6aa84e;">平均分数：{{ item.ave_score }}</span>
+                </div>
+            </div>
+        {% endfor %}
+
+</body>
+</html>

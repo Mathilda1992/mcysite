@@ -38,8 +38,14 @@ region_name = 'RegionOne'
 
 system_admin_email = 'machenyi2011@163.com'
 
-
-
+def get_auth_info(username,password):
+    authDict = {}
+    authDict['auth_username'] = username
+    authDict['auth_password'] = password
+    authDict['auth_url'] = 'http://202.112.113.220:5000/v2.0/'
+    authDict['project_name']=username
+    authDict['region_name']= 'RegionOne'
+    return authDict
 #-----------form defination--------
 
 
@@ -130,11 +136,21 @@ def teach_home(request):
         DeliveryList = Delivery.objects.filter(teacher=teacher).order_by('-delivery_time')
         context['DeliveryList'] = DeliveryList
     else:
-        student = Student.objects.get(username=username)
-
+        student = Student.objects.get(stu_username=username)
+        ScoreList = Score.objects.filter(stu=student,situation='scored').order_by('-scoreTime')
+        context['ScoreList']=ScoreList
+        context['exp_count']=len(ScoreList)
     return render(request,'teacher_center.html',context)
 
 
+def openstack_API_home(request):#default list images
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+    return render(request,'openstack_API_home.html',context)
 
 #***********************************************************************#
 #                  Teaching center operate                             #
@@ -264,9 +280,7 @@ def delivery_create(request):
 def delivery_list_by_teacher():
     pass
 
-#------role = stu operate -----
-def delivery_list_by_student():
-    pass
+
 
 
 #----------teaching situation operation------------#
@@ -289,15 +303,15 @@ def teach_situation_detail_by_delivery(request,d_id):
     e = d.exp
     stu_list = g.student.all()
 
-    list =[]
-    for stu in stu_list:
-        #get data from score db
-        score = Score.objects.get(stu=stu,exp=e,scorer=t,delivery_id=d_id)
-
-        list.append(score)
+    # list =[]
+    # for stu in stu_list:
+    #     #get data from score db
+    #     score = Score.objects.get(stu=stu,exp=e,scorer=t,delivery_id=d_id)
+    #     list.append(score)
+    ScoreList = Score.objects.filter(delivery_id=d_id)
     context={}
     context['Delivery'] = d
-    context['ScoreList'] = list
+    context['ScoreList'] = ScoreList
 
     return render(request,'teach_situation_detail_by_delivery.html',context)
 
@@ -336,9 +350,17 @@ def teach_result_score(request,score_id):
 
 
 def teach_result_report_download(request,score_id):
-    pass
-
-
+    try:
+        s = Score.objects.get(id=score_id)
+    except Score.DoesNotExist:
+        raise Http404
+    if s.report_path:
+        response = StreamingHttpResponse(file_iterator(s.report_path))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format(s.report_path)
+        return response
+    else:
+        return HttpResponse("Report does not exist!")
 
 
 #---list all exp results(situation=done)-----from score db
@@ -437,6 +459,59 @@ def teach_score_list_by_stu(request):
         StuScoreList.append(StuScoreDict)
     context['StuScoreList']=StuScoreList
     return render(request,'teach_score_list_by_stu.html',context)
+
+
+def teach_score_list_by_group(request):
+    username = request.session['username']
+    stu = Student.objects.get(stu_username=username)
+    ScoreList = Score.objects.filter(stu=stu,situation='Scored').order_by("-scoreTime")
+
+    group_list=[]
+    for item in ScoreList:
+        g = Group.objects.get(id = item.group_id)
+        if g not in group_list:
+            group_list.append(g)
+    context = {}
+    context['group_count']=len(group_list)
+    GroupScoreList=[]
+    for g in group_list:
+        dict ={}
+        dict['group']=g
+        # exp_list=Delivery.objects.filter(group=g)
+        total =0
+        scorelist = Score.objects.filter(stu=stu,situation='scored',group_id=g.id)
+
+        for item in scorelist:
+            total = total+item.score
+        if len(scorelist):
+            ave_score = float(total)/len(scorelist)
+        else:
+            ave_score=0
+        dict['ave_score']=ave_score
+        dict['exp_count']=len(scorelist)
+        GroupScoreList.append(dict)
+    context['GroupScoreList']=GroupScoreList
+    return render(request,'teach_score_list_by_group.html',context)
+
+def teach_score_list_by_groupID(request,g_id):
+    username = request.session['username']
+    stu = Student.objects.get(stu_username=username)
+    g = Group.objects.get(id=g_id)
+    ScoreList = Score.objects.filter(stu=stu,situation='scored',group_id=g_id).order_by("-scoreTime")
+    total =0
+    for item in ScoreList:
+        total +=item.score
+    if len(ScoreList):
+        ave_score = float(total)/len(ScoreList)
+    else:
+        ave_score=0
+    context={}
+    context['group']=g
+    context['total_score']=total
+    context['exp_count']=len(ScoreList)
+    context['ave_score']=ave_score
+    context['ScoreList']=ScoreList
+    return render(request,"teach_score_list_by_groupID.html",context)
 
 
 
@@ -1285,7 +1360,6 @@ def flavor_list(request):
 def network_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     # define sth used to deliver to html
-
     NetworkList = network_resource_operation.list_networks2(conn)
     return render(request, 'image_list.html', {'NetworkList': NetworkList})
 
@@ -1310,21 +1384,10 @@ def server_list(request):
 
 #list all image
 def image_list(request):
-    #create conn to openstack
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-
-    ImageList = []
-    #get images data from openstack
     ImageList = image_resource_operation.list_images(conn)
-
-    #insert data into tables in mysql
-
-    #output the image name list in console
     context = {}
     context["ImageList"] = ImageList
-
-    # for i in range(0, list.__len__()):
-    #     print
     return render(request,'image_list.html',context)
 
 
@@ -1385,7 +1448,15 @@ def network_find(request):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Delete resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def image_delete(request):
-    pass
+    auth_username = 'teacher'
+    auth_password = 'os62511279'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'teacher'
+    region_name = 'RegionOne'
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    image_id = 'c038649a-04e9-4603-8fc9-83a92d0f835e'
+    image_resource_operation.delete_image(conn,image_id)
+    return HttpResponse('Image delete Success!')
 
 
 
@@ -1395,11 +1466,20 @@ def network_delete(request):
 
 
 def server_delete(request):
-    pass
+    # use local var
+    auth_username = 'demo'
+    auth_password = 'os62511279'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'demo'
+    region_name = 'RegionOne'
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    server_id = '386e7807-4aee-4f74-957f-f27b56b87be0'
+    compute_resource_operation.delete_server(conn,server_id)
+    return HttpResponse('VM delete Success' )
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Create resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def VM_create(request):
+def server_create(request):
     #use local var
     auth_username = 'demo'
     auth_password = 'os62511279'
@@ -1408,16 +1488,15 @@ def VM_create(request):
     region_name = 'RegionOne'
 
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    print auth_username
-    print auth_password
-    server_name = 'demo-alice-cirros1'
+
+    server_name = 'demo-alice-cirros2'
     image_name ='cirros'
     flavor_name = 'm1.tiny'
     network_name = 'private_alice'
     private_keypair_name = 'mykey'
     print 'before into ******'
-    VM_ip = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name, network_name,private_keypair_name)
-    print 'The cerated VM has ip: %s' % VM_ip
+    slist = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name, network_name,private_keypair_name)
+    print slist[0]
     return HttpResponse('VM create Success!')
 
 
@@ -1430,7 +1509,8 @@ def image_create(request):
     # List current image list
     ImageList = image_resource_operation.list_images(conn)
 
-    c = Context({'ImageList': ImageList})
+    c = {}
+    c['ImageList']=ImageList
     return render(request, 'image_list.html', c)
 
 
@@ -1777,27 +1857,59 @@ def exp_launch(request,exp_id):
     username = request.session['username']
     role = request.session['role']
     if role == 'teacher':
+        t = User.objects.get(username=username)
         e = Experiment.objects.get(id=exp_id)
+        #launch network
+
+        #create router
+
+        #launch VM
+
+        #insert into ExpInstance db
+
         pass
     else:
+        s = Student.objects.get(stu_username=username)
+
+
         pass
 
+def exp_network_launch(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username,
+                                                     auth_password)
+    e_id = 1
+    experiment_operation.luanch_exp_network(conn, e_id)
+    return HttpResponse('launch exp network!')
+
+def exp_vm_launch(request):
+    pass
 
 #teacher and student both have
 def exp_pause(request,exp_id):
     pass
 
+def exp_unpause(request,exp_id):
+    pass
 
-#teacher and student both have
-def exp_save(request,exp_id):
+def exp_suspend(request,exp_id):
     pass
 
 def exp_resume(request,exp_id):
     pass
 
 #teacher and student both have
-def exp_clean(request,exp_id):
+def exp_stop(request,exp_id):
     pass
+
+def exp_save(request,exp_id):
+    pass
+
+
+#teacher and student both have
+def exp_clean(request,exp_id):
+    #delete and make a new copy
+    pass
+
 
 #only role=stu has this operation
 def exp_submit(request,d_id):
@@ -1833,23 +1945,31 @@ def exp_submit(request,d_id):
     return render(request,"exp_submit.html",{'rf':rf})
 
 
+#使用迭代器加载文件，实现大文件的下载
+def file_iterator(file_name, chunk_size=512):
+    with open(file_name) as f:
+        while True:
+            c = f.read(chunk_size)
+            if c:
+                yield c
+            else:
+                break
+
 
 def exp_guide_download(reuqest,exp_id):
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+    if e.exp_guide_path:
+        # 使用StreamingHttpResponse配合迭代器返回文件到页面
+        response = StreamingHttpResponse(file_iterator(e.exp_guide_path))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format(e.exp_guide_path)
+        return response
+    else:
+        return HttpResponse("This exp does not have a guide file!")
 
-    pass
-
-def exp_report_download(request,score_id):
-    pass
-
-def exp_network_launch(request):
-    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    e_id = 1
-    experiment_operation.luanch_exp_network(conn,e_id)
-    return HttpResponse('launch exp network!')
-
-
-def exp_vm_launch(request):
-    pass
 
 
 #***********************************************************************#

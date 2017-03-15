@@ -291,3 +291,74 @@ def exp_detail(request,exp_id):
     c = {}
     c['E_Detail_Dict'] = E_Detail_Dict
     return render(request, 'exp_detail.html', c)
+
+
+
+def download_file(request):
+    # do something...
+
+    #使用迭代器加载文件，实现大文件的下载
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name) as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+
+    the_file_name = "/home/mcy/upload/files/localrc.txt"
+
+    #使用StreamingHttpResponse配合迭代器返回文件到页面
+    response = StreamingHttpResponse(file_iterator(the_file_name))
+
+    # 设置内容的格式使之能下载到硬盘而非显示在页面
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name)
+
+    return response
+
+
+#list all image
+def image_list(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    ImageList = image_resource_operation.list_images(conn)
+    context = {}
+    context["ImageList"] = ImageList
+    return render(request,'image_list.html',context)
+
+
+def server_create(request):
+    #use local var
+    auth_username = 'demo'
+    auth_password = 'os62511279'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'demo'
+    region_name = 'RegionOne'
+
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+
+    server_name = 'demo-alice-cirros2'
+    image_name ='cirros'
+    flavor_name = 'm1.tiny'
+    network_name = 'private_alice'
+    private_keypair_name = 'mykey'
+    print 'before into ******'
+    slist = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name, network_name,private_keypair_name)
+    print slist[0]
+    return HttpResponse('VM create Success!')
+
+
+def network_create(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    network_name = 'mcy-network222'
+    subnet_name = 'mcy-subnet222'
+    ip_version = '4'
+    cidr = '10.0.5.0/24'
+    gateway_ip = '10.0.5.1'
+    description='test network'
+    username = 'teacher2'
+    creator = experiment_operation.get_currentuser(username)
+    is_shared = 'False'
+    n = network_resource_operation.create_network(conn,network_name,subnet_name,ip_version,cidr,gateway_ip,description,creator,is_shared)
+    return HttpResponse('Create new network!')

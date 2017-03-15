@@ -189,8 +189,5 @@ def upload_image(conn,image_name):
 
 def delete_image(conn,image_ID):
     print("Delete Image:")
-
     example_image = conn.image.find_image(image_ID)
-
     conn.image.delete_image(example_image, ignore_missing=False)
-    return 0

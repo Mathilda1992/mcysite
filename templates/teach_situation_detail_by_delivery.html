@@ -27,6 +27,7 @@
                         {% else %}
                             {% ifequal item.situation 'done' %}
                                     <a href="{% url 'exp_launch' item.result_exp_id %}" >查看实验</a>
+                                    |<a href="{% url 'teach_result_report_download' item.id %}" target="_blank">下载实验报告</a>
                                     |<a href="{% url 'teach_result_score' item.id %}" target="_blank">实验评分</a>
                                 {% else %}
                                     {% ifequal item.situation 'scored' %}
@@ -43,11 +44,13 @@
 
             {% ifequal item.situation 'undo' %}
                 <div class="info">
+                    <span class="catagory" style="color: #ff9900;">ScoreID：{{ item.id }}</span>
                     <span class="catagory" style="color: #ff9900;">实验状态：{{ item.situation }}</span>
                 </div>
             {% else %}
                 {% ifequal item.situation 'doing' %}
                     <div class="info">
+                        <span class="catagory" style="color: #ff9900;">ScoreID：{{ item.id }}</span>
                         <span class="catagory" style="color: #ff9900;">实验状态：{{ item.situation }}</span>
                         <span class="author" style="color: #4a86e8;">实验次数：{{ item.times }}</span>
                         <span class="created" style="color: #6aa84e;">开始时间：{{ item.startTime |date:"Y-m-d H:i" }}</span>
@@ -55,6 +58,7 @@
                 {% else %}
                     {% ifequal item.situation 'done' %}
                         <div class="info">
+                            <span class="catagory" style="color: #ff9900;">ScoreID：{{ item.id }}</span>
                             <span class="catagory" style="color: #ff9900;">实验状态：{{ item.situation }}</span>
                             <span class="author" style="color: #4a86e8;">实验次数：{{ item.times }}</span>
                             <span class="created" style="color: #6aa84e;">开始时间：{{ item.startTime |date:"Y-m-d H:i" }}</span>
@@ -68,6 +72,7 @@
                     {% else %}
                         {% ifequal item.situation 'scored' %}
                             <div class="info">
+                                <span class="catagory" style="color: #ff9900;">ScoreID：{{ item.id }}</span>
                                 <span class="catagory" style="color: #ff9900;">实验状态：{{ item.situation }}</span>
                                 <span class="author" style="color: #4a86e8;">分数：{{ item.score }}</span>
                                 <span class="created" style="color: #6aa84e;">评分时间：{{ item.scoreTime |date:"Y-m-d H:i" }}</span>
@@ -77,6 +82,7 @@
                             </div>
                         {% else %}
                             <div class="info">
+                                <span class="catagory" style="color: #ff9900;">ScoreID：{{ item.id }}</span>
                                 <span class="catagory" style="color: #ff9900;">实验状态：{{ item.situation }}</span>
                                 <span class="author" style="color: #4a86e8;">实验次数：{{ item.times }}</span>
                                 <span class="created" style="color: #6aa84e;">开始时间：{{ item.startTime |date:"Y-m-d H:i" }}</span>

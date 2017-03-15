@@ -324,6 +324,7 @@ class Score(models.Model):
     exp = models.ForeignKey(Experiment)
     stu = models.ForeignKey(Student)
     scorer = models.ForeignKey(User)
+    group_id = models.IntegerField(null=True,blank=True)
     delivery_id = models.IntegerField(null=True,blank=True)
     createTime = models.DateTimeField(auto_now_add=True, editable=True)
     startTime = models.DateTimeField(null=True,blank=True,editable=True)

@@ -180,8 +180,7 @@ def list_roles(conn):
     roles = conn.identity.roles()#!!!!!!!ERROR:AttributeError: 'Proxy' object has no attribute 'roles'
     for item in roles:
         print item
-
-    pass
+    return roles
 
 def create_role(conn):
     dict={}
@@ -201,6 +200,8 @@ def list_role_assigns(conn):
     role_assigns = conn.identity.role_assignments()
     for item in role_assigns:
         print item
+
+
 
 #/*****************************************other Operations***********************************/
 def list_groups(conn):

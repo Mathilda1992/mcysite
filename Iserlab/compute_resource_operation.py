@@ -226,9 +226,9 @@ def delete_key_pair(conn):
     pass
 
 
-def delete_server(conn):
-    conn.compute.delete_server()# The para value can be either the ID of a server or a Server instance.
-    pass
+def delete_server(conn,server_id):
+    conn.compute.delete_server(server_id)# The para value can be either the ID of a server or a Server instance.
+
 
 
 
@@ -281,7 +281,6 @@ def create_server(conn,server_name,image_name,flavor_name,network_name,private_k
 
 def create_server2(conn,server_name,image_name,flavor_name,network_name,private_keypair_name):
     print("Create Server:")
-
     image = conn.compute.find_image(image_name)
     print image.id
     flavor = conn.compute.find_flavor(flavor_name)
@@ -299,10 +298,10 @@ def create_server2(conn,server_name,image_name,flavor_name,network_name,private_
     # print("ssh -i {key} root@{ip}".format(
     #     key=private_keypair_file,
     #     ip=server.access_ipv4))
-
-    print server
-
-    return server.access_ipv4
+    slist = []
+    slist.append(server)
+    list = extract_server(slist)
+    return list
 
 
 
@@ -341,16 +340,25 @@ def resize_server(conn,server,flavor):
 
 
 
-def create_server_image(conn,server,image_name,metadata=None):
-    conn.compute.create_server_image(server, image_name, metadata=None)
-    pass
+def create_server_image(conn,server_id,image_name,metadata=None):
+    conn.compute.create_server_image(server_id, image_name, metadata=None)
 
 
-def start_server(conn,server):
-    conn.compute.start_server(server)
-    pass
 
+def start_server(conn,server_id):
+    conn.compute.start_server(server_id)
 
-def stop_server(conn,server):
-    conn.compute.stop_server(server)
-    pass
+def suspend_server(conn,server_id):
+    conn.compute.suspend_server(server_id)
+
+def resume_server(conn,server_id):
+    conn.compute.resume_server(server_id)
+
+def pause_server(conn,server_id):
+    conn.compute.pause_server(server_id)
+
+def unpause_server(conn,server_id):
+    conn.compute.unpause_server(server_id)
+
+def stop_server(conn,server_id):
+    conn.compute.stop_server(server_id)

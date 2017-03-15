@@ -303,12 +303,12 @@ def list_networks(conn):
 
 
 
-def convert_network(networks):
-    networkDictList = extractnetwork(networks)
-    print networkDictList
-    for i in range(0,len(networkDictList)):
-        print networkDictList[i]["attrs"]["subnets"]
-    return networkDictList
+# def convert_network(networks):
+#     networkDictList = extractnetwork(networks)
+#     print networkDictList
+#     for i in range(0,len(networkDictList)):
+#         print networkDictList[i]["attrs"]["subnets"]
+#     return networkDictList
 
 
 
@@ -358,13 +358,13 @@ def list_subnets(conn):
 
 
 
-def convert_subnet(subnets):
-    # convert the openstack data into dict
-    subnetsDictList = extractnetwork(subnets)
-    print subnetsDictList
-    for i in range(0, len(subnetsDictList)):
-        print u'start:%s,end:%s,cidr:%s' % (subnetsDictList[i]["attrs"]["start"], subnetsDictList[i]["attrs"]["end"], subnetsDictList[i]["attrs"]["cidr"])
-    return subnetsDictList
+# def convert_subnet(subnets):
+#     # convert the openstack data into dict
+#     subnetsDictList = extractnetwork(subnets)
+#     print subnetsDictList
+#     for i in range(0, len(subnetsDictList)):
+#         print u'start:%s,end:%s,cidr:%s' % (subnetsDictList[i]["attrs"]["start"], subnetsDictList[i]["attrs"]["end"], subnetsDictList[i]["attrs"]["cidr"])
+#     return subnetsDictList
 
 
 
@@ -413,38 +413,25 @@ def list_network_agents(conn):
 # I plan to give this function the required parameters of subnet createation by a python object
 def create_network(conn, network_name, subnet_name, ip_version, cidr, gateway_ip,description,creator,is_shared):
     print("Create Network:")
-    n1 = Network(
-        network_name = network_name,
-        network_description = description,
-        owner = creator,
-        is_shared = is_shared,
-        subnet_name = subnet_name,
-        ip_version=ip_version,
-        cidr=cidr,
-        gateway_ip=gateway_ip,
-    )
-    n1.save()
-
 
     new_network = conn.network.create_network(name=network_name)
-    print(new_network)
-
-    print new_network.id
+    list1 =[]
+    list1.append(new_network)
+    # print(new_network)
+    # print new_network.id
     new_subnet = conn.network.create_subnet(
         name=subnet_name,
         network_id=new_network.id,
         ip_version=ip_version,
         cidr=cidr,
         gateway_ip=gateway_ip)
-    print(new_subnet)
-
+    # print(new_subnet)
+    list2=[]
+    list2.append(new_subnet)
 
     #analyse the network object data into a dict!!!!!!!
-
-    #update the record in db
-
-
-    return n1.cidr
+    list=extract_network(list1,list2)
+    return list
 
 
 
@@ -453,19 +440,12 @@ def create_network(conn, network_name, subnet_name, ip_version, cidr, gateway_ip
 # Before delete the subnet, we should make sure all related interfaces should not exist
 def delete_network(conn,n_id):
     print("Delete Network:")
-
-    example_network = conn.network.find_network(
-        'openstacksdk-example-project-network')
-
+    example_network = conn.network.find_network(n_id)
+    #before delete net, should make sure all subnet belong to this net to be deleted
     for example_subnet in example_network.subnet_ids:
         conn.network.delete_subnet(example_subnet, ignore_missing=False)
     conn.network.delete_network(example_network, ignore_missing=False)
 
-
-    #delete from Network DB
-    Network.objects.filter(id=n_id).delete()
-
-    return 0
 
 
 

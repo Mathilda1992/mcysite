@@ -8,7 +8,6 @@ from Iserlab import identity_resource_operation
 
 
 
-
 #----------------------------pass this function---------------------------------#
 ##for openstack api error reason, this function not to do
 def create_user(name,ps,role,email='',):
@@ -104,7 +103,6 @@ def create_group(gname,gteacher,gcount,stulist,desc='Please input description'):
 
     for stu in stulist:
         g.student.add(stu)
-
     print g
     return g
 

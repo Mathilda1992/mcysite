@@ -41,21 +41,25 @@ urlpatterns = [
 
 
     #basic openstack resource operate
+    url(r'^openstack_API_home/$',openstack_API_home,name='openstack_API_home'),
     url(r'^server_list/$',server_list,name='server_list'),
+    url(r'^server_create/$', server_create, name='server_create'),
+    url(r'^server_delete/$', server_delete, name='server_delete'),
     url(r'^network_list/$',network_list,name='network_list'),
     url(r'^subnet_list/$', subnet_list, name='subnet_list'),
     url(r'^network_create/$',network_create,name='network_create'),
     url(r'^flavor_list/$',flavor_list,name='flavor_list'),
     url(r'^image_list/$',image_list,name='image_list'),
     url(r'^image_list2/$',image_list2,name='image_list2'),
+    url(r'^image_delete/$', image_delete, name='image_delete'),
     url(r'^user_list/$',openstack_user_list,name='user_list'),
     url(r'^project_list/$',openstack_project_list,name='project_list'),
     url(r'^project_find/$', openstack_project_find, name='project_find'),
     url(r'^project_create/$', openstack_project_create, name='project_create'),
     url(r'^role_list/$', openstack_role_list, name='role_list'),
-    url(r'^vm_create/$',VM_create,name='vm_create'),
-    url(r'^image_find/$',image_find,name='image_find'),
 
+    url(r'^image_find/$',image_find,name='image_find'),
+    url(r'^image_create/$', image_create, name='image_create'),
 
     #test
     # url(r'^index/$',index,name='index'),
@@ -149,7 +153,9 @@ urlpatterns = [
     url(r'^teach_score_list_by_expID(\d+)/$', teach_score_list_by_expID, name='teach_score_list_by_expID'),
     url(r'^teach_score_list_by_scoreID(\d+)/$',teach_score_list_by_scoreID,name='teach_score_list_by_scoreID'),
     url(r'^teach_result_score(\d+)/$',teach_result_score,name='teach_result_score'),
-    # url(r'^teach_result_report_download(\d+)/$',teach_result_report_download,name='teach_result_report_download'),
+    url(r'^teach_result_report_download(\d+)/$',teach_result_report_download,name='teach_result_report_download'),
+    url(r'^teach_score_list_by_group/$', teach_score_list_by_group, name='teach_score_list_by_group'),
+    url(r'^teach_score_list_by_groupID(\d+)/$', teach_score_list_by_groupID, name='teach_score_list_by_groupID'),
 
     #delivery operate
     url(r'^delivery_list/$',delivery_list,name='delivery_list'),
