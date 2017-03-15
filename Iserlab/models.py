@@ -182,6 +182,7 @@ class Network(models.Model):
     tenant_id = models.CharField(max_length=50,null=True,blank=True)
     allocation_pools_start = models.CharField(max_length=30,null=True,blank=True)
     allocation_pools_end = models.CharField(max_length=30, null=True, blank=True)
+    dns = models.CharField(max_length=30,null=True,blank=True,default='10.21.1.205')
     enable_dhcp = models.BooleanField(default=True)
 
 

@@ -21,6 +21,12 @@ def find_network(conn,network_id):
     return network
 
 
+def extract_router(routers):
+    pass
+
+def extract_topo(topo):
+    pass
+
 def extract_network(networks,subnets):
     list = []
     for i in range(0, networks.__len__()):
@@ -392,7 +398,6 @@ def list_security_groups(conn):
 # It also provides Layer 3 and NAT forwarding to provide external network access for servers on project networks.
 def list_routers(conn):
     print("List Routers:")
-
     for router in conn.network.routers():
         print(router)
 
@@ -411,9 +416,8 @@ def list_network_agents(conn):
 # allows the server to communicate with others servers on the same project network.
 
 # I plan to give this function the required parameters of subnet createation by a python object
-def create_network(conn, network_name, subnet_name, ip_version, cidr, gateway_ip,description,creator,is_shared):
+def create_network(conn, network_name, subnet_name, ip_version, cidr, gateway_ip):
     print("Create Network:")
-
     new_network = conn.network.create_network(name=network_name)
     list1 =[]
     list1.append(new_network)
@@ -434,8 +438,6 @@ def create_network(conn, network_name, subnet_name, ip_version, cidr, gateway_ip
     return list
 
 
-
-
 # Delete a project network and its subnets.
 # Before delete the subnet, we should make sure all related interfaces should not exist
 def delete_network(conn,n_id):
@@ -445,8 +447,6 @@ def delete_network(conn,n_id):
     for example_subnet in example_network.subnet_ids:
         conn.network.delete_subnet(example_subnet, ignore_missing=False)
     conn.network.delete_network(example_network, ignore_missing=False)
-
-
 
 
 #/*****************************************************************/
@@ -459,19 +459,33 @@ def delete_network(conn,n_id):
 #   The updated network
 # Return type
 #   Network
+#/*****************************************************************/
+def update_network(conn,network_id,n_dict,subnet_id,sn_dict):
+    print ' Update the network'
+    update_net = conn.network.update_network(network_id,n_dict)
+    list1=[]
+    list1.append(update_net)
+    update_subnet = conn.network.update_subnet(subnet_id,sn_dict)
+    list2=[]
+    list2.append(update_subnet)
+    list = extract_network(list1,list2)
+    return list
 
 #/*****************************************************************/
-def update_network(conn,network,n_dict):
-    print ' Update the network'
-    new_n = conn.network.update_network(network,n_dict)
-    pass
+# create_router(**attrs)
+# Create a new router from attributes
+# Parameters:attrs (dict)- Keyword arguments which will be used to create a Router, comprised of the properties on
+# the Router class.
+# Returns:	The results of router creation
+# Return type:	Router
+#/*****************************************************************/
+def create_router(conn,router_name,external_net_name):
+    new_router = conn.network.create_router(router_name,external_net_name)
+    return new_router
 
 
-
-def create_router(conn,router_dict):
-    new_router = conn.network.create_router(router_dict)
-    pass
-
+def delete_router(conn,router_id):
+    conn.network.delete_router(router_id,ignore_missing=True)
 
 
 #/*****************************************************************/
@@ -487,25 +501,61 @@ def create_router(conn,router_dict):
 # Return type:
 # class:	~openstack.network.v2.router.Router
 #/*****************************************************************/
-def add_gateway_to_router(conn,router,public_net_name):
+def add_gateway_to_router(conn,router_id,public_net_name):
     print 'Add the router to public net'
-    router = conn.network.add_gateway_to_router(router,public_net_name)
-    pass
+    router = conn.network.add_gateway_to_router(router_id,public_net_name)
 
+    return router
 
-def remove_gateway_to_router(conn,router,public_net_name):
+# remove_gateway_from_router(router, **body)
+# Remove Gateway from a router
+#
+# Parameters:
+# router-Either the router ID or an instance of Router
+# body - Body with the gateway information
+# Returns:
+# Router with updated interface
+#
+# Return type:
+# class:	~openstack.network.v2.router.Router
+def remove_gateway_from_router(conn,router_id,public_net_name):
     print 'Remove the router to public net'
-    router = conn.network.remove_gateway_to_router(router,public_net_name)
-    pass
+    router = conn.network.remove_gateway_to_router(router_id,public_net_name)
+    return router
 
 
-def add_interface_to_router(conn,router,subnet_id,port_id=None):
+#add_interface_to_router(router, subnet_id=None, port_id=None)
+# Add Interface to a router
+#
+# Parameters:
+# router -Either the router ID or an instance of Router
+# subnet_id -ID of the subnet
+# port_id -ID of the port
+# Returns:
+# Router with updated interface
+#
+# Return type:
+# class:	~openstack.network.v2.router.Router
+def add_interface_to_router(conn,router_id,subnet_id,port_id=None):
     print 'Add the subnet to router'
-    router = conn.network.add_interface_to_router(router,subnet_id=None,port_id=None)
+    router = conn.network.add_interface_to_router(router_id,subnet_id=None,port_id=None)
     return router
 
 
-def remove_interface_to_router(conn,router,subnet_id,port_id=None):
+def remove_interface_from_router(conn,router_id,subnet_id,port_id=None):
     print 'Remove the subnet to router'
-    router = conn.network.remove_interface_to_router(router,subnet_id=None,port_id=None)
+    router = conn.network.remove_interface_to_router(router_id,subnet_id=None,port_id=None)
     return router
+
+
+#***********************Auto Allocated Topology Operations******************/
+def delete_auto_allocated_topology(conn,project_id, ignore_missing=False):
+    conn.network.delete_auto_allocated_topology(project_id=None, ignore_missing=False)
+
+def get_auto_allocated_topology(conn,project_id):
+    topo = conn.network.get_auto_allocated_topology(project_id=None)
+    return topo
+
+def validate_auto_allocated_topology(conn,project_id):
+    validate_topo = conn.network.validate_auto_allocated_topology(project_id=None)
+    return validate_topo

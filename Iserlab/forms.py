@@ -83,6 +83,13 @@ class SubmitExpForm(forms.Form):#actually equal to update Score table
     reportFile = forms.FileField(label='Upload Report', required=True)
 
 
+FLAVOR_CHOICE_BOX=(
+    ('m1.tiny', 'm1.tiny'),
+    ('m1.small', 'm1.small'),
+    ('m1.medium', 'm1.medium'),
+    ('m1.large', 'm1.large'),
+    ('m1.xlarge', 'm1.xlarge'),
+)
 class CreateImageForm(forms.Form):
     name =forms.CharField(label='Image Name',max_length=255)
     desc = forms.CharField(label='Description', widget=forms.Textarea(), required=False)

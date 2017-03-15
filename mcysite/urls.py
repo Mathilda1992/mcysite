@@ -45,13 +45,24 @@ urlpatterns = [
     url(r'^server_list/$',server_list,name='server_list'),
     url(r'^server_create/$', server_create, name='server_create'),
     url(r'^server_delete/$', server_delete, name='server_delete'),
+    url(r'^flavor_list/$', flavor_list, name='flavor_list'),
+
     url(r'^network_list/$',network_list,name='network_list'),
     url(r'^subnet_list/$', subnet_list, name='subnet_list'),
     url(r'^network_create/$',network_create,name='network_create'),
-    url(r'^flavor_list/$',flavor_list,name='flavor_list'),
+    url(r'^network_delete/$', network_delete, name='network_delete'),
+    url(r'^network_update/$', network_update, name='network_update'),
+    url(r'^router_list/$',router_list,name='router_list'),
+    url(r'^gateway_add_to_router/$', gateway_add_to_router, name='gateway_add_to_router'),
+    url(r'^interface_add_to_router/$', interface_add_to_router, name='interface_add_to_router'),
+    url(r'^interface_delete_from_router/$', interface_delete_from_router, name='interface_delete_from_router'),
+
+
     url(r'^image_list/$',image_list,name='image_list'),
     url(r'^image_list2/$',image_list2,name='image_list2'),
     url(r'^image_delete/$', image_delete, name='image_delete'),
+    url(r'^image_update/$', image_update, name='image_update'),
+
     url(r'^user_list/$',openstack_user_list,name='user_list'),
     url(r'^project_list/$',openstack_project_list,name='project_list'),
     url(r'^project_find/$', openstack_project_find, name='project_find'),
@@ -109,6 +120,7 @@ urlpatterns = [
     url(r'^exp_list_doing/$', exp_list_doing, name='exp_list_doing'),
     url(r'^exp_list_done/$', exp_list_done, name='exp_list_done'),
     url(r'^exp_list_scored/$', exp_list_scored, name='exp_list_scored'),
+
 
     #repo operate
     url(r'^repo_home/$',repo_home,name='repo_home'),

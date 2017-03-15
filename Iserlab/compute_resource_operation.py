@@ -230,8 +230,6 @@ def delete_server(conn,server_id):
     conn.compute.delete_server(server_id)# The para value can be either the ID of a server or a Server instance.
 
 
-
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Create resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def create_keypair(conn,keypair_name,ssh_dir,private_keypair_file):
     keypair = conn.compute.find_keypair(keypair_name)

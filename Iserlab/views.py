@@ -360,5 +360,5 @@ def network_create(request):
     username = 'teacher2'
     creator = experiment_operation.get_currentuser(username)
     is_shared = 'False'
-    n = network_resource_operation.create_network(conn,network_name,subnet_name,ip_version,cidr,gateway_ip,description,creator,is_shared)
+    n = network_resource_operation.create_network(conn,network_name,subnet_name,ip_version,cidr,gateway_ip)
     return HttpResponse('Create new network!')

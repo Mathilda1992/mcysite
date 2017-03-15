@@ -1371,6 +1371,9 @@ def subnet_list(request):
     return HttpResponse('List subnets')
 
 
+def router_list(request):
+    pass
+
 
 def server_list(request):
     # create conn to openstack
@@ -1461,7 +1464,10 @@ def image_delete(request):
 
 
 def network_delete(request):
-    pass
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    n_id = ''
+    network_resource_operation.delete_network(conn,n_id)
+    return HttpResponse('Network delete Success!')
 
 
 
@@ -1526,11 +1532,32 @@ def network_create(request):
     username = 'teacher2'
     creator = experiment_operation.get_currentuser(username)
     is_shared = 'False'
-    n = network_resource_operation.create_network(conn,network_name,subnet_name,ip_version,cidr,gateway_ip,description,creator,is_shared)
+    n = network_resource_operation.create_network(conn,network_name,subnet_name,ip_version,cidr,gateway_ip)
     return HttpResponse('Create new network!')
 
 
+def router_create(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    router_name = 'new-router'
+    external_net_name = 'public'
+    r = network_resource_operation.create_router(conn,router_name,external_net_name)
+    return HttpResponse('Create new Router')
 
+def gateway_add_to_router(request):
+    pass
+
+def interface_add_to_router(request):
+    pass
+
+def interface_delete_from_router(request):
+    pass
+
+
+def network_update(request):
+    pass
+
+def image_update(request):
+    pass
 #***********************************************************************#
 #                          system exp  operate function         #
 #***********************************************************************#
@@ -1853,7 +1880,7 @@ def exp_detail(request,exp_id):
 
 
 #teacher and stu different
-def exp_launch(request,exp_id):
+def exp_launch(request,exp_id):# in fact, it create ExpInstance
     username = request.session['username']
     role = request.session['role']
     if role == 'teacher':
@@ -1875,8 +1902,7 @@ def exp_launch(request,exp_id):
         pass
 
 def exp_network_launch(request):
-    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username,
-                                                     auth_password)
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username,auth_password)
     e_id = 1
     experiment_operation.luanch_exp_network(conn, e_id)
     return HttpResponse('launch exp network!')
@@ -1885,23 +1911,26 @@ def exp_vm_launch(request):
     pass
 
 #teacher and student both have
-def exp_pause(request,exp_id):
+def exp_instance_start(request,exp_i_id):
     pass
 
-def exp_unpause(request,exp_id):
+def exp_instance_pause(request,exp_i_id):
     pass
 
-def exp_suspend(request,exp_id):
+def exp_instance_unpause(request,exp_i_id):
     pass
 
-def exp_resume(request,exp_id):
+def exp_instance_suspend(request,exp_i_id):
+    pass
+
+def exp_instance_resume(request,exp_i_id):
     pass
 
 #teacher and student both have
-def exp_stop(request,exp_id):
+def exp_instance_stop(request,exp_i_id):
     pass
 
-def exp_save(request,exp_id):
+def exp_instance_save(request,exp_i_id):
     pass
 
 
@@ -1919,7 +1948,6 @@ def exp_submit(request,d_id):
         return HttpResponse("Teacher do not have this function")
     else:
         s = Student.objects.get(username=username)
-
         if request.method == 'POST':
             # get data from form
             reportFile = request.FILES.get("reportFile",None)
