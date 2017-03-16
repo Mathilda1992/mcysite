@@ -210,7 +210,7 @@ class Experiment(models.Model):
     exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)#??
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(null=True,blank=True,editable=True)
-    VM_count = models.IntegerField(null=True,blank=True)
+    VM_count = models.IntegerField(default=0,null=True)
 
 
     def __unicode__(self):

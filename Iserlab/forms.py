@@ -29,6 +29,7 @@ class AddForm(forms.Form):
 
 IMAGES_CHECKBOX_CHOICES=(
     ('1','cirros'),
+    ('2','webserver_ubuntu14.04'),
     ('3','cirros-111'),
 )
 
@@ -78,6 +79,22 @@ class AddVMForm(forms.Form):
         t = User.objects.get(username=username)
         return t
 
+class EditVMForm(forms.Form):
+    name = forms.CharField(label='VM name', max_length=150)
+    desc = forms.CharField(label='Description', max_length=500,
+                           widget=forms.Textarea(),
+                           required=False)
+    image_id = forms.ChoiceField(label='Include Images',choices=IMAGES_CHECKBOX_CHOICES )
+    network_id = forms.ChoiceField(label='Use Networks',choices=NETWORKS_CHECKBOX_CHOICES )
+    flavor = forms.ChoiceField(label='Flavor',
+                               widget=forms.RadioSelect(),
+                               choices=FLAVOR_CHOICE_BOX, )
+    keypair = forms.ChoiceField(label='Keypair',
+                                widget=forms.RadioSelect(),
+                                choices=KEYPAIR_CHOICE_BOX, )
+    security_group = forms.MultipleChoiceField(label='Security Groups',
+                                               widget=forms.CheckboxSelectMultiple,
+                                               choices=SECURITY_GROUP_CHOICE_BOX, )
 
 
 class AddExpForm(forms.Form):
@@ -93,7 +110,7 @@ class AddExpForm(forms.Form):
                                          # widget=forms.CheckboxSelectMultiple,
                                          )
     vm_count = forms.IntegerField(label="VM Count")
-    vm_idList = forms.MultipleChoiceField(label='Include VMs',)
+    # vm_idList = forms.MultipleChoiceField(label='Include VMs',)
     guide = forms.CharField(label="Guide",
                             widget=forms.Textarea(),
                             required = False)
@@ -107,8 +124,7 @@ class AddExpForm(forms.Form):
         # t= self.get_currentuser(request)
         self.fields['images_idList'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
         self.fields['networks_idList'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
-        self.fields['vm_idList'].choices = [(i.pk,str(i)) for i in VM.objects.all()]
-
+        # self.fields['vm_idList'].choices = [(i.pk,str(i)) for i in VM.objects.all()]
 
     def get_currentuser(self,request):
         username = request.session['username']
@@ -117,7 +133,24 @@ class AddExpForm(forms.Form):
 
 
 class EditExpForm(forms.Form):# the same with AddExpForm
-    pass
+    name = forms.CharField(label='Exp Name',max_length=150)
+    desc = forms.CharField(label='Description',max_length=500,
+                           widget=forms.Textarea(),
+                           required =False)
+
+    images_idList = forms.MultipleChoiceField(label='Include Images',
+                                              widget=forms.CheckboxSelectMultiple,choices=IMAGES_CHECKBOX_CHOICES,)
+    networks_idList = forms.MultipleChoiceField(label='Use Networks',
+                                                widget=forms.CheckboxSelectMultiple,choices=NETWORKS_CHECKBOX_CHOICES)
+    vm_count = forms.IntegerField(label="VM Count")
+    # vm_idList = forms.MultipleChoiceField(label='Include VMs',)
+    guide = forms.CharField(label="Guide",
+                            widget=forms.Textarea(),
+                            required = False)
+    guide_file = forms.FileField(label='Upload Guide File', required=True)
+    refer_result = forms.CharField(label="Refer Result",
+                                   widget=forms.Textarea(),
+                                   required=False,)
 
 
 

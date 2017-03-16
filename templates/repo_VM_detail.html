@@ -21,12 +21,14 @@
 
             <div class="info">
                 <span class="category" style="color: #ff9900;">VM ID：{{ DetailDict.id }}</span>
-                <span class="author" style="color: #4a86e8">VM 名称：{{ DetailDict.name }}</span>
+                <span class="author" style="color: #4a86e8">所属实验：{{ DetailDict.exp.id }}</span>
                 <span class="created" style="color: #6aa84f">创建时间：{{ DetailDict.created_at|date:"Y-m-d H:i" }}</span>
                 <span class="created" style="color: #6aa84f">更新时间：{{ DetailDict.updated_at|date:"Y-m-d H:i" }}</span>
 
             </div>
-
+            <div class="summary">
+                VM 名称：{{ DetailDict.name}}
+            </div>
             <div class="summary">
                 flavor：{{ DetailDict.flavor}}
             </div>
@@ -40,10 +42,10 @@
                 VM描述：{{ DetailDict.desc }}
             </div>
             <div class="summary">
-                镜像：<a href="{% url 'repo_image_detail' DetailDict.image.id %}">{{ DetailDict.image.name }}</a>
+                镜像：<a href="{% url 'repo_image_detail' DetailDict.image.id %}" target="_blank">{{ DetailDict.image.name }}</a>
             </div>
             <div class="summary">
-                网络：<a href="{% url 'repo_network_detail' DetailDict.network.id %}">{{ DetailDict.network.network_name }}</a>({{ DetailDict.network.cidr }})
+                网络：<a href="{% url 'repo_network_detail' DetailDict.network.id %}" target="_blank">{{ DetailDict.network.network_name }}</a>({{ DetailDict.network.cidr }})
             </div>
 
         </div>

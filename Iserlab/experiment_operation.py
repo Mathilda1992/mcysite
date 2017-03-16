@@ -86,8 +86,12 @@ def view_experiment_detail(experiment_id):
     edict['delivery_history'] = deliverys
     edict['exp_description'] = e.exp_description
     edict['exp_guide'] = e.exp_guide
+    edict['exp_guide_path']=e.exp_guide_path
     edict['exp_result'] =e.exp_result
     edict['exp_reportDIR']=e.exp_reportDIR
+    edict['VM_count']=e.VM_count
+    VMList = VM.objects.filter(exp=e).order_by('-created_at')
+    edict['VMList']=VMList
 
     # print edict
     # for key,value in edict.items():

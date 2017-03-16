@@ -965,35 +965,7 @@ def repo_private_VM_list(request):
     context['VMList']=VMList
     return render(request,"repo_private_VM_list.html",context)
 
-#only role=teacher
-def exp_create_VM(request,exp_id):
-    username = request.session['username']
-    t = User.objects.get(username=username)
-    if request.method == 'POST':
-        rf = AddVMForm(request.POST)
-        if rf.is_valid():
-            #get data from form
-            name = rf.cleaned_data['name']
-            desc = rf.cleaned_data['desc']
-            image_id = rf.cleaned_data['image_id']
-            network_id = rf.cleaned_data['network_id']
-            flavor = rf.cleaned_data['flavor']
-            keypair = rf.cleaned_data['keypair']
-            security_group = rf.cleaned_data['security_group']
 
-            #get image
-            image = VMImage.objects.get(id = image_id)
-            #get networks
-            net = Network.objects.get(id = network_id)
-            #get experiment
-            e = Experiment.objects.get(id=exp_id)
-            #insert into VM
-            vm = VM(name=name,desc=desc,owner=t,exp=e,image=image,network=net,flavor=flavor,keypair=keypair,security_group=security_group)
-            vm.save()
-            return HttpResponseRedirect('/repo_private_VM_list/')
-    else:
-        rf = AddVMForm()
-    return render_to_response("exp_create_VM.html",{'rf':rf})
 
 #only role=teacher
 def repo_create_network(request):
@@ -1681,6 +1653,7 @@ def exp_copy(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
+
     imageList = e.exp_images.all()
     networkList = e.exp_network.all()
     images_idList=[]
@@ -1689,12 +1662,21 @@ def exp_copy(request,exp_id):
         images_idList.append(item.id)
     for item in networkList:
         networks_idList.append(item.id)
+    # initial the form
+    attrs = {}
+    attrs['name'] = e.exp_name + "_copy"
+    attrs['desc'] = e.exp_description
+    attrs['images_idList'] = images_idList
+    attrs['networks_idList'] = networks_idList
+    attrs['guide'] = e.exp_guide
+    attrs['refer_result'] = e.exp_result
+    gf = AddExpForm(request, initial=attrs)
 
     #insert a new record into db
     username = request.session['username']
     t = User.objects.get(username=username)
     if request.method == 'POST':
-        rf = AddExpForm(request.POST)
+        rf = EditExpForm(request.POST)
         if rf.is_valid():
             #get input data from form
             name = rf.cleaned_data['name']
@@ -1723,15 +1705,7 @@ def exp_copy(request,exp_id):
             #refresh the exp list
                 return HttpResponseRedirect('/exp_home/')
     else:
-        # initial the form
-        attrs = {}
-        attrs['name'] = e.exp_name + "_copy"
-        attrs['desc'] = e.exp_description
-        attrs['images_idList'] = images_idList
-        attrs['networks_idList'] = networks_idList
-        attrs['guide'] = e.exp_guide
-        attrs['refer_result'] = e.exp_result
-        gf = AddExpForm(request, initial=attrs)
+        rf = EditExpForm()
     return render_to_response("exp_copy.html",{'rf':gf})
 
 
@@ -1784,7 +1758,76 @@ def exp_create(request):
         rf = AddExpForm()
     return render_to_response("exp_create.html",{'rf':rf})
 
+#only role=teacher
+def exp_create_VM(request,exp_id):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    if request.method == 'POST':
+        rf = AddVMForm(request.POST)
+        if rf.is_valid():
+            #get data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            image_id = rf.cleaned_data['image_id']
+            network_id = rf.cleaned_data['network_id']
+            flavor = rf.cleaned_data['flavor']
+            keypair = rf.cleaned_data['keypair']
+            security_group = rf.cleaned_data['security_group']
 
+            #get image
+            image = VMImage.objects.get(id = image_id)
+            #get networks
+            net = Network.objects.get(id = network_id)
+            #get experiment
+            e = Experiment.objects.get(id=exp_id)
+            #insert into VM
+            vm = VM(name=name,desc=desc,owner=t,exp=e,image=image,network=net,flavor=flavor,keypair=keypair,security_group=security_group)
+            vm.save()
+            #update the VM_count of Experiment
+            re = Experiment.objects.filter(id=exp_id).update(VM_count=e.VM_count+1)
+            return HttpResponseRedirect('/exp_home/')
+    else:
+        rf = AddVMForm()
+    return render_to_response("exp_create_VM.html",{'rf':rf})
+
+#only role=teacher
+def repo_VM_edit(request,vm_id):
+    try:
+        vm = VM.objects.get(id=vm_id)
+    except VM.DoesNotExist:
+        raise Http404
+
+    if request.method == 'POST':
+        rf = EditVMForm(request.POST)
+        if rf.is_valid():
+            #get data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            image_id = rf.cleaned_data['image_id']
+            network_id = rf.cleaned_data['network_id']
+            flavor = rf.cleaned_data['flavor']
+            keypair = rf.cleaned_data['keypair']
+            security_group = rf.cleaned_data['security_group']
+
+            #get image
+            image = VMImage.objects.get(id = image_id)
+            #get networks
+            net = Network.objects.get(id = network_id)
+
+            re = VM.objects.filter(id = vm_id).update(name=name,desc=desc,image=image,network=net,flavor=flavor,keypair=keypair,security_group=security_group)
+            return fdjskfjl
+    else:
+        #initial the form
+        attrs = {}
+        attrs['name']=vm.name
+        attrs['desc']=vm.desc
+        attrs['image_id']=vm.image.id
+        attrs['network_id']=vm.network.id
+        attrs['flavor']=vm.flavor
+        attrs['keypair']=vm.keypair
+        attrs['security_group']=vm.security_group
+
+        gf = EditVMForm(initial=attrs)
 
 #only role = teacher has this function
 def exp_edit(request,exp_id):
@@ -1803,7 +1846,7 @@ def exp_edit(request,exp_id):
 
     #edit and update the exp
     if request.method == 'POST':
-        rf = AddExpForm(request.POST)
+        rf = EditExpForm(request.POST)
         if rf.is_valid():
             #get input data from form
             update_name = rf.cleaned_data['name']
@@ -1850,7 +1893,7 @@ def exp_edit(request,exp_id):
         attrs['networks_idList'] = networks_idList
         attrs['guide'] = e.exp_guide
         attrs['refer_result'] = e.exp_result
-        gf = AddExpForm(request,initial=attrs)
+        gf = EditExpForm(initial=attrs)
     return render_to_response("exp_edit.html",{'rf':gf})
 
 
