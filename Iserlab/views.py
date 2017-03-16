@@ -162,6 +162,55 @@ def group_edit(request,group_id):
     return render_to_response("group_edit.html", {'rf': gf})
 
 
+#only role = teacher has this function
+def exp_create(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+
+    if request.method == 'POST':
+        guideFile = request.FILES.get("guide_file",None)
+        if not guideFile:
+            return HttpResponse("no file to choose")
+            # messages.error(request,"no file to choose")
+        save_path = "/home/mcy/upload/files"
+        destination = open(os.path.join(save_path,guideFile.name),'wb+')
+        for chunk in guideFile.chunks():
+            destination.write(chunk)
+        destination.close()
+
+        rf = AddExpForm(request.POST)
+        # if rf.is_valid():
+        #get input data from form
+        name = rf.data['name']
+        desc = rf.data['desc']
+        images_idList = rf.data['images_idList']
+        networks_idList = rf.data['networks_idList']
+        guide = rf.data['guide']
+        refer_result=rf.data['refer_result']
+        #get images
+        imageList=[]
+        for i in images_idList:
+            imageList.append(VMImage.objects.get(id=i))
+        networkList=[]
+        for i in networks_idList:
+            networkList.append(Network.objects.get(id=i))
+        #get networks
+        exp_guide_path = save_path+'/'+guideFile.name
+        e = Experiment(exp_name=name,exp_description=desc,exp_owner=t,exp_image_count=len(imageList),
+                       exp_guide=guide,exp_result=refer_result,exp_guide_path=exp_guide_path)
+        e.save()
+        for item in imageList:
+            e.exp_images.add(item)
+        for item in networkList:
+            e.exp_network.add(item)
+
+        #refresh the exp list
+        return HttpResponseRedirect('/exp_home/')
+    else:
+        rf = AddExpForm()
+    return render_to_response("exp_create.html",{'rf':rf})
+
+
 def repo_create_image(request):
     username = request.session['username']
     t = User.objects.get(username=username)

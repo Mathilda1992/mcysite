@@ -137,8 +137,6 @@ class VMImage(models.Model):
     tags = models.ManyToManyField('Tag')
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(auto_now=True, null=True,editable=True)
-    flavor = models.CharField(max_length= 10,null = True,blank = True,default='m1.tiny')
-    keypair = models.CharField(max_length= 20,null = True,blank = True,default='mykey')
     path=models.CharField(max_length=300,null=True,blank=True)
 
     def __unicode__(self):
@@ -203,17 +201,16 @@ class Experiment(models.Model):
     exp_updatetime = models.DateTimeField(auto_now = True,blank = True)#the default value is equal to created_time
     exp_owner = models.ForeignKey(User)
     #exp template
-    #image_name1,image_name2,....all images contained in the exp
     exp_images = models.ManyToManyField(VMImage)#???
-    exp_image_count = models.IntegerField(null=True)
+    exp_image_count = models.IntegerField(null=True,blank=True)
     exp_network = models.ManyToManyField(Network)
     exp_guide = models.TextField(null=True,blank = True)
     exp_guide_path = models.CharField(max_length=300,null=True,blank=True)
     exp_result = models.CharField(max_length = 500,null=True,blank = True)
     exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)#??
-    # is_shared  = models.CharField(max_length=10,null=True,default='False')
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(null=True,blank=True,editable=True)
+    VM_count = models.IntegerField(null=True,blank=True)
 
 
     def __unicode__(self):
@@ -252,46 +249,41 @@ class NetworkCart(models.Model):
 
 
 
-# The db table used to store exp instance info
-class ExpInstance(models.Model):
-    expInstance_id = models.CharField(max_length=10)
-    name = models.CharField(max_length=100)
-    description = models.TextField(blank=True,max_length=200)
-    createtime = models.DateTimeField(auto_now_add=True)
-    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    creator = models.CharField(max_length=201)
-    servers = models.CharField(max_length=100)  # VMInstance id
-    sourceExpTemplate = models.ForeignKey(Experiment)
-
-    def __unicode__(self):
-        return u'%s %s %s' % (self.expInstance_id, self.name, self.createtime)
-
-    class Meta:
-        ordering = ['-createtime']
+# # The db table used to store exp instance info
+# class ExpInstance(models.Model):
+#     name = models.CharField(max_length=100)
+#     description = models.TextField(blank=True,max_length=200)
+#     createtime = models.DateTimeField(auto_now_add=True)
+#     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
+#     creator = models.CharField(max_length=201)
+#     sourceExpTemplate = models.ForeignKey(Experiment)
+#
+#     def __unicode__(self):
+#         return u'%s %s %s' % (self.expInstance_id, self.name, self.createtime)
+#
+#     class Meta:
+#         ordering = ['-createtime']
         #
 
-
-#The db table used to store VM instance contained in the exp(data from openstack)
-class VMInstance(models.Model):
-    server_id = models.CharField(max_length = 100)
-    name = models.CharField(max_length = 255)
-    owner = models.CharField(max_length= 20)
-    createtime = models.DateTimeField(auto_now_add=True)
-    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    status = models.CharField(max_length = 20)
-    ip = models.CharField(max_length = 20,blank = True)
-    vncurl = models.URLField()
-    exp = models.ForeignKey(ExpInstance)
+class VM(models.Model):
+    name = models.CharField(max_length=100)
+    desc = models.TextField(max_length=500,null=True,blank=True)
+    owner = models.ForeignKey(User,null=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True,blank=True,editable=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True,blank=True,editable=True)
+    exp = models.ForeignKey(Experiment)
+    image = models.ForeignKey(VMImage)
+    network = models.ForeignKey(Network)
+    flavor = models.CharField(max_length= 10,null = True,blank = True,default='m1.tiny')
+    keypair = models.CharField(max_length= 20,null = True,blank = True,default='mykey')
+    security_group = models.CharField(max_length=30,null=True,blank = True,default='default')
 
 
     def __unicode__(self):
         return self.name
 
     class Meta:
-        ordering = ['-createtime']
-
-
-
+        ordering = ['-created_at']
 
 #
 # # # #a relation table between exp and user
@@ -320,7 +312,6 @@ class Delivery(models.Model):
 
 
 
-
 class Score(models.Model):
     exp = models.ForeignKey(Experiment)
     stu = models.ForeignKey(Student)
@@ -336,6 +327,27 @@ class Score(models.Model):
     times = models.IntegerField(default=0)#how many times stu do this exp
     situation = models.CharField(max_length=10,default='undo')#['undo','doing','done','scored','paused']
     result = models.CharField(max_length=500,null=True,blank=True)
-    result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
-    reportUrl = models.URLField(null=True,blank=True)
+    # result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
+    # reportUrl = models.URLField(null=True,blank=True)
     report_path = models.CharField(max_length=300, null=True, blank=True)
+
+
+#The db table used to store VM instance contained in the exp(data from openstack)
+class VMInstance(models.Model):
+    server_id = models.CharField(max_length = 100)
+    name = models.CharField(max_length = 255)
+    owner = models.CharField(max_length= 20)
+    createtime = models.DateTimeField(auto_now_add=True)
+    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
+    status = models.CharField(max_length = 20)
+    ip = models.CharField(max_length = 20,blank = True)
+    vncurl = models.URLField()
+    exp_instance = models.ForeignKey(Score)
+    vm = models.ForeignKey(VM)
+    result_image = models.CharField(max_length=100,null=True,blank=True)
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['-createtime']

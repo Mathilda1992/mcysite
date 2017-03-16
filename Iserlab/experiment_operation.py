@@ -2,7 +2,7 @@
 #Make Experiment as a kind of resource like image,VM,network, and below give some related operations
 
 from Iserlab import image_resource_operation,compute_resource_operation,network_resource_operation
-from Iserlab.models import Experiment,VMInstance,ExpInstance,User,Student,Group,VMImage,Network,Delivery
+from Iserlab.models import Experiment,User,Student,Group,VMImage,Network,Delivery,VM,Score
 
 #---------attrs for exp object--------
 #['DoesNotExist', 'MultipleObjectsReturned', '__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', u'__module__', '__ne__',

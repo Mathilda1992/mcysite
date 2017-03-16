@@ -27,46 +27,32 @@
     </ul>
 
     <div class="header">
-        <h1 align="center">我的实验资源</h1>
+        <h1 align="center">我的虚拟机资源</h1>
     </div>
 
-    {% for item in PrivateExpList %}
+    {% for item in VMList %}
         <div align="center" class="blog">
             <div class="title">
-                <a href="{% url 'exp_detail' item.id %}" target="_blank"><h2>{{ item.exp_name }}</h2></a>
-                <a href="{% url 'exp_detail' item.id %}" target="_blank">详情</a>|
-                <a href="{% url 'exp_edit' item.id %}" target="_blank">编辑</a>|
-                <a href="{% url 'exp_copy' item.id %}" target="_blank">复制</a>|
-                <a href="{% url 'exp_delivery' item.id %}" target="_blank">分发</a>|
-                <a href="{% url 'exp_launch' item.id %}" >启动</a>|
-                <a href="{% url 'exp_share' item.id %}" >共享</a>|
-                <a href="{% url 'exp_delete' item.id %}" >删除</a>
+                <a href="{% url 'repo_VM_detail' item.id %}" target="_blank"><h2>{{ item.name }}</h2></a>
+                <a href="{% url 'repo_VM_detail' item.id %}" target="_blank">详情</a>|
+                <a href="{% url 'repo_VM_edit' item.id %}" target="_blank">编辑</a>|
+                <a href="{% url 'repo_VM_delete' item.id %}" >删除</a>
+
             </div>
         <div class="info">
-            <span class="author" style="color: #4a86e8;">标签：系统安全</span>
-            <span class="catagory" style="color: #ff9900;">实验编号：{{ item.id }}</span>
-            <span class="catagory" style="color: #ff9900;">主机数量：{{ item.exp_image_count }}</span>
-            <span class="author" style="color: #4a86e8;">是否共享：{{ item.is_shared }}</span>
-            <span class="created" style="color: #6aa84e;">创建日期：{{ item.exp_createtime |date:"Y-m-d H:i" }}</span>
-            <span class="created" style="color: #6aa84e;">更新日期：{{ item.exp_updatetime |date:"Y-m-d H:i" }}</span>
+            <span class="catagory" style="color: #ff9900;">虚拟机名称：{{ item.name }}</span>
+            <span class="author" style="color: #4a86e8;">flavor：{{ item.flavor }}</span>
+            <span class="created" style="color: #6aa84e;">创建日期：{{ item.created_at |date:"Y-m-d H:i" }}</span>
+            <span class="created" style="color: #6aa84e;">更新日期：{{ item.updated_at |date:"Y-m-d H:i" }}</span>
 
         </div>
-        <div class="summary">
-            {{ item.exp_description | truncatechars:100 }}
+        <div class="network_description">
+            {{ item.desc | truncatechars:100 }}
         </div>
         </div>
     {% endfor %}
 
 
 
-
 {% endblock %}
-
-
-
-
-
-
-
-
 

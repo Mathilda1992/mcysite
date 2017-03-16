@@ -23,7 +23,7 @@ from Iserlab import experiment_operation,repo_operation,user_operation
 from Iserlab import showTime
 
 #-------import models---------
-from Iserlab.models import User,Group,Student,Experiment,VMImage,Network,Delivery,Score,ImageCart,NetworkCart
+from Iserlab.models import *
 
 #-------import forms----------
 from Iserlab.forms import *
@@ -374,7 +374,7 @@ def teach_result_list(request):
 
     username = request.session['username']
     current_teacher = User.objects.get(username=username)
-    ResultList = Score.objects.filter(scorer=current_teacher,situation='Done',result_exp_id__isnull=False).order_by('-finishedTime')
+    ResultList = Score.objects.filter(scorer=current_teacher,situation='Done').order_by('-finishedTime')
     context['ResultList'] = ResultList
     return render(request, 'teach_result_list.html', context)
 
@@ -711,6 +711,7 @@ def repo_image_detail(request,i_id):
         raise Http404
     #get image detail from db
     context = {}
+    context['username']=request.session['username']
     context['DetailDict'] = image
     return render(request,'repo_image_detail.html',context)
 
@@ -728,7 +729,6 @@ def repo_image_edit(request,i_id):
             name = rf.cleaned_data['name']
             desc = rf.cleaned_data['desc']
             re = VMImage.objects.filter(id=i_id).update(name=name,description=desc)
-
             #openstack API
 
             if re:
@@ -776,6 +776,7 @@ def repo_network_detail(request,n_id):
         raise Http404
     #get network detail from db
     context = {}
+    context['username'] = request.session['username']
     context['DetailDict'] = network
     return render(request,'repo_network_detail.html',context)
 
@@ -832,9 +833,37 @@ def repo_network_delete(request,n_id):
         raise Http404
     re = Network.objects.filter(id=n_id).delete()
     if re:
-        if re:
-            print "repo_image_share Success!"
-        return HttpResponseRedirect('/repo_private_network_list/')
+        print "repo_image_share Success!"
+    return HttpResponseRedirect('/repo_private_network_list/')
+
+
+def repo_VM_detail(request,vm_id):
+    try:
+        vm = VM.objects.get(id=vm_id)
+    except VM.DoesNotExist:
+        raise Http404
+    # get VM detail from db
+    context = {}
+    context['username'] = request.session['username']
+    context['DetailDict'] = vm
+    return render(request, 'repo_VM_detail.html', context)
+
+def repo_VM_edit(request,vm_id):
+    try:
+        vm = VM.objects.get(id=vm_id)
+    except VM.DoesNotExist:
+        raise Http404
+    pass
+
+def repo_VM_delete(request,vm_id):
+    try:
+        vm = VM.objects.get(id=vm_id)
+    except VM.DoesNotExist:
+        raise Http404
+    re = VM.objects.filter(id=vm_id).delete()
+    if re:
+        print "repo_VM_delete success"
+    return HttpResponseRedirect('/repo_private_VM_list/')
 
 #---------------------------------------------------#
 def repo_public_image_delete(request,i_id):#actually this operation is to set is_shared to False
@@ -922,8 +951,51 @@ def repo_private_network_list(request):
     context['NetList']= NetList
     return render(request,"repo_private_network_list.html",context)
 
+def repo_private_VM_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
 
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    VMList = VM.objects.filter(owner=t).order_by('-created_at')
+    context['VMList']=VMList
+    return render(request,"repo_private_VM_list.html",context)
 
+#only role=teacher
+def exp_create_VM(request,exp_id):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    if request.method == 'POST':
+        rf = AddVMForm(request.POST)
+        if rf.is_valid():
+            #get data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            image_id = rf.cleaned_data['image_id']
+            network_id = rf.cleaned_data['network_id']
+            flavor = rf.cleaned_data['flavor']
+            keypair = rf.cleaned_data['keypair']
+            security_group = rf.cleaned_data['security_group']
+
+            #get image
+            image = VMImage.objects.get(id = image_id)
+            #get networks
+            net = Network.objects.get(id = network_id)
+            #get experiment
+            e = Experiment.objects.get(id=exp_id)
+            #insert into VM
+            vm = VM(name=name,desc=desc,owner=t,exp=e,image=image,network=net,flavor=flavor,keypair=keypair,security_group=security_group)
+            vm.save()
+            return HttpResponseRedirect('/repo_private_VM_list/')
+    else:
+        rf = AddVMForm()
+    return render_to_response("exp_create_VM.html",{'rf':rf})
+
+#only role=teacher
 def repo_create_network(request):
     username = request.session['username']
     t = User.objects.get(username=username)
@@ -1875,31 +1947,32 @@ def exp_detail(request,exp_id):
     E_Detail_Dict = experiment_operation.view_experiment_detail(exp_id)
     # output the group detail-----------------------------UI--------------------------
     c = {}
+    c['username']=request.session['username']
     c['E_Detail_Dict'] = E_Detail_Dict
     return render(request, 'exp_detail.html', c)
 
 
-#teacher and stu different
+#teacher
 def exp_launch(request,exp_id):# in fact, it create ExpInstance
     username = request.session['username']
     role = request.session['role']
-    if role == 'teacher':
-        t = User.objects.get(username=username)
-        e = Experiment.objects.get(id=exp_id)
-        #launch network
 
-        #create router
+    t = User.objects.get(username=username)
+    e = Experiment.objects.get(id=exp_id)
+    #launch network
 
-        #launch VM
+    #create router
 
-        #insert into ExpInstance db
+    #launch VM
 
-        pass
-    else:
-        s = Student.objects.get(stu_username=username)
+    #insert into ExpInstance db
 
+    pass
 
-        pass
+#when stu launch and teacher check exp result, use this function
+def score_launch(request,socre_id):
+    pass
+
 
 def exp_network_launch(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username,auth_password)

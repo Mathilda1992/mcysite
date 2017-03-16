@@ -14,7 +14,9 @@
         <div class="blog">
             <div class="title">
                 <h2><a href="#">{{ DetailDict.network_name }}</a>
-                    |<a href="{% url 'repo_network_edit' DetailDict.id %}" target="_blank">编辑</a></h2>
+                    {% ifequal username DetailDict.owner.username %}
+                        |<a href="{% url 'repo_network_edit' DetailDict.id %}" target="_blank">编辑</a></h2>
+                    {% endifequal %}
             </div>
             <div class="info">
                 <span class="category" style="color: #ff9900;">网络ID：{{ DetailDict.id }}</span>

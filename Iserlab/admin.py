@@ -61,10 +61,10 @@ admin.site.register(VMImage,VMImageAdmin)
 admin.site.register(Network,NetworkAdmin)
 admin.site.register(Experiment,ExperimentAdmin)
 admin.site.register(Tag,TagAdmin)
-# admin.site.register(ExpImage)
-# admin.site.register(ExpNetwork)
+
 admin.site.register(VMInstance)
-admin.site.register(ExpInstance)
+admin.site.register(VM)
+
 admin.site.register(Delivery,DeliveryAdmin)
 
 admin.site.register(Score,SocreAdmin)

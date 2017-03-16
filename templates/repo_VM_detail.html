@@ -7,7 +7,7 @@
 <body>
 
     <div class="header">
-        <span>显示镜像详情</span>
+        <span>显示VM详情</span>
     </div>
 
     <div class="content">
@@ -15,30 +15,36 @@
             <div class="title">
                 <h2><a href="#">{{ DetailDict.name }}</a>
                     {% ifequal username DetailDict.owner.username %}
-                        |<a href="{% url 'repo_image_edit' DetailDict.id %}" target="_blank">编辑</a></h2>
+                        |<a href="{% url 'repo_VM_edit' DetailDict.id %}" target="_blank">编辑</a></h2>
                     {% endifequal %}
             </div>
+
             <div class="info">
-                <span class="category" style="color: #ff9900;">镜像ID：{{ DetailDict.id }}</span>
-                <span class="author" style="color: #4a86e8">镜像名称：{{ DetailDict.name }}</span>
-                <span class="author" style="color: #4a86e8">镜像所有者：{{ DetailDict.owner.username }}</span>
+                <span class="category" style="color: #ff9900;">VM ID：{{ DetailDict.id }}</span>
+                <span class="author" style="color: #4a86e8">VM 名称：{{ DetailDict.name }}</span>
                 <span class="created" style="color: #6aa84f">创建时间：{{ DetailDict.created_at|date:"Y-m-d H:i" }}</span>
                 <span class="created" style="color: #6aa84f">更新时间：{{ DetailDict.updated_at|date:"Y-m-d H:i" }}</span>
 
             </div>
-            <div class="summary">
-                min_disk：{{ DetailDict.min_disk}}
-            </div>
-            <div class="summary">
-                min_ram：{{ DetailDict.min_ram }}
-            </div>
-            <div class="summary">
-                is_shared：{{ DetailDict.is_shared }}
-            </div>
-            <div class="summary">
-                镜像描述：{{ DetailDict.desc }}
-            </div>
 
+            <div class="summary">
+                flavor：{{ DetailDict.flavor}}
+            </div>
+            <div class="summary">
+                keypair：{{ DetailDict.keypair }}
+            </div>
+            <div class="summary">
+                security_group：{{ DetailDict.security_group }}
+            </div>
+            <div class="summary">
+                VM描述：{{ DetailDict.desc }}
+            </div>
+            <div class="summary">
+                镜像：<a href="{% url 'repo_image_detail' DetailDict.image.id %}">{{ DetailDict.image.name }}</a>
+            </div>
+            <div class="summary">
+                网络：<a href="{% url 'repo_network_detail' DetailDict.network.id %}">{{ DetailDict.network.network_name }}</a>({{ DetailDict.network.cidr }})
+            </div>
 
         </div>
     </div>

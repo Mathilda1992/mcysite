@@ -26,15 +26,15 @@
                         <a href="{% url 'teach_situation_detail_by_scoreID' item.id %}" >观看学生实验操作过程</a>
                         {% else %}
                             {% ifequal item.situation 'done' %}
-                                    <a href="{% url 'exp_launch' item.result_exp_id %}" >查看实验</a>
+                                    <a href="" >查看实验</a>
                                     |<a href="{% url 'teach_result_report_download' item.id %}" target="_blank">下载实验报告</a>
                                     |<a href="{% url 'teach_result_score' item.id %}" target="_blank">实验评分</a>
                                 {% else %}
                                     {% ifequal item.situation 'scored' %}
-                                        <a href="{% url 'exp_launch' item.result_exp_id %}" >查看实验</a>
+                                        <a href="" >查看实验</a>
                                         |<a href="{% url 'teach_result_score' item.id %}" target="_blank">修改成绩</a>
                                     {% else %}
-                                        <a href="{% url 'exp_launch' item.result_exp_id %}" >查看实验</a>
+                                        <a href="" >查看实验</a>
                                     {% endifequal %}
                             {% endifequal %}
                     {% endifequal %}
@@ -65,9 +65,6 @@
                         </div>
                         <div class="summary">
                             实验结果：{{ item.result | truncatechars:500 }}
-                        </div>
-                        <div class="summary">
-                            实验报告：{{ item.reportUrl }}
                         </div>
                     {% else %}
                         {% ifequal item.situation 'scored' %}

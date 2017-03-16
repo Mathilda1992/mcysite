@@ -104,6 +104,7 @@ urlpatterns = [
     url(r'^exp_home/$',exp_home,name='exp_home'),
     url(r'^exp_list/$',exp_home,name='exp_home'),
     url(r'^exp_create/$',exp_create,name='exp_create'),
+    url(r'^exp_create_VM/(\d+)$', exp_create_VM, name='exp_create_VM'),
     url(r'^exp_copy/(\d+)/$',exp_copy,name='exp_copy'),
     url(r'^exp_detail/(\d+)/$',exp_detail,name='exp_detail'),
     url(r'^exp_edit/(\d+)/$', exp_edit, name='exp_edit'),
@@ -129,8 +130,10 @@ urlpatterns = [
     url(r'^repo_private_exp_list/$',repo_private_exp_list,name='repo_private_exp_list'),
     url(r'^repo_private_image_list/$',repo_private_image_list,name='repo_private_image_list'),
     url(r'^repo_private_network_list/$',repo_private_network_list,name='repo_private_network_list'),
+    url(r'^repo_private_VM_list/$', repo_private_VM_list, name='repo_private_VM_list'),
     url(r'^repo_create_image/$',repo_create_image,name='repo_create_image'),
     url(r'^repo_create_network/$', repo_create_network, name='repo_create_network'),
+
 
     url(r'^repo_public_exp_delete/(\d+)$',repo_public_exp_delete,name='repo_public_exp_delete'),
     url(r'^repo_public_image_delete/(\d+)$',repo_public_image_delete,name='repo_public_image_delete'),
@@ -141,6 +144,10 @@ urlpatterns = [
     url(r'^repo_network_detail/(\d+)$', repo_network_detail, name='repo_network_detail'),
     url(r'^repo_network_edit/(\d+)$', repo_network_edit, name='repo_network_edit'),
     url(r'^repo_network_delete/(\d+)$', repo_network_delete, name='repo_network_delete'),
+    url(r'^repo_VM_detail/(\d+)$', repo_VM_detail, name='repo_VM_detail'),
+    url(r'^repo_VM_edit/(\d+)$', repo_VM_edit, name='repo_VM_edit'),
+    url(r'^repo_VM_delete/(\d+)$', repo_VM_delete, name='repo_VM_delete'),
+
 
     url(r'^repo_ImageCart_list/$',repo_ImageCart_list,name='repo_ImageCart_list'),
     url(r'^repo_ImageCart_clear/$',repo_ImageCart_clear,name='repo_ImageCart_clear'),

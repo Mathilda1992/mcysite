@@ -37,17 +37,63 @@ NETWORKS_CHECKBOX_CHOICES=(
     ('2','private_exp1'),
 )
 
+FLAVOR_CHOICE_BOX=(
+    ('m1.tiny', 'm1.tiny(RAM=512MB,Disk=1GB,VCPUs=1)'),
+    ('m1.small', 'm1.small(RAM=2048MB,Disk=20GB,VCPUs=1)'),
+    ('m1.medium', 'm1.medium(RAM=4096MB,Disk=40GB,VCPUs=2)'),
+    ('m1.large', 'm1.large(RAM=8192MB,Disk=80GB,VCPUs=4)'),
+    ('m1.xlarge', 'm1.xlarge(RAM=16384MB,Disk=160GB,VCPUs=8)'),
+)
+KEYPAIR_CHOICE_BOX=(
+    ('mykey','mykey'),
+)
+SECURITY_GROUP_CHOICE_BOX=(
+    ('default','default'),
+)
+class AddVMForm(forms.Form):
+    name = forms.CharField(label='VM name',max_length=150)
+    desc = forms.CharField(label='Description',max_length=500,
+                           widget=forms.Textarea(),
+                           required =False)
+    image_id = forms.ChoiceField(label='Include Images',)
+    network_id = forms.ChoiceField(label='Use Networks',)
+    flavor = forms.ChoiceField(label='Flavor',
+                               widget=forms.RadioSelect(),
+                               choices=FLAVOR_CHOICE_BOX,)
+    keypair = forms.ChoiceField(label='Keypair',
+                                widget=forms.RadioSelect(),
+                                choices=KEYPAIR_CHOICE_BOX,)
+    security_group = forms.MultipleChoiceField(label='Security Groups',
+                                               widget=forms.CheckboxSelectMultiple,
+                                               choices=SECURITY_GROUP_CHOICE_BOX,)
+
+    def __init__(self,*args,**kwargs):
+        super(AddVMForm,self).__init__(*args,**kwargs)
+        # t= self.get_currentuser(request)
+        self.fields['image_id'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
+        self.fields['network_id'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
+
+    def get_currentuser(self,request):
+        username = request.session['username']
+        t = User.objects.get(username=username)
+        return t
+
+
+
 class AddExpForm(forms.Form):
     name = forms.CharField(label='Exp Name',max_length=150)
     desc = forms.CharField(label='Description',max_length=500,
                            widget=forms.Textarea(),
                            required =False)
+
     images_idList = forms.MultipleChoiceField(label='Include Images',
                                        # widget=forms.CheckboxSelectMultiple,
                                        )
     networks_idList = forms.MultipleChoiceField(label='Use Networks',
                                          # widget=forms.CheckboxSelectMultiple,
                                          )
+    vm_count = forms.IntegerField(label="VM Count")
+    vm_idList = forms.MultipleChoiceField(label='Include VMs',)
     guide = forms.CharField(label="Guide",
                             widget=forms.Textarea(),
                             required = False)
@@ -59,9 +105,9 @@ class AddExpForm(forms.Form):
     def __init__(self,*args,**kwargs):
         super(AddExpForm,self).__init__(*args,**kwargs)
         # t= self.get_currentuser(request)
-
         self.fields['images_idList'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
         self.fields['networks_idList'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
+        self.fields['vm_idList'].choices = [(i.pk,str(i)) for i in VM.objects.all()]
 
 
     def get_currentuser(self,request):
@@ -83,13 +129,7 @@ class SubmitExpForm(forms.Form):#actually equal to update Score table
     reportFile = forms.FileField(label='Upload Report', required=True)
 
 
-FLAVOR_CHOICE_BOX=(
-    ('m1.tiny', 'm1.tiny'),
-    ('m1.small', 'm1.small'),
-    ('m1.medium', 'm1.medium'),
-    ('m1.large', 'm1.large'),
-    ('m1.xlarge', 'm1.xlarge'),
-)
+
 class CreateImageForm(forms.Form):
     name =forms.CharField(label='Image Name',max_length=255)
     desc = forms.CharField(label='Description', widget=forms.Textarea(), required=False)
