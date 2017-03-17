@@ -15,6 +15,7 @@
 
         {% for item in GroupScoreList %}
             <div align="center" class="blog">
+
                 <div class="info">
                     <span class="catagory" style="color: #ff9900;">群组名称：<a href="{% url 'teach_score_list_by_groupID' item.group.id %}">{{ item.group.name }}</a></span>
                     <span class="author" style="color: #4a86e8;">实验数目：{{ item.exp_count }}</span>

@@ -351,3 +351,18 @@ class VMInstance(models.Model):
 
     class Meta:
         ordering = ['-createtime']
+
+
+class TempExp(models.Model):
+    name = models.CharField(max_length=150)
+    owner = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)
+
+class TempGroup(models.Model):
+    name = models.CharField(max_length=150)
+    owner = models.ForeignKey(User)
+
+    def __unicode__(self):
+        return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)

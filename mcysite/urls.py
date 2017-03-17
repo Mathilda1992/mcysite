@@ -68,6 +68,7 @@ urlpatterns = [
     url(r'^project_find/$', openstack_project_find, name='project_find'),
     url(r'^project_create/$', openstack_project_create, name='project_create'),
     url(r'^role_list/$', openstack_role_list, name='role_list'),
+    url(r'^openstack_user_list/$', openstack_user_list, name='openstack_user_list'),
 
     url(r'^image_find/$',image_find,name='image_find'),
     url(r'^image_create/$', image_create, name='image_create'),
@@ -97,7 +98,7 @@ urlpatterns = [
     url(r'^group_view/(\d+)/$', group_view, name='group_view'),
     url(r'^group_edit/(\d+)/$', group_edit, name='group_edit'),
     url(r'^group_delete/(\d+)/$', group_delete, name='group_delete'),
-    url(r'^openstack_user_list/$',openstack_user_list,name='openstack_user_list'),
+
 
 
     #exp operate
@@ -105,6 +106,7 @@ urlpatterns = [
     url(r'^exp_list/$',exp_home,name='exp_home'),
     url(r'^exp_create/$',exp_create,name='exp_create'),
     url(r'^exp_create_VM/(\d+)$', exp_create_VM, name='exp_create_VM'),
+    url(r'^exp_delete_VM/(\d+)$', exp_delete_VM, name='exp_delete_VM'),
     url(r'^exp_copy/(\d+)/$',exp_copy,name='exp_copy'),
     url(r'^exp_detail/(\d+)/$',exp_detail,name='exp_detail'),
     url(r'^exp_edit/(\d+)/$', exp_edit, name='exp_edit'),
@@ -113,15 +115,18 @@ urlpatterns = [
     url(r'^exp_share/(\d+)/$', exp_share, name='exp_share'),
     url(r'^exp_launch/(\d+)/$', exp_launch, name='exp_launch'),
     url(r'^exp_submit/(\d+)/$', exp_submit, name='exp_submit'),
-
     url(r'^exp_guide_download/(\d+)/$', exp_guide_download, name='exp_guide_download'),
-    url(r'^exp_network_launch/$',exp_network_launch,name='luanch_exp_network'),
+    # url(r'^exp_network_launch/$',exp_network_launch,name='luanch_exp_network'),
+
+    url(r'^exp_score_launch/(\d+)/$', exp_score_launch, name='exp_score_launch'),
+    url(r'^exp_score_delete/(\d+)/$', exp_score_delete, name='exp_score_delete'),
 
     url(r'^exp_list_undo/$',exp_list_undo,name='exp_list_undo'),
     url(r'^exp_list_doing/$', exp_list_doing, name='exp_list_doing'),
     url(r'^exp_list_done/$', exp_list_done, name='exp_list_done'),
     url(r'^exp_list_scored/$', exp_list_scored, name='exp_list_scored'),
 
+    url(r'^exp_instance_start/(\d+)/$', exp_instance_start, name='exp_instance_start'),
 
     #repo operate
     url(r'^repo_home/$',repo_home,name='repo_home'),
@@ -170,7 +175,7 @@ urlpatterns = [
     url(r'^teach_score_list_by_deliveryID(\d+)/$',teach_score_list_by_deliveryID,name='teach_score_list_by_deliveryID'),
     url(r'^teach_score_list_by_stuID(\d+)/$', teach_score_list_by_stuID, name='teach_score_list_by_stuID'),
     url(r'^teach_score_list_by_expID(\d+)/$', teach_score_list_by_expID, name='teach_score_list_by_expID'),
-    url(r'^teach_score_list_by_scoreID(\d+)/$',teach_score_list_by_scoreID,name='teach_score_list_by_scoreID'),
+    # url(r'^teach_score_list_by_scoreID(\d+)/$',teach_score_list_by_scoreID,name='teach_score_list_by_scoreID'),
     url(r'^teach_result_score(\d+)/$',teach_result_score,name='teach_result_score'),
     url(r'^teach_result_report_download(\d+)/$',teach_result_report_download,name='teach_result_report_download'),
     url(r'^teach_score_list_by_group/$', teach_score_list_by_group, name='teach_score_list_by_group'),

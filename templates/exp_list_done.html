@@ -27,6 +27,8 @@
                     <span class="author" style="color: #4a86e8;">所属分发：{{ item.delivery_id  }}</span>
                     <span class="created" style="color: #6aa84e;">分发时间：{{ item.createTime |date:"Y-m-d H:i" }}</span>
                     <span class="created" style="color: #6aa84e;">实验状态：{{ item.situation }}</span>
+                    [<a href="{% url 'exp_detail' item.exp.id %}">查看</a>]
+                    [<a href="{% url 'exp_score_launch' item.id %}">启动</a>]
 
                 </div>
                 <div class="summary">

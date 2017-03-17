@@ -11,7 +11,7 @@
     </ul>
 
     <div class="header">
-        <h1 align="center">Experiment Result List</h1>
+        <h1 align="center">列出实验结果</h1>
     </div>
 
 
@@ -20,12 +20,9 @@
             <div class="title">
                 <h2><a href="{% url 'exp_detail' item.exp.id %}" target="_blank">{{ item.exp.exp_name }}</a>~
                     {{ item.stu.stu_username }}</h2>
-                {% if item.result_exp_id %}
-                    <a href="" >启动</a>|
-                {% endif %}
 
-
-                <a href="{% url 'teach_result_score' item.id %}" target="_blank">评分</a>
+                    <a href="{% url 'exp_score_launch' item.id%}" target="_blank">启动</a>|
+                    <a href="{% url 'teach_result_score' item.id %}" target="_blank">评分</a>
 
 
             </div>

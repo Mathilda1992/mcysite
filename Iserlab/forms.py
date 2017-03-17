@@ -84,6 +84,8 @@ class EditVMForm(forms.Form):
     desc = forms.CharField(label='Description', max_length=500,
                            widget=forms.Textarea(),
                            required=False)
+    exp = forms.CharField(label='Belong to Exp',max_length=10,
+                             widget=forms.TextInput(attrs={'readonly': 'readonly'}),)
     image_id = forms.ChoiceField(label='Include Images',choices=IMAGES_CHECKBOX_CHOICES )
     network_id = forms.ChoiceField(label='Use Networks',choices=NETWORKS_CHECKBOX_CHOICES )
     flavor = forms.ChoiceField(label='Flavor',
@@ -104,10 +106,10 @@ class AddExpForm(forms.Form):
                            required =False)
 
     images_idList = forms.MultipleChoiceField(label='Include Images',
-                                       # widget=forms.CheckboxSelectMultiple,
+                                       widget=forms.CheckboxSelectMultiple,
                                        )
     networks_idList = forms.MultipleChoiceField(label='Use Networks',
-                                         # widget=forms.CheckboxSelectMultiple,
+                                         widget=forms.CheckboxSelectMultiple,
                                          )
     vm_count = forms.IntegerField(label="VM Count")
     # vm_idList = forms.MultipleChoiceField(label='Include VMs',)
@@ -139,19 +141,33 @@ class EditExpForm(forms.Form):# the same with AddExpForm
                            required =False)
 
     images_idList = forms.MultipleChoiceField(label='Include Images',
-                                              widget=forms.CheckboxSelectMultiple,choices=IMAGES_CHECKBOX_CHOICES,)
+                                              widget=forms.CheckboxSelectMultiple,
+                                              # choices=IMAGES_CHECKBOX_CHOICES,
+                                              )
     networks_idList = forms.MultipleChoiceField(label='Use Networks',
-                                                widget=forms.CheckboxSelectMultiple,choices=NETWORKS_CHECKBOX_CHOICES)
+                                                widget=forms.CheckboxSelectMultiple,
+                                                # choices=NETWORKS_CHECKBOX_CHOICES
+                                                )
     vm_count = forms.IntegerField(label="VM Count")
     # vm_idList = forms.MultipleChoiceField(label='Include VMs',)
     guide = forms.CharField(label="Guide",
                             widget=forms.Textarea(),
                             required = False)
-    guide_file = forms.FileField(label='Upload Guide File', required=True)
     refer_result = forms.CharField(label="Refer Result",
                                    widget=forms.Textarea(),
                                    required=False,)
 
+    def __init__(self,*args,**kwargs):
+        super(EditExpForm,self).__init__(*args,**kwargs)
+        # t= self.get_currentuser(request)
+        self.fields['images_idList'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
+        self.fields['networks_idList'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
+        # self.fields['vm_idList'].choices = [(i.pk,str(i)) for i in VM.objects.all()]
+
+    def get_currentuser(self,request):
+        username = request.session['username']
+        t = User.objects.get(username=username)
+        return t
 
 
 
@@ -219,8 +235,6 @@ EXP_YEAR_CHOICES=('2017','2018','2019')
 
 
 
-
-
 class AddDeliveryForm(forms.Form):
     name = forms.CharField(label='Delivery Name',
                            max_length=50,
@@ -238,18 +252,24 @@ class AddDeliveryForm(forms.Form):
                                       )
     startDateTime = forms.DateField(label='Starttime',
                                     widget=forms.SelectDateWidget,
-                                    initial=datetime.datetime.now())
+                                    # initial=datetime.datetime.now(),
+                                    )
     endDateTime = forms.DateField(label='Endtime',
                                   widget=forms.SelectDateWidget,
-                                  initial=datetime.datetime.now()
+                                  # initial=datetime.datetime.now(),
                                   )
 
-    def __init__(self,*args,**kwargs):
-        super(AddDeliveryForm,self).__init__(*args,**kwargs)
-        # t= self.get_currentuser(request)
-        self.fields['exp'].choices = [(i.pk,str(i)) for i in Experiment.objects.all()]
-        self.fields['group'].choices = [(i.pk,str(i)) for i in Group.objects.all()]
+    # def __init__(self,E_Dict_List,G_Dict_List,*args,**kwargs):
+    #     super(AddDeliveryForm,self).__init__(*args,**kwargs)
+    #     # t= self.get_currentuser(request)
+    #     self.fields['exp'].choices = [('30', 'asd') for i in E_Dict_List]
+    #     self.fields['group'].choices = [('4', 'group1') for j in G_Dict_List]
 
+    def __init__(self, *args, **kwargs):
+        super(AddDeliveryForm, self).__init__(*args, **kwargs)
+        # t= self.get_currentuser(request)
+        self.fields['exp'].choices = [(i.pk, str(i)) for i in TempExp.objects.all()]
+        self.fields['group'].choices = [(i.pk, str(i)) for i in TempGroup.objects.all()]
 
     def get_currentuser(self,request):
         username = request.session['username']
@@ -302,4 +322,4 @@ class ExpDeliveryForm(forms.Form):
 
     def __init__(self,*args,**kwargs):
         super(ExpDeliveryForm,self).__init__(*args,**kwargs)
-        self.fields['group'].choices = [(i.pk,str(i)) for i in Group.objects.all()]
+        self.fields['group'].choices = [(i.pk,str(i)) for i in TempGroup.objects.all()]

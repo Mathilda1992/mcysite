@@ -26,6 +26,7 @@
                         |<a href="{% url 'exp_share' item.id %}" >共享实验</a>
                     {% endifequal %}
                     |<a href="{% url 'exp_create_VM' item.id %}" target="_blank">添加主机</a>
+                    |<a href="{% url 'exp_delete_VM' item.id %}" target="_blank">删除主机</a>
                 </div>
 
                 <div class="info">

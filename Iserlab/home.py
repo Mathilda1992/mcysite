@@ -177,9 +177,11 @@ def delivery_delete(request,d_id):
     except Delivery.DoesNotExist:
         raise Http404
     re = Delivery.objects.filter(id=d_id).delete()
+    #also should delete related records in Score db
+
     if re:
         print "Delivery delete success!"
-    return HttpResponseRedirect('/teach_home/')
+    return HttpResponseRedirect('/delivery_list/')
 
 
 def delivery_detail(request,d_id):
@@ -234,9 +236,28 @@ def delivery_edit(request,d_id):
 #pay attention to multi exps to multi group
 def delivery_create(request):
     username = request.session['username']
+    teacher = User.objects.get(username=username)
+
+    #clear the TempExp
+    TempExp.objects.all().delete()
+    #insert into TempExp
+    EList= Experiment.objects.filter(exp_owner=teacher)
+    for item in EList:
+        new = TempExp(name=item.exp_name,owner=teacher)
+        new.save()
+
+    #clear the TempGroup
+    TempGroup.objects.all().delete()
+    #insert into TempGroup
+    GList=Group.objects.filter(teacher=teacher)
+    for item in GList:
+        new = TempGroup(name=item.name,owner=teacher)
+        new.save()
+
     if request.method =='POST':
         rf = AddDeliveryForm(request.POST)
         if rf.is_valid():
+            print "******"
             #get data from the form
             name = rf.cleaned_data['name']
             desc = rf.cleaned_data['desc']
@@ -245,7 +266,7 @@ def delivery_create(request):
             startDateTime = rf.cleaned_data['startDateTime']
             endDateTime = rf.cleaned_data['endDateTime']
             #prepare other required data
-            teacher = User.objects.get(username=username)
+
             delivery_time = datetime.datetime.now()
 
             elist = []
@@ -263,6 +284,7 @@ def delivery_create(request):
                     d = Delivery(name=name,desc=desc,delivery_time=delivery_time,teacher=teacher,
                                  start_time=startDateTime,stop_time=endDateTime,
                                  exp=elist[i],group=glist[j],total_stu=len(stulist))
+                    print d
                     d.save()
             #insert into db:score
             d_List = Delivery.objects.filter(name=name,teacher=teacher)
@@ -270,8 +292,9 @@ def delivery_create(request):
                 stulist = d_List[i].group.student.all()
                 for j in range(0,len(stulist)):#insert a record into score db for every stu
                     new_score = Score(exp=d_List[i].exp,stu=stulist[j],scorer= teacher,delivery_id=d_List[i].id)
+                    print new_score
                     new_score.save()
-        return HttpResponseRedirect('/teach_home/')
+        return HttpResponseRedirect('/delivery_list/')
     else:
         rf = AddDeliveryForm()
     return render_to_response("delivery_create.html",{'rf':rf})
@@ -341,7 +364,6 @@ def teach_result_score(request,score_id):
             re = Score.objects.filter(id=score_id).update(situation='scored',score=score,comment=comment,scoreTime = datetime.datetime.now())
             if re:
                 print "Score Success!"
-                print Score.objects.get(id=score_id).result_exp_id
             return HttpResponseRedirect('/teach_result_list/')
     else:
         sf = ScoreForm()
@@ -1189,10 +1211,15 @@ class AddGroupForm(forms.Form):
                            required=False,
                            initial="Replace with your feedbace",
                            error_messages={'max_length':'The description is too long'})
-    stulist = forms.MultipleChoiceField(label='Stulist',
-                                        required=False,
-                                        widget=forms.CheckboxSelectMultiple,choices=STU_CHECKBOX_CHOICES,)
+    stulist = forms.MultipleChoiceField(label='Stulist',required=False,
+                                        widget=forms.CheckboxSelectMultiple,
+                                        # choices=STU_CHECKBOX_CHOICES,
+                                        )
 
+    def __init__(self, *args, **kwargs):
+        super(AddGroupForm, self).__init__(*args, **kwargs)
+        # t= self.get_currentuser(request)
+        self.fields['stulist'].choices = [(i.pk, str(i)) for i in Student.objects.all()]
 
 
 def group_create(request):
@@ -1204,15 +1231,15 @@ def group_create(request):
             #get data from form
             gname = rf.cleaned_data['gname']
             desc = rf.cleaned_data['desc']
-            stuNamelist = rf.cleaned_data['stulist']
+            stu_idlist = rf.cleaned_data['stulist']
 
             #insert into db
             gteacher = User.objects.get(username=username)
             stulist = []
-            for i in range(0,len(stuNamelist)):
-                stu = Student.objects.get(stu_username=stuNamelist[i])
+            for i in range(0,len(stu_idlist)):
+                stu = Student.objects.get(id=stu_idlist[i])
                 stulist.append(stu)
-            gcount = len(stuNamelist)
+            gcount = len(stu_idlist)
 
             g = Group(name=gname, desc=desc, teacher=gteacher, stuCount=gcount)
             g.save()
@@ -1234,9 +1261,9 @@ def group_edit(request,group_id):
         raise Http404
 
     s_list = g.student.all()
-    s_name_list = []
+    s_id_list = []
     for item in s_list:
-        s_name_list.append(item.stu_username)
+        s_id_list.append(item.id)
 
     #edit and update the group
     username = request.session['username']
@@ -1246,15 +1273,15 @@ def group_edit(request,group_id):
             # get data from form
             update_gname = rf.cleaned_data['gname']
             update_desc = rf.cleaned_data['desc']
-            update_stuNamelist = rf.cleaned_data['stulist']
+            update_stu_idlist = rf.cleaned_data['stulist']
 
             # edit basic info of group
             gteacher = User.objects.get(username=username)
             update_stulist = []
-            for i in range(0, len(update_stuNamelist)):
-                stu = Student.objects.get(stu_username=update_stuNamelist[i])
+            for i in range(0, len(update_stu_idlist)):
+                stu = Student.objects.get(id=update_stu_idlist[i])
                 update_stulist.append(stu)
-            update_gcount = len(update_stuNamelist)
+            update_gcount = len(update_stu_idlist)
 
             re =Group.objects.filter(id=group_id).update(name=update_gname,desc=update_desc,stuCount=update_gcount)
             update_g = Group.objects.get(id=group_id)
@@ -1278,7 +1305,7 @@ def group_edit(request,group_id):
         attrs = {}
         attrs['gname'] = g.name
         attrs['desc'] = g.desc
-        attrs['stulist'] = s_name_list
+        attrs['stulist'] = s_id_list
         gf = AddGroupForm(initial=attrs)
     return render_to_response("group_edit.html", {'rf': gf})
 
@@ -1790,6 +1817,10 @@ def exp_create_VM(request,exp_id):
         rf = AddVMForm()
     return render_to_response("exp_create_VM.html",{'rf':rf})
 
+def exp_delete_VM(request,exp_id):
+
+    pass
+
 #only role=teacher
 def repo_VM_edit(request,vm_id):
     try:
@@ -1815,12 +1846,13 @@ def repo_VM_edit(request,vm_id):
             net = Network.objects.get(id = network_id)
 
             re = VM.objects.filter(id = vm_id).update(name=name,desc=desc,image=image,network=net,flavor=flavor,keypair=keypair,security_group=security_group)
-            return fdjskfjl
+            return HttpResponseRedirect('/repo_VM_list/')
     else:
         #initial the form
         attrs = {}
         attrs['name']=vm.name
         attrs['desc']=vm.desc
+        attrs['exp']=vm.exp.exp_name
         attrs['image_id']=vm.image.id
         attrs['network_id']=vm.network.id
         attrs['flavor']=vm.flavor
@@ -1828,6 +1860,7 @@ def repo_VM_edit(request,vm_id):
         attrs['security_group']=vm.security_group
 
         gf = EditVMForm(initial=attrs)
+    return render_to_response("repo_VM_edit.html",{'rf':gf})
 
 #only role = teacher has this function
 def exp_edit(request,exp_id):
@@ -1847,43 +1880,42 @@ def exp_edit(request,exp_id):
     #edit and update the exp
     if request.method == 'POST':
         rf = EditExpForm(request.POST)
-        if rf.is_valid():
-            #get input data from form
-            update_name = rf.cleaned_data['name']
-            update_desc = rf.cleaned_data['desc']
-            update_images_idList = rf.cleaned_data['images_idList']
-            update_networks_idList = rf.cleaned_data['networks_idList']
-            update_guide = rf.cleaned_data['guide']
-            update_refer_result = rf.cleaned_data['refer_result']
+        #get input data from form
+        update_name = rf.data['name']
+        update_desc = rf.data['desc']
+        update_images_idList = rf.data['images_idList']
+        update_networks_idList = rf.data['networks_idList']
+        update_guide = rf.data['guide']
+        update_refer_result = rf.data['refer_result']
 
-            update_imageList =[]
-            update_networkList=[]
-            for i in update_images_idList:
-                update_imageList.append(VMImage.objects.get(id=i))
-            for i in update_networks_idList:
-                update_networkList.append(Network.objects.get(id=i))
+        update_imageList =[]
+        update_networkList=[]
+        for i in update_images_idList:
+            update_imageList.append(VMImage.objects.get(id=i))
+        for i in update_networks_idList:
+            update_networkList.append(Network.objects.get(id=i))
 
-            #update basic info for exp
-            re = Experiment.objects.filter(id=exp_id).update(exp_name=update_name,exp_description=update_desc,
-                                                             exp_image_count=len(update_imageList),exp_guide=update_guide,
-                                                             exp_result=update_refer_result,exp_updatetime=datetime.datetime.now())
-            update_e = Experiment.objects.get(id=exp_id)
-            #update image list and network list for exp
-            for i in range(0,len(update_imageList)):
-                if update_imageList[i] not in imageList:
-                    update_e.exp_images.add(update_imageList[i])
-            for j in range(0,len(imageList)):
-                if imageList[j] not in update_imageList:
-                    update_e.exp_images.remove(imageList[j])
+        #update basic info for exp
+        re = Experiment.objects.filter(id=exp_id).update(exp_name=update_name,exp_description=update_desc,
+                                                         exp_image_count=len(update_imageList),exp_guide=update_guide,
+                                                         exp_result=update_refer_result,exp_updatetime=datetime.datetime.now())
+        update_e = Experiment.objects.get(id=exp_id)
+        #update image list and network list for exp
+        for i in range(0,len(update_imageList)):
+            if update_imageList[i] not in imageList:
+                update_e.exp_images.add(update_imageList[i])
+        for j in range(0,len(imageList)):
+            if imageList[j] not in update_imageList:
+                update_e.exp_images.remove(imageList[j])
 
-            for item in update_networkList:
-                if item not in networkList:
-                    update_e.exp_network.add(item)
-            for item in networkList:
-                if item not in update_networkList:
-                    update_e.exp_network.remove(item)
-            #refersh the exp list
-            return HttpResponseRedirect('/exp_home/')
+        for item in update_networkList:
+            if item not in networkList:
+                update_e.exp_network.add(item)
+        for item in networkList:
+            if item not in update_networkList:
+                update_e.exp_network.remove(item)
+        #refersh the exp list
+        return HttpResponseRedirect('/exp_home/')
     else:
         # initial the form
         attrs = {}
@@ -1918,6 +1950,14 @@ def exp_delivery(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
+    teacher = User.objects.get(username=username)
+    # clear the TempGroup
+    TempGroup.objects.all().delete()
+    # insert into TempGroup
+    GList = Group.objects.filter(teacher=teacher)
+    for item in GList:
+        new = TempGroup(name=item.name, owner=teacher)
+        new.save()
 
     if request.method == 'POST':
         rf = ExpDeliveryForm(request.POST)
@@ -1929,7 +1969,7 @@ def exp_delivery(request,exp_id):
             startDateTime = rf.cleaned_data['startDateTime']
             endDateTime = rf.cleaned_data['endDateTime']
             # prepare other required data
-            teacher = User.objects.get(username=username)
+
             delivery_time = datetime.datetime.now()
 
             glist = []
@@ -2013,7 +2053,10 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
     pass
 
 #when stu launch and teacher check exp result, use this function
-def score_launch(request,socre_id):
+def exp_score_launch(request,socre_id):
+    pass
+
+def exp_score_delete(request,score_id):
     pass
 
 
@@ -2050,10 +2093,6 @@ def exp_instance_save(request,exp_i_id):
     pass
 
 
-#teacher and student both have
-def exp_clean(request,exp_id):
-    #delete and make a new copy
-    pass
 
 
 #only role=stu has this operation
