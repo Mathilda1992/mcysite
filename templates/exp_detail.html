@@ -21,7 +21,7 @@
 
                 <a href="{% url 'exp_edit' E_Detail_Dict.id %}" target="_blank">编辑</a>|
                 <a href="{% url 'exp_share' E_Detail_Dict.id %}" >共享</a>|
-                <a href="{% url 'exp_create_VM' E_Detail_Dict.id %}" target="_blank">添加虚拟机</a>|
+
 
                 <a href="{% url 'exp_launch' E_Detail_Dict.id %}" target="_blank">启动</a>|
                 <a href="{% url 'exp_copy' E_Detail_Dict.id %}" target="_blank">复制</a>|
@@ -33,7 +33,7 @@
 
         <div class="info">
             <span class="catagory" style="color: #ff9900;">实验编号：{{ E_Detail_Dict.id }}</span>
-            <span class="catagory" style="color: #ff9900;">包含主机数量：{{ E_Detail_Dict.exp_image_count }}</span>
+            <span class="catagory" style="color: #ff9900;">包含主机数量：{{ E_Detail_Dict.VM_count }}</span>
             <span class="author" style="color: #4a86e8;">所有者：{{ E_Detail_Dict.exp_owner }}</span>
             <span class="author" style="color: #4a86e8;">是否共享：{{ E_Detail_Dict.is_shared }}</span>
             <span class="created" style="color: #6aa84e;">创建日期：{{ E_Detail_Dict.exp_createtime |date:"Y-m-d H:i" }}</span>
@@ -61,10 +61,10 @@
         </div>
 
         <div class="summary">
-            包含主机：
+            包含主机：[<a href="{% url 'exp_create_VM' E_Detail_Dict.id %}" target="_blank">添加虚拟机</a>]
             {% for item in E_Detail_Dict.VMList %}
                 <ul>
-                    <li><a href="{% url 'repo_VM_detail' item.id %}" target="_blank">{{ item.name }}</a></li>
+                    <li><a href="{% url 'repo_VM_detail' item.id %}" target="_blank">{{ item.name }}</a>[<a href="{% url 'repo_VM_delete' item.id %}" >删除</a>]</li>
                 </ul>
             {% endfor %}
         </div>
@@ -76,7 +76,7 @@
             实验指南：{{ E_Detail_Dict.exp_guide }}
         </div>
 
-        {% ifequal role 'teacher' %}
+{#        {% ifequal role 'teacher' %}#}
             <div>
                 实验结果参考（教师给出实验结果作为评分依据）：{{ E_Detail_Dict.exp_result }}
             </div>
@@ -85,24 +85,27 @@
             </div>
             <div>
                 分发历史记录:
-            <table>
-                <tr>
-                    <td>Delivery Name</td>
-                    <td>Delivery Time</td>
-                    <td>Group</td>
-                </tr>
-
-                {% for item in E_Detail_Dict.delivery_history %}
+                <table>
                     <tr>
-                        <td><a href="{% url 'delivery_detail' item.id %}"><span class="author" style="color: #4a86e8">{{ item.name }}</span></a></td>
-                        <td><span class="created" style="color: #6aa84f">{{ item.delivery_time|date:"Y-m-d H:i" }}</span></td>
-                        <td><span class="category" style="color: #ff9900;">{{ item.stu.name }}</span></td>
+                        <td>ID</td>
+                        <td>Delivery Name</td>
+                        <td>Delivery Time</td>
+                        <td>Group</td>
                     </tr>
-                {% empty %}
-                    <p>抱歉,Delivery History列表为空</p>
-                {% endfor %}
-            </table>
-        {% endifequal %}
+
+                    {% for item in E_Detail_Dict.delivery_history %}
+                        <tr>
+                            <td><a href="{% url 'delivery_detail' item.id %}"><span class="catagory" style="color: #ff9900;">{{ item.id }}</span></a></td>
+                            <td><span class="author" style="color: #4a86e8">{{ item.name }}</span></td>
+                            <td><span class="created" style="color: #6aa84f">{{ item.delivery_time|date:"Y-m-d H:i" }}</span></td>
+                            <td><span class="category" style="color: #ff9900;">{{ item.group.name }}</span></td>
+                        </tr>
+                    {% empty %}
+                        <p>抱歉,Delivery History列表为空</p>
+                    {% endfor %}
+                </table>
+            </div>
+
 
         </div>
 

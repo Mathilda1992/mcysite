@@ -70,7 +70,6 @@ class AddVMForm(forms.Form):
 
     def __init__(self,*args,**kwargs):
         super(AddVMForm,self).__init__(*args,**kwargs)
-        # t= self.get_currentuser(request)
         self.fields['image_id'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
         self.fields['network_id'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
 
@@ -78,6 +77,22 @@ class AddVMForm(forms.Form):
         username = request.session['username']
         t = User.objects.get(username=username)
         return t
+
+class DeleteVMForm(forms.Form):
+    exp_name = forms.CharField(label='Exp Name',max_length=150,
+                               widget=forms.TextInput(attrs={'readonly': 'readonly'}),
+                               )
+    # vm_list = forms.ModelMultipleChoiceField(label='Choose VMs to delete',
+    #                                          queryset=VM.objects.all(),
+    #                                          widget=forms.CheckboxSelectMultiple,
+    #                                          error_messages={'required': 'At least choose one to delete'},
+    #                                          )
+    vm_id_list = forms.MultipleChoiceField(label='Choose VMs to delete',
+                                        widget=forms.CheckboxSelectMultiple,
+                                        )
+    def __init__(self,*args,**kwargs):
+        super(DeleteVMForm,self).__init__(*args,**kwargs)
+        self.fields['vm_id_list'].choices = [(i.pk,str(i)) for i in VM.objects.all()]
 
 class EditVMForm(forms.Form):
     name = forms.CharField(label='VM name', max_length=150)
@@ -234,6 +249,35 @@ class ScoreForm(forms.Form):
 EXP_YEAR_CHOICES=('2017','2018','2019')
 
 
+# class CreateDeliveryForm(forms.Form):
+#     name = forms.CharField(label='Delivery Name',
+#                            max_length=50,
+#                            error_messages={'required': 'The delivery can not be null!','max_length':'The delivery name is too long'})
+#     desc = forms.CharField(label='Description', max_length=500,
+#                            widget=forms.Textarea(),
+#                            required=False,
+#                            initial="Replace with your description",
+#                            error_messages={'max_length': 'The description is too long'})
+#
+#     exp = forms.ModelMultipleChoiceField(label='Select Exp',
+#                                          queryset=TempExp.objects.all(),
+#                                          widget=forms.CheckboxSelectMultiple,
+#                                          error_messages={'required': u'At least choose one'},
+#                                          )
+#     group = forms.ModelMultipleChoiceField(label="Select Group",
+#                                            queryset=TempGroup.objects.all(),
+#                                            widget=forms.CheckboxSelectMultiple,
+#                                            error_messages={'required': u'At least choose one'},
+#                                            )
+#     startDateTime = forms.DateField(label='Starttime',
+#                                     widget=forms.SelectDateWidget,
+#                                     # initial=datetime.datetime.now(),
+#                                     )
+#     endDateTime = forms.DateField(label='Endtime',
+#                                   widget=forms.SelectDateWidget,
+#                                   # initial=datetime.datetime.now(),
+#                                   )
+
 
 class AddDeliveryForm(forms.Form):
     name = forms.CharField(label='Delivery Name',
@@ -245,11 +289,16 @@ class AddDeliveryForm(forms.Form):
                            initial="Replace with your description",
                            error_messages={'max_length': 'The description is too long'})
 
-    exp = forms.MultipleChoiceField(label='Select Exp',
-                                    widget=forms.CheckboxSelectMultiple, )
-    group = forms.MultipleChoiceField(label="Select Group",
-                                      widget=forms.CheckboxSelectMultiple,
-                                      )
+    exp = forms.ModelMultipleChoiceField(label='Select Exp',
+                                         queryset=Experiment.objects.all(),
+                                         widget=forms.CheckboxSelectMultiple,
+                                         error_messages={'required': 'At least choose one'},
+                                         )
+    group = forms.ModelMultipleChoiceField(label="Select Group",
+                                           queryset=Group.objects.all(),
+                                           widget=forms.CheckboxSelectMultiple,
+                                           error_messages={'required': 'At least choose one'},
+                                           )
     startDateTime = forms.DateField(label='Starttime',
                                     widget=forms.SelectDateWidget,
                                     # initial=datetime.datetime.now(),
@@ -258,23 +307,65 @@ class AddDeliveryForm(forms.Form):
                                   widget=forms.SelectDateWidget,
                                   # initial=datetime.datetime.now(),
                                   )
+    # def __init__(self, eQuerySet=None,gQuerySet=None,*args, **kwargs):
+    #     super(AddDeliveryForm, self).__init__(*args, **kwargs)
+    #     exp = forms.ModelMultipleChoiceField(label='Select Exp',
+    #                                          queryset=eQuerySet,
+    #                                          widget=forms.CheckboxSelectMultiple,
+    #                                          error_messages={'required': u'At least choose one'},
+    #                                          )
+    #     self.fields['exp']=exp
+    #
+    #     group = forms.ModelMultipleChoiceField(label="Select Group",
+    #                                            queryset=gQuerySet,
+    #                                            widget=forms.CheckboxSelectMultiple,
+    #                                            error_messages={'required': u'At least choose one'},
+    #                                            )
+    #     self.fields['group']=group
 
-    # def __init__(self,E_Dict_List,G_Dict_List,*args,**kwargs):
-    #     super(AddDeliveryForm,self).__init__(*args,**kwargs)
-    #     # t= self.get_currentuser(request)
-    #     self.fields['exp'].choices = [('30', 'asd') for i in E_Dict_List]
-    #     self.fields['group'].choices = [('4', 'group1') for j in G_Dict_List]
 
-    def __init__(self, *args, **kwargs):
-        super(AddDeliveryForm, self).__init__(*args, **kwargs)
-        # t= self.get_currentuser(request)
-        self.fields['exp'].choices = [(i.pk, str(i)) for i in TempExp.objects.all()]
-        self.fields['group'].choices = [(i.pk, str(i)) for i in TempGroup.objects.all()]
 
-    def get_currentuser(self,request):
-        username = request.session['username']
-        t = User.objects.get(username=username)
-        return t
+
+# class AddDeliveryForm(forms.Form):
+#     name = forms.CharField(label='Delivery Name',
+#                            max_length=50,
+#                            error_messages={'required': 'The delivery can not be null!','max_length':'The delivery name is too long'})
+#     desc = forms.CharField(label='Description', max_length=500,
+#                            widget=forms.Textarea(),
+#                            required=False,
+#                            initial="Replace with your description",
+#                            error_messages={'max_length': 'The description is too long'})
+#
+#     exp = forms.MultipleChoiceField(label='Select Exp',
+#                                     widget=forms.CheckboxSelectMultiple, )
+#     group = forms.MultipleChoiceField(label="Select Group",
+#                                       widget=forms.CheckboxSelectMultiple,
+#                                       )
+#     startDateTime = forms.DateField(label='Starttime',
+#                                     widget=forms.SelectDateWidget,
+#                                     # initial=datetime.datetime.now(),
+#                                     )
+#     endDateTime = forms.DateField(label='Endtime',
+#                                   widget=forms.SelectDateWidget,
+#                                   # initial=datetime.datetime.now(),
+#                                   )
+#
+#     # def __init__(self,E_Dict_List,G_Dict_List,*args,**kwargs):
+#     #     super(AddDeliveryForm,self).__init__(*args,**kwargs)
+#     #     # t= self.get_currentuser(request)
+#     #     self.fields['exp'].choices = [('30', 'asd') for i in E_Dict_List]
+#     #     self.fields['group'].choices = [('4', 'group1') for j in G_Dict_List]
+#
+#     def __init__(self, *args, **kwargs):
+#         super(AddDeliveryForm, self).__init__(*args, **kwargs)
+#         # t= self.get_currentuser(request)
+#         self.fields['exp'].choices = [(i.pk, str(i)) for i in TempExp.objects.all()]
+#         self.fields['group'].choices = [(i.pk, str(i)) for i in TempGroup.objects.all()]
+#
+#     def get_currentuser(self,request):
+#         username = request.session['username']
+#         t = User.objects.get(username=username)
+#         return t
 
 
 class EditDeliveryForm(forms.Form):
@@ -313,6 +404,11 @@ class ExpDeliveryForm(forms.Form):
     group = forms.MultipleChoiceField(label="Select Group",
                                       widget=forms.CheckboxSelectMultiple,
                                       )
+    # group = forms.ModelMultipleChoiceField(label="Select Group",
+    #                                        queryset=Group.objects.all(),
+    #                                        widget=forms.CheckboxSelectMultiple,
+    #                                        error_messages={'required': 'At least choose one'},
+    #                                        )
     startDateTime = forms.DateField(label='Starttime',
                                     widget=forms.SelectDateWidget,
                                     )
@@ -320,6 +416,6 @@ class ExpDeliveryForm(forms.Form):
                                   widget=forms.SelectDateWidget,
                                   )
 
-    def __init__(self,*args,**kwargs):
-        super(ExpDeliveryForm,self).__init__(*args,**kwargs)
-        self.fields['group'].choices = [(i.pk,str(i)) for i in TempGroup.objects.all()]
+    # def __init__(self,*args,**kwargs):
+    #     super(ExpDeliveryForm,self).__init__(*args,**kwargs)
+    #     self.fields['group'].choices = [(i.pk,str(i)) for i in TempGroup.objects.all()]

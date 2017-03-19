@@ -161,7 +161,7 @@ class Tag(models.Model):
 
 
 
-#The db table used to store required network info(from openstack)+some system data
+#The db table used to store required network info
 class Network(models.Model):
     network_name = models.CharField(max_length=100)
     network_description = models.TextField(blank=True)
@@ -174,14 +174,11 @@ class Network(models.Model):
     owner = models.ForeignKey(User,null=True)#
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(auto_now=True, null=True, editable=True)
-    #after finishing creation, fill below fields
-    network_id = models.CharField(max_length=50, null=True, blank=True)
-    subnet_id = models.CharField(max_length=50, null=True, blank=True)
-    tenant_id = models.CharField(max_length=50,null=True,blank=True)
+    enable_dhcp = models.BooleanField(default=True)
     allocation_pools_start = models.CharField(max_length=30,null=True,blank=True)
     allocation_pools_end = models.CharField(max_length=30, null=True, blank=True)
     dns = models.CharField(max_length=30,null=True,blank=True,default='10.21.1.205')
-    enable_dhcp = models.BooleanField(default=True)
+
 
 
     def __unicode__(self):
@@ -189,6 +186,8 @@ class Network(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
 
 
 
@@ -334,16 +333,17 @@ class Score(models.Model):
 
 #The db table used to store VM instance contained in the exp(data from openstack)
 class VMInstance(models.Model):
-    server_id = models.CharField(max_length = 100)
     name = models.CharField(max_length = 255)
-    owner = models.CharField(max_length= 20)
+    owner = models.ForeignKey(User)
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    status = models.CharField(max_length = 20)
-    ip = models.CharField(max_length = 20,blank = True)
-    vncurl = models.URLField()
-    exp_instance = models.ForeignKey(Score)
     vm = models.ForeignKey(VM)
+    exp_instance = models.ForeignKey(Score)
+    # after finishing creation, fill below fields
+    server_id = models.CharField(max_length = 100)
+    status = models.CharField(max_length = 20)#
+    ip = models.CharField(max_length = 20,null=True,blank = True)
+    vncurl = models.URLField(max_length=200,null=True)
     result_image = models.CharField(max_length=100,null=True,blank=True)
 
     def __unicode__(self):
@@ -353,16 +353,73 @@ class VMInstance(models.Model):
         ordering = ['-createtime']
 
 
-class TempExp(models.Model):
-    name = models.CharField(max_length=150)
+class NetworkInstance(models.Model):
+    name = models.CharField(max_length=100)
     owner = models.ForeignKey(User)
+    createtime = models.DateTimeField(auto_now_add=True)
+    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
+    network = models.ForeignKey(Network)
+    exp_instance = models.ForeignKey(Score)
+    # after finishing creation, fill below fields
+    network_instance_id = models.CharField(max_length=50, null=True, blank=True)
+    subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
+    tenant_id = models.CharField(max_length=50, null=True, blank=True)
+
 
     def __unicode__(self):
-        return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)
+        return u'name=%s,creator=%s,created=%s' % (self.network_name, self.owner, self.createtime)
+
+    class Meta:
+        ordering = ['-createtime']
+
+
+
+
+#
+class TempExp(models.Model):
+    # basic info
+    exp_name = models.CharField(max_length=150)
+    exp_description = models.TextField(blank=True, max_length=500)
+    exp_createtime = models.DateTimeField(auto_now_add=True, editable=True)
+    exp_updatetime = models.DateTimeField(auto_now=True, blank=True)  # the default value is equal to created_time
+    exp_owner = models.ForeignKey(User)
+    # exp template
+    exp_images = models.ManyToManyField(VMImage)  # ???
+    exp_image_count = models.IntegerField(null=True, blank=True)
+    exp_network = models.ManyToManyField(Network)
+    exp_guide = models.TextField(null=True, blank=True)
+    exp_guide_path = models.CharField(max_length=300, null=True, blank=True)
+    exp_result = models.CharField(max_length=500, null=True, blank=True)
+    exp_reportDIR = models.CharField(max_length=150, null=True, blank=True)  # ??
+    is_shared = models.BooleanField(default=False)
+    shared_time = models.DateTimeField(null=True, blank=True, editable=True)
+    VM_count = models.IntegerField(default=0, null=True)
+
+    def __unicode__(self):
+        return u'id=%s,name=%s,creater=%s,is_shared=%s' % (self.id, self.exp_name, self.exp_owner, self.is_shared)
+
+    class Meta:
+        ordering = ['-exp_createtime']
+
+    # name = models.CharField(max_length=150)
+    # owner = models.ForeignKey(User)
+    #
+    # def __unicode__(self):
+    #     return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)
 
 class TempGroup(models.Model):
-    name = models.CharField(max_length=150)
-    owner = models.ForeignKey(User)
+    name = models.CharField(max_length = 50)
+    desc = models.TextField(max_length= 100,null=True,blank=True)
+    teacher = models.ForeignKey(User)
+    stuCount = models.IntegerField()
+    student = models.ManyToManyField(Student)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __unicode__(self):
-        return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)
+        return u'%s,%s' % (self.name,self.teacher)
+    # name = models.CharField(max_length=150)
+    # owner = models.ForeignKey(User)
+    #
+    # def __unicode__(self):
+    #     return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)

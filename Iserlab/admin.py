@@ -38,7 +38,7 @@ class VMImageAdmin(admin.ModelAdmin):
 
 
 class NetworkAdmin(admin.ModelAdmin):
-    list_display = ('id','network_id','network_name','subnet_name','cidr','owner','is_shared','created_at',)
+    list_display = ('id','network_name','subnet_name','cidr','owner','is_shared','created_at',)
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name','createtime')
@@ -51,7 +51,15 @@ class DeliveryAdmin(admin.ModelAdmin):
 class SocreAdmin(admin.ModelAdmin):
     list_display = ('id','exp','stu','createTime','situation','finishedTime','score','scoreTime')
 
+class VMAdmin(admin.ModelAdmin):
+    list_display = ('id','owner','exp','image','network','created_at')
 
+
+class VMInstanceAdmin(admin.ModelAdmin):
+    list_display = ('id','name','owner','server_id','exp_instance','vm','ip',)
+
+class NetworkInstanceAdmin(admin.ModelAdmin):
+    list_display = ('id','name','owner','network_instance_id','exp_instance','network')
 #
 
 admin.site.register(User,UserAdmin)
@@ -61,12 +69,13 @@ admin.site.register(VMImage,VMImageAdmin)
 admin.site.register(Network,NetworkAdmin)
 admin.site.register(Experiment,ExperimentAdmin)
 admin.site.register(Tag,TagAdmin)
-admin.site.register(VMInstance)
-admin.site.register(VM)
+admin.site.register(VMInstance,VMInstanceAdmin)
+admin.site.register(VM,VMAdmin)
 admin.site.register(Delivery,DeliveryAdmin)
 admin.site.register(Score,SocreAdmin)
 admin.site.register(ImageCart)
 admin.site.register(NetworkCart)
+admin.site.register(NetworkInstance,NetworkInstanceAdmin)
 
 admin.site.register(TempExp)
 admin.site.register(TempGroup)

@@ -11,6 +11,12 @@
 
         {{ rf.as_p }}
 
+{#        {% for field in rf %}#}
+{#            {{ field.errors }}#}
+{#            {{ field.label_tag }}:{{ field }}#}
+{##}
+{#        {% endfor %}#}
+
         <input type="submit" value = "创建">
         <a href="javascript:window.opener=null;window.open('','_self');window.close()">取消</a>
     </form>
