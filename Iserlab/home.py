@@ -484,6 +484,13 @@ def teach_score_list_by_stu(request):
 
 
 def teach_score_list_by_group(request):
+    context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
+    context['hello']='welcome to our platfowm'
+    context['currentTime']= showTime.formatTime2()
+    context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     stu = Student.objects.get(stu_username=username)
     ScoreList = Score.objects.filter(stu=stu,situation='Scored').order_by("-scoreTime")
@@ -493,7 +500,7 @@ def teach_score_list_by_group(request):
         g = Group.objects.get(id = item.group_id)
         if g not in group_list:
             group_list.append(g)
-    context = {}
+
     context['group_count']=len(group_list)
     GroupScoreList=[]
     for g in group_list:
@@ -1640,34 +1647,58 @@ def image_update(request):
 
 #only role = stu has this function
 def exp_list_undo(request):
+    context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
+    context['hello']='welcome to our platfowm'
+    context['currentTime']= showTime.formatTime2()
+    context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     student = Student.objects.get(stu_username=username)
     ScoreList = Score.objects.filter(stu=student,situation='undo').order_by('-createTime')
-    context={}
     context['ScoreList'] = ScoreList
     return render(request,'exp_list_undo.html',context)
 
 def exp_list_doing(request):
+    context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
+    context['hello']='welcome to our platfowm'
+    context['currentTime']= showTime.formatTime2()
+    context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     student = Student.objects.get(stu_username=username)
     ScoreList = Score.objects.filter(stu=student,situation='doing').order_by('-createTime')
-    context={}
     context['ScoreList'] = ScoreList
     return render(request,'exp_list_doing.html',context)
 
 def exp_list_done(request):
+    context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
+    context['hello']='welcome to our platfowm'
+    context['currentTime']= showTime.formatTime2()
+    context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     student = Student.objects.get(stu_username=username)
     ScoreList = Score.objects.filter(stu=student,situation='done').order_by('-createTime')
-    context={}
     context['ScoreList'] = ScoreList
     return render(request,'exp_list_done.html',context)
 
 def exp_list_scored(request):
+    context={}
+    context['role']=request.session['role']
+    context['username'] = request.session['username']
+    context['hello']='welcome to our platfowm'
+    context['currentTime']= showTime.formatTime2()
+    context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
     username = request.session['username']
     student = Student.objects.get(stu_username=username)
     ScoreList = Score.objects.filter(stu=student,situation='scored').order_by('-createTime')
-    context={}
     context['ScoreList'] = ScoreList
     return render(request,'exp_list_scored.html',context)
 

@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Scored Exp</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <div class="header">
+{% block content %}
+
+        <p>这是学生看到的实验管理页面</p>
+
+        <div class="header">
             <h1 align="center">Scored Experiments</h1>
             <p align="center" >
                 <a href="/exp_home/">All Exp</a>|
@@ -42,5 +40,6 @@
             </div>
         {% endfor %}
 
-</body>
-</html>
+
+
+{% endblock %}

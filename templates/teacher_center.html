@@ -4,14 +4,6 @@
 
     {% ifequal role 'teacher' %}
         <p>这里是教学统计中心，教员可以进行查看学生实验情况，评价实验结果，查看成绩统计，集中进行实验分发管理等一系列与教学相关的业务操作。</p>
-        <ul>
-            <li><a href="/teach_home/" >实验进展情况</a></li>
-            <li><a href="/teach_result_list/">评价实验结果</a></li>
-            <li><a href="/teach_score_list/" >成绩统计</a></li>
-            <li><a href="/delivery_list/" >分发历史记录</a></li>
-            <li><a href="/delivery_create/" target="_blank">新建分发任务</a></li>
-        </ul>
-
         <div class="header">
             <h1 align="center">实验进展情况</h1>
         </div>
@@ -41,7 +33,7 @@
         <p>学生在教学统计页面只能查看自己所有实验成绩。</p>
          <div class="header">
         <h1 align="center">实验成绩统计</h1>
-             <p align="center" ><a href="/teach_home/">所有成绩</a>|<a href="/teach_score_list_by_group/">按群组查看</a></p>
+             <p align="center" ><a href="/teach_home/">按实验查看</a>|<a href="/teach_score_list_by_group/">按群组查看</a></p>
         <h3 align="center">实验总数：{{ exp_count }}</h3>
         </div>
 
