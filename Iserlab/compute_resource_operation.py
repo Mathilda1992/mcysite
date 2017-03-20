@@ -163,71 +163,76 @@ def list_servers(conn):
 
 #An image is the operating system you want to use for your server.
 def list_images(conn):
-    print("List Images:")
+    images = conn.compute.images()
+    imageList =[]
+    for image in images:
+        imageList.append(image)
+    return imageList
+# ********result output
+# AttributeError: 'str' object has no attribute 'get'
+#
+# The image we find is:
+# openstack.compute.v2.image.Image(id=70122065-a0ed-4975-8ba3-1740cdaf3722,
+#                                  links=[{u'href': u'http://controller:8774/v2.1/2f1bc8c34f094d049a201819732537a3/images/70122065-a0ed-4975-8ba3-1740cdaf3722', u'rel': u'self'},
+#                                         {u'href': u'http://controller:8774/2f1bc8c34f094d049a201819732537a3/images/70122065-a0ed-4975-8ba3-1740cdaf3722', u'rel': u'bookmark'},
+#                                         {u'href': u'http://controller:9292/images/70122065-a0ed-4975-8ba3-1740cdaf3722', u'type': u'application/vnd.openstack.image', u'rel': u'alternate'}],
+#                                   name=cirros)
+# [26/Dec/2016 09:40:20] "GET /image_find/ HTTP/1.1" 500 59259
 
-    for image in conn.compute.images():
-        print(image)
-    return conn.compute.images()
 
-#A flavor is the resource configuration for a server. Each flavor is a unique combination of disk, memory, vCPUs, and network bandwidth.
+#A flavor is the resource configuration for a server. Each flavor is a unique combination of disk, memory, vCPUs,
+# and network bandwidth.
 def list_flavors(conn):
-    print("List Flavors:")
-
-    for flavor in conn.compute.flavors():
-        print(flavor)
-    return conn.compute.flavors()
+    flavors = conn.compute.flavors()
+    flavorList = []
+    for flavor in flavors:
+        flavorList.append(flavor.to_dict)
+    return flavorList
 
 #A network provides connectivity to servers.
 def list_networks(conn):
-    print("List Networks:")
+    networks = conn.network.networks()
+    list =[]
+    for network in networks:
+        list.append(network.to_dict)
+    return list
 
-    for network in conn.network.networks():
-        print(network)
 
-    return conn.network.networks()
-
+def list_keypair(conn):
+    keypairs = conn.compute.keypairs()
+    list = []
+    for keypair in keypairs:
+        list.append(keypair.to_dict)
+    return list
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Find resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def find_image(conn,image_name):
-    image = conn.compute.find_image(image_name)
-    print 'The image we find is:'
-    print image
-    # ********result output
-    # AttributeError: 'str' object has no attribute 'get'
-    #
-    # The image we find is:
-    # openstack.compute.v2.image.Image(id=70122065-a0ed-4975-8ba3-1740cdaf3722,
-    #                                  links=[{u'href': u'http://controller:8774/v2.1/2f1bc8c34f094d049a201819732537a3/images/70122065-a0ed-4975-8ba3-1740cdaf3722', u'rel': u'self'},
-    #                                         {u'href': u'http://controller:8774/2f1bc8c34f094d049a201819732537a3/images/70122065-a0ed-4975-8ba3-1740cdaf3722', u'rel': u'bookmark'},
-    #                                         {u'href': u'http://controller:9292/images/70122065-a0ed-4975-8ba3-1740cdaf3722', u'type': u'application/vnd.openstack.image', u'rel': u'alternate'}],
-    #                                   name=cirros)
-    # [26/Dec/2016 09:40:20] "GET /image_find/ HTTP/1.1" 500 59259
-    #
-    return image
-
-def find_flavor(conn,flavor_name):
-    flavor = conn.compute.find_flavor(flavor_name)
-    print 'The flavor we find is'
-    print flavor
-    return flavor
+def find_image(conn,image_id):
+    image = conn.compute.find_image(image_id)
+    return image.to_dict
 
 
 
-def find_keypair(conn,keypair_name):
-    keypair = conn.compute.find_keypair(keypair_name)
+def find_flavor(conn,flavor_id):
+    flavor = conn.compute.find_flavor(flavor_id)
+    return flavor.to_dict
+
+
+
+def find_keypair(conn,keypair_id):
+    keypair = conn.compute.find_keypair(keypair_id)
     print 'The keypair we find is'+ keypair
-    return keypair
-
+    return keypair.to_dict
 
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Delete resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def delete_key_pair(conn):
-    pass
+def delete_key_pair(conn,keypair_id):
+    conn.compute.delete_keypair(keypair_id,ignore_missing=False)
+
 
 
 def delete_server(conn,server_id):
-    conn.compute.delete_server(server_id)# The para value can be either the ID of a server or a Server instance.
+    conn.compute.delete_server(server_id,ignore_missing=False)# The para value can be either the ID of a server or a Server instance.
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Create resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -331,10 +336,8 @@ def create_server3(conn,server_name,image_id,flavor_name,network_id,private_keyp
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Modify resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def resize_server(conn,server,flavor):
-    conn.compute.resize_server(server,flavor)
-    pass
-
+def resize_server(conn,server_id,flavor_id):
+    conn.compute.resize_server(server_id,flavor_id)
 
 
 
@@ -346,17 +349,27 @@ def create_server_image(conn,server_id,image_name,metadata=None):
 def start_server(conn,server_id):
     conn.compute.start_server(server_id)
 
+
+
 def suspend_server(conn,server_id):
     conn.compute.suspend_server(server_id)
+
+
 
 def resume_server(conn,server_id):
     conn.compute.resume_server(server_id)
 
+
+
 def pause_server(conn,server_id):
     conn.compute.pause_server(server_id)
 
+
+
 def unpause_server(conn,server_id):
     conn.compute.unpause_server(server_id)
+
+
 
 def stop_server(conn,server_id):
     conn.compute.stop_server(server_id)

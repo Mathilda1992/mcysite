@@ -1594,15 +1594,9 @@ def flavor_list(request):
     FlavorList = []
     # get flavor data from openstack
     flavors = compute_resource_operation.list_flavors(conn)
-    print '***show the flavors:***'
     for flavor in flavors:
-        print flavor
         #extract flavor info to a dict
-
         FlavorList.append(flavor)
-
-    print '**show the type of list object:**'
-    print type(FlavorList[0])
     # the type of the list object :< class 'openstack.compute.v2.flavor.FlavorDetail'>
 
     c = Context({'FlavorList': FlavorList})
@@ -1625,7 +1619,35 @@ def subnet_list(request):
 
 
 def router_list(request):
-    pass
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    routers = network_resource_operation.list_routers(conn)
+
+    return render(request,'image_list.html',{'RouterList':routers})
+
+
+def port_list(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    PortList = network_resource_operation.list_ports(conn)
+    return render(request, 'image_list.html', {'PortList': PortList})
+
+def port_get(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    port_id = '73da2c08-98d7-4505-9432-133424949e22'
+    portDict = network_resource_operation.get_port(conn,port_id)
+    PortList = []
+    PortList.append(portDict)
+    return render(request,'image_list.html', {'PortList': PortList})
+
+def security_group_list(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    SGList = network_resource_operation.list_security_groups(conn)
+    return render(request,'image_list.html',{'SGList':SGList})
+
+
+def security_group_rules_list(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    SGRList = network_resource_operation.list_security_group_rules(conn)
+    return render(request, 'image_list.html', {'SGRList': SGRList})
 
 
 def server_list(request):
@@ -1672,16 +1694,11 @@ def image_list2(request):
     for image in images:
         ImageList.append(image)
 
-
-    print "*****************8"
-    print image.keys()
-    print "*****************9"
     #put the imageKey into a list
     ImageKeyList = []
     for character in image.keys():
         #print character
         ImageKeyList.append(character)
-
 
     # return render(request, 'image_list.html', {'ImageKeyList': image.keys()})
     return render(request,'image_list.html',{'ImageList':ImageList})
@@ -1736,7 +1753,12 @@ def server_delete(request):
     compute_resource_operation.delete_server(conn,server_id)
     return HttpResponse('VM delete Success' )
 
+def router_delete(request):
+    pass
 
+
+def port_delete(request):
+    pass
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Create resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def server_create(request):
     #use local var
@@ -1803,6 +1825,9 @@ def interface_add_to_router(request):
     pass
 
 def interface_delete_from_router(request):
+    pass
+
+def port_create(request):
     pass
 
 
@@ -2277,19 +2302,47 @@ def exp_score_launch(request,score_id):
     username = request.session['username']
     role = request.session['role']
     if role == 'teacher':
-        t = User.objects.get(username=username)
-        authDict = get_auth_info(t.username,t.password)
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username,u.password)
     else:
-        stu = Student.objects.get(stu_username = username)
-        authDict = get_auth_info(stu.stu_username,stu.stu_password)
+        u = Student.objects.get(stu_username = username)
+        authDict = get_auth_info(u.stu_username,u.stu_password)
+
+    #conn to openstack API
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'], authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
+
+    #launch network, inser into NetworkInstance
+    nets = score.exp.network.all()
+    for item in nets:
+        new_net_instance = network_resource_operation.create_network(conn,item.network_name,item.subnet_name,item.ip_version,item.cidr,item.gateway_ip)
+        print new_net_instance[0]
+        new = NetworkInstance(name=item.name,owner=u,network=item,exp_instance=score,
+                              network_instance_id=new_net_instance[0]['id'],subnet_instance_id=new_net_instance[0]['sub_id'],
+                              tenant_id = new_net_instance[0]['tenant_id'],status=new_net_instance[0]['status'],
+                              allocation_pools_start=new_net_instance[0]['sub_allocation_pools']['start'],
+                              allocation_pools_end=new_net_instance[0]['sub_allocation_pools']['end'])
+        new.save()
+
+    #create router, insert into RouterIntance
+
+    #attach network to router
+
+    #launch VM , insert into VMInstance
+
+    #update Score db:starttime, situation,instance_status
+    re = Score.objects.filter(id=score_id).update()
 
     c = {}
     return render(request,'exp_score_launch.html',c)
 
 
-def exp_score_delete(request,score_id):
+def exp_score_unlaunch(request,score_id):
     pass
 
+
+def exp_score_clean(request,scored_id):
+    pass
 
 def exp_network_launch(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username,auth_password)

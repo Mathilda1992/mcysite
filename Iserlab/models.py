@@ -329,6 +329,7 @@ class Score(models.Model):
     # result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
     # reportUrl = models.URLField(null=True,blank=True)
     report_path = models.CharField(max_length=300, null=True, blank=True)
+    instance_status = models.CharField(max_length=20,null=True,blank=True,default='UNLAUNCHED')
 
 
 #The db table used to store VM instance contained in the exp(data from openstack)
@@ -341,7 +342,7 @@ class VMInstance(models.Model):
     exp_instance = models.ForeignKey(Score)
     # after finishing creation, fill below fields
     server_id = models.CharField(max_length = 100)
-    status = models.CharField(max_length = 20)#
+    status = models.CharField(max_length = 20)#ERROR, ACTIVE,
     ip = models.CharField(max_length = 20,null=True,blank = True)
     vncurl = models.URLField(max_length=200,null=True)
     result_image = models.CharField(max_length=100,null=True,blank=True)
@@ -364,7 +365,9 @@ class NetworkInstance(models.Model):
     network_instance_id = models.CharField(max_length=50, null=True, blank=True)
     subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
     tenant_id = models.CharField(max_length=50, null=True, blank=True)
-
+    status = models.CharField(max_length=20,null=True,blank=True)
+    allocation_pools_start = models.CharField(max_length=20,null=True,blank=True)
+    allocation_pools_end = models.CharField(max_length=20, null=True, blank=True)
 
     def __unicode__(self):
         return u'name=%s,creator=%s,created=%s' % (self.network_name, self.owner, self.createtime)
@@ -372,6 +375,33 @@ class NetworkInstance(models.Model):
     class Meta:
         ordering = ['-createtime']
 
+
+class RouterInstance(models.Model):
+    routerIntance_id = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
+    status = models.CharField(max_length=20)
+    createtime = models.DateTimeField(auto_now_add=True)
+    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
+    gateway_net_id = models.CharField(max_length=50)
+
+    project_id =  models.CharField(max_length=50)
+    tenant_id = models.CharField(max_length=50)
+    username = models.CharField(max_length=50)
+
+
+class PortInstance(models.Model):
+    portInstance_id = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
+    status = models.CharField(max_length=20)#ACTIVE, DOWN, N/A
+    createtime = models.DateTimeField(auto_now_add=True)
+    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
+    network_id = models.CharField(max_length=50)
+    subnet_id = models.CharField(max_length=50)
+    ip_address = models.CharField(max_length=20)
+    tenant_id = models.CharField(max_length=50)
+    project_id = models.CharField(max_length=50)
+
+    username = models.CharField(max_length=50)
 
 
 

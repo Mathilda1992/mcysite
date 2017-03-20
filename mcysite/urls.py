@@ -53,6 +53,11 @@ urlpatterns = [
     url(r'^network_delete/$', network_delete, name='network_delete'),
     url(r'^network_update/$', network_update, name='network_update'),
     url(r'^router_list/$',router_list,name='router_list'),
+    url(r'^port_list/$', port_list, name='port_list'),
+    url(r'^port_get/$', port_get, name='port_get'),
+    url(r'^security_group_list/$', security_group_list, name='security_group_list'),
+    url(r'^security_group_rules_list/$', security_group_rules_list, name='security_group_rules_list'),
+
     url(r'^gateway_add_to_router/$', gateway_add_to_router, name='gateway_add_to_router'),
     url(r'^interface_add_to_router/$', interface_add_to_router, name='interface_add_to_router'),
     url(r'^interface_delete_from_router/$', interface_delete_from_router, name='interface_delete_from_router'),
@@ -119,7 +124,8 @@ urlpatterns = [
     # url(r'^exp_network_launch/$',exp_network_launch,name='luanch_exp_network'),
 
     url(r'^exp_score_launch/(\d+)/$', exp_score_launch, name='exp_score_launch'),
-    url(r'^exp_score_delete/(\d+)/$', exp_score_delete, name='exp_score_delete'),
+    url(r'^exp_score_unlaunch/(\d+)/$', exp_score_unlaunch, name='exp_score_unlaunch'),
+    url(r'^exp_score_clean/(\d+)/$', exp_score_clean, name='exp_score_clean'),
 
     url(r'^exp_list_undo/$',exp_list_undo,name='exp_list_undo'),
     url(r'^exp_list_doing/$', exp_list_doing, name='exp_list_doing'),

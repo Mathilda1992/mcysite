@@ -75,6 +75,44 @@
     {% endfor %}
 </p>
 
+
+<p>显示所有Router信息</p>
+<p>
+    {% for item in RouterList %}
+        <p>router{{ forloop.counter }}：{{ item }}</p>
+    {% empty %}
+        <p>抱歉，网络列表为空</p>
+    {% endfor %}
+</p>
+
+
+<p>显示所有Port信息</p>
+<p>
+    {% for item in PortList %}
+        <p>port{{ forloop.counter }}：{{ item }}</p>
+    {% empty %}
+        <p>抱歉，列表为空</p>
+    {% endfor %}
+</p>
+
+<p>显示所有Security Group信息</p>
+<p>
+    {% for item in SGList %}
+        <p>Security Group{{ forloop.counter }}：{{ item }}</p>
+    {% empty %}
+        <p>抱歉，列表为空</p>
+    {% endfor %}
+</p>
+
+<p>显示所有Security Group Rule信息</p>
+<p>
+    {% for item in SGRList %}
+        <p>Security Group Rule{{ forloop.counter }}：{{ item }}</p>
+    {% empty %}
+        <p>抱歉，列表为空</p>
+    {% endfor %}
+</p>
+
 <p>显示当前所有虚拟机</p>
 <p>
     {% for server_dict in ServerList %}
