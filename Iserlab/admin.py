@@ -56,10 +56,16 @@ class VMAdmin(admin.ModelAdmin):
 
 
 class VMInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id','name','owner','server_id','exp_instance','vm','ip',)
+    list_display = ('id','name','owner_name','server_id','exp_instance','vm','ip',)
 
 class NetworkInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id','name','owner','network_instance_id','exp_instance','network')
+    list_display = ('id','name','owner_name','network_instance_id','exp_instance','network')
+
+class RouterInstanceAdmin(admin.ModelAdmin):
+    list_display = ('id','name','createtime','owner_username','routerIntance_id')
+
+class PortInstanceAdmin(admin.ModelAdmin):
+    list_display = ('id','owner_username','status','device_owner','network_id','ip_address','portInstance_id')
 #
 
 admin.site.register(User,UserAdmin)
@@ -76,6 +82,8 @@ admin.site.register(Score,SocreAdmin)
 admin.site.register(ImageCart)
 admin.site.register(NetworkCart)
 admin.site.register(NetworkInstance,NetworkInstanceAdmin)
+admin.site.register(RouterInstance,RouterInstanceAdmin)
+admin.site.register(PortInstance,PortInstanceAdmin)
 
 admin.site.register(TempExp)
 admin.site.register(TempGroup)

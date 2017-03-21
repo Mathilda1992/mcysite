@@ -1754,11 +1754,29 @@ def server_delete(request):
     return HttpResponse('VM delete Success' )
 
 def router_delete(request):
-    pass
+    auth_username = 'qinli'
+    auth_password = '123456'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'qinli'
+    region_name = 'RegionOne'
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    router_id = 'c7fa5738-30b4-4bf1-8c8a-0aed1440e6a2'
+    network_resource_operation.delete_router(conn,router_id)
+    return HttpResponse('Router Delete Success')
 
 
 def port_delete(request):
     pass
+
+
+def router_get(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    router_id = '3f597b1f-f34c-41e7-bd1e-81321371545f'
+    router_dict = network_resource_operation.get_router(conn,router_id)
+    context ={}
+    context['RouterDict']=router_dict
+    return render(request,'image_list.html',context)
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Create resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def server_create(request):
     #use local var
@@ -1797,29 +1815,77 @@ def image_create(request):
 
 
 def network_create(request):
+    auth_username = 'qinli'
+    auth_password = '123456'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'qinli'
+    region_name = 'RegionOne'
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    network_name = 'mcy-network222'
-    subnet_name = 'mcy-subnet222'
+    network_name = 'qinli-network222'
+    subnet_name = 'qinli-subnet222'
     ip_version = '4'
-    cidr = '10.0.5.0/24'
-    gateway_ip = '10.0.5.1'
+    cidr = '10.0.10.0/24'
+    gateway_ip = '10.0.10.1'
     description='test network'
-    username = 'teacher2'
-    creator = experiment_operation.get_currentuser(username)
-    is_shared = 'False'
+    username = 'qinli'
+
     n = network_resource_operation.create_network(conn,network_name,subnet_name,ip_version,cidr,gateway_ip)
     return HttpResponse('Create new network!')
 
 
 def router_create(request):
+    auth_username = 'qinli'
+    auth_password = '123456'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'qinli'
+    region_name = 'RegionOne'
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    router_name = 'new-router'
-    external_net_name = 'public'
-    r = network_resource_operation.create_router(conn,router_name,external_net_name)
+
+    r = RouterInstance.objects.filter(owner_username='qinli')
+    if r:# the router already exists
+        pass
+    else:
+        router_name = "qinli-router"
+        router_dict = network_resource_operation.create_router(conn,router_name)
+        print "here is router-------"
+        print router_dict
+        print router_dict['id']
+        new_router = RouterInstance(owner_username='qinli',routerIntance_id=router_dict['id'],
+                                    name=router_name,status=router_dict['status'],
+                                    tenant_id=router_dict['tenant_id'])
+        new_router.save()
     return HttpResponse('Create new Router')
 
+
 def gateway_add_to_router(request):
-    pass
+    auth_username = 'qinli'
+    auth_password = '123456'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'qinli'
+    region_name = 'RegionOne'
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    router_id='938e9eda-bc98-44f2-9f81-6b01d14369da'
+    external_net_name = "public"
+    external_net_id = '4e9b7eea-fcd3-4773-bcb4-711b44979b18'
+    #---
+    r = network_resource_operation.get_router(conn, router_id)
+
+    router_dict2 = network_resource_operation.add_gateway_to_router(conn, r, external_net_id)
+    print router_dict2
+    return HttpResponse('Add gateway to Router')
+
+
+def gateway_remove_from_router(request):
+    auth_username = 'qinli'
+    auth_password = '123456'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'qinli'
+    region_name = 'RegionOne'
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    router_id = "938e9eda-bc98-44f2-9f81-6b01d14369da"
+    r = network_resource_operation.get_router(conn,router_id)
+    router_dict = network_resource_operation.remove_gateway_from_router(conn,r)
+    return HttpResponse('Remove gateway from Router')
 
 def interface_add_to_router(request):
     pass
@@ -1830,6 +1896,8 @@ def interface_delete_from_router(request):
 def port_create(request):
     pass
 
+def port_delete(request):
+    pass
 
 def network_update(request):
     pass
@@ -2312,23 +2380,49 @@ def exp_score_launch(request,score_id):
     conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'], authDict['project_name'],
                                                      authDict['auth_username'], authDict['auth_password'])
 
+    #create router for the tenant, insert into RouterIntance
+    r = RouterInstance.objects.filter(owner_username=username)
+    if r:# the router already exists
+        pass
+    else:
+        router_name = username+"-router"
+        external_net_name = "public"
+        router_dict = network_resource_operation.create_router(conn,router_name,external_net_name)
+        print "here is router-------"
+        print router_dict
+        new_router = RouterInstance(owner_username=username,routerIntance_id=router_dict['id'],name=router_name,status=router_dict['status'],
+                                    gateway_net_id=router_dict[''],gateway_subnet_id=router_dict[''],gateway_ip_address=router_dict[''],
+                                    tenant_id=router_dict[''])
+
+    #create gateway for router
+
+
     #launch network, inser into NetworkInstance
     nets = score.exp.network.all()
     for item in nets:
-        new_net_instance = network_resource_operation.create_network(conn,item.network_name,item.subnet_name,item.ip_version,item.cidr,item.gateway_ip)
+        new_net_instance = network_resource_operation.create_network(conn,item.network_name,item.subnet_name,
+                                                                     item.ip_version,item.cidr,item.gateway_ip)
+        print "here is network *******"
         print new_net_instance[0]
-        new = NetworkInstance(name=item.name,owner=u,network=item,exp_instance=score,
+        new_net = NetworkInstance(name=item.name,owner=u,network=item,exp_instance=score,
                               network_instance_id=new_net_instance[0]['id'],subnet_instance_id=new_net_instance[0]['sub_id'],
                               tenant_id = new_net_instance[0]['tenant_id'],status=new_net_instance[0]['status'],
                               allocation_pools_start=new_net_instance[0]['sub_allocation_pools']['start'],
                               allocation_pools_end=new_net_instance[0]['sub_allocation_pools']['end'])
-        new.save()
+        new_net.save()
 
-    #create router, insert into RouterIntance
 
-    #attach network to router
+
+    #create interface to attach network to router
+
 
     #launch VM , insert into VMInstance
+    vms = score.exp.vm_set.all()
+    for item in vms:
+        vm_instance = compute_resource_operation.create_server2()
+        print "here is vms &&&&&&&&&"
+        print vm_instance
+        new_vmInstance = VMInstance()
 
     #update Score db:starttime, situation,instance_status
     re = Score.objects.filter(id=score_id).update()
@@ -2338,6 +2432,15 @@ def exp_score_launch(request,score_id):
 
 
 def exp_score_unlaunch(request,score_id):
+    #delete VM
+
+    #delete interface
+
+    #delete network
+
+    #delete gateway
+
+    #delete router
     pass
 
 

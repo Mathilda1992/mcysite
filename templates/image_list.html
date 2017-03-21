@@ -85,6 +85,14 @@
     {% endfor %}
 </p>
 
+<p>
+{{ RouterDict }}
+    {% for key,value in RouterDict.items %}
+        <ul>
+            <li>{{ key }}:{{ value }}</li>
+        </ul>
+    {% endfor %}
+</p>
 
 <p>显示所有Port信息</p>
 <p>

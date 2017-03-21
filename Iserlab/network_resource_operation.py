@@ -18,8 +18,20 @@ from extract_openstack_data import *
 
 def extract_router(router):
     dict = {}
-    dict.setdefault("add_gateway", router.add_gateway)#
-    dict.setdefault("add_interface",router.add_interface)#
+    # #---private var---
+    # dict.setdefault("_abc_cache",router._abc_cache)
+    # dict.setdefault("_abc_negative_cache",router._abc_negative_cache)
+    # dict.setdefault("_abc_negative_cache_version",router._abc_negative_cache_version)
+    # dict.setdefault("_abc_registry",router._abc_registry)
+    dict.setdefault("_attrs",router._attrs)
+    # dict.setdefault("_dirty",router._dirty)
+    # dict.setdefault("_from_attr",router._from_attr)
+    # dict.setdefault("_get_create_body",router._get_create_body)
+    # dict.setdefault("_get_url",router._get_url)
+    # dict.setdefault("_loaded",router._loaded)
+    # dict.setdefault("_reset_dirty",router._reset_dirty)
+    # dict.setdefault("_update_attrs_from_response",router._update_attrs_from_response)
+
     dict.setdefault("admin_state_up",router.admin_state_up)
     dict.setdefault("allow_create",router.allow_create)
     dict.setdefault("allow_delete",router.allow_delete)#
@@ -30,53 +42,60 @@ def extract_router(router):
     dict.setdefault("availability_zone_hints",router.availability_zone_hints)
     dict.setdefault("availability_zones",router.availability_zones)
     dict.setdefault("base_path",router.base_path)
-    dict.setdefault("clear",router.clear)
     dict.setdefault("convert_ids",router.convert_ids)
-    dict.setdefault("create",router.create)
-    dict.setdefault("create_by_id",router.create_by_id)
     dict.setdefault("created_at",router.created_at)#
-    dict.setdefault("delete",router.delete)
-    dict.setdefault("from_name",router.from_name)
-    dict.setdefault("get",router.get)
-    dict.setdefault("get_by_id",router.get_by_id)
-    dict.setdefault("get_data_by_id",router.get_data_by_id)
-    dict.setdefault("get_headers",router.get_headers)
-    dict.setdefault("get_id",router.get_id)
-    dict.setdefault("get_resource_name",router.get_resource_name)
-    dict.setdefault("ha",router.ha)
-    dict.setdefault("head",router.head)
-    dict.setdefault("head_by_id",router.head_by_id)
-    dict.setdefault("head_data_by_id",router.head_data_by_id)
+    # dict.setdefault("ha",router.ha)
     dict.setdefault("id",router.id)#
     dict.setdefault("id_attribute",router.id_attribute)
     dict.setdefault("is_admin_state_up",router.is_admin_state_up)
     dict.setdefault("is_dirty",router.is_dirty)
     dict.setdefault("is_distributed",router.is_distributed)
     dict.setdefault("is_ha",router.is_ha)
-    # dict.setdefault("items",router.items)
-    # dict.setdefault("iteritems",router.iteritems)
-    # dict.setdefault("iterkeys",router.iterkeys)
-    # dict.setdefault("itervalues",router.itervalues)
-    dict.setdefault("keys",router.keys)
-    dict.setdefault("list",router.list)
+
     dict.setdefault("location",router.location)
-    dict.setdefault("remove_interface",router.remove_interface)
     dict.setdefault("resource_key",router.resource_key)
     dict.setdefault("resource_name",router.resource_name)
     dict.setdefault("resources_key",router.resources_key)
     dict.setdefault("revision_number",router.revision_number)
     dict.setdefault("routes",router.routes)
     dict.setdefault("service",router.service)
-    dict.setdefault("set_headers",router.set_headers)
-    dict.setdefault("setdefault",router.setdefault )
     dict.setdefault("status",router.status )#
-    dict.setdefault("tenant_id",router.tenant_id )
-    # dict.setdefault("to_dict",router.to_dict )
-    dict.setdefault("update",router.update )
-    dict.setdefault("update_attrs",router.update_attrs )
-    dict.setdefault("update_by_id",router.update_by_id )
+    dict.setdefault("tenant_id",router.tenant_id )#
     dict.setdefault("updated_at",router.updated_at )#
-    # dict.setdefault("values",router.values )
+    dict.setdefault("keys",router.keys)#method
+    dict.setdefault("values",router.values )#method
+
+    # #---bound method---
+    # dict.setdefault("add_gateway", router.add_gateway)#method
+    # dict.setdefault("add_interface",router.add_interface)#method
+    # dict.setdefault("clear", router.clear)  # method
+    # dict.setdefault("create",router.create)#method
+    # dict.setdefault("create_by_id",router.create_by_id)#method
+    # dict.setdefault("delete",router.delete)#method
+    # dict.setdefault("from_name",router.from_name)#method
+    # dict.setdefault("get",router.get)#method
+    # dict.setdefault("get_by_id",router.get_by_id)#method
+    # dict.setdefault("get_data_by_id",router.get_data_by_id)#method
+    # dict.setdefault("get_headers",router.get_headers)#method
+    # dict.setdefault("get_id",router.get_id)#method
+    # dict.setdefault("get_resource_name",router.get_resource_name)#method
+    # dict.setdefault("head",router.head)#method
+    # dict.setdefault("head_by_id",router.head_by_id)#method
+    # dict.setdefault("head_data_by_id",router.head_data_by_id)#method
+    # dict.setdefault("items",router.items)#method
+    # dict.setdefault("iteritems",router.iteritems)#method
+    # dict.setdefault("iterkeys",router.iterkeys)#method
+    # dict.setdefault("itervalues",router.itervalues)#method
+    # dict.setdefault("list",router.list)#method
+    # dict.setdefault("remove_interface",router.remove_interface)#method
+    # dict.setdefault("set_headers",router.set_headers)#method
+    # dict.setdefault("setdefault",router.setdefault )#method
+    # dict.setdefault("to_dict",router.to_dict )#method
+    # dict.setdefault("update",router.update )#method
+    # dict.setdefault("update_attrs",router.update_attrs )#method
+    # dict.setdefault("update_by_id",router.update_by_id )#method
+
+
 
     return dict
 
@@ -113,12 +132,12 @@ def extract_port(port):
     # dict.setdefault("binding:vif_details",port.binding:vif_details )
     dict.setdefault("binding_vif_type",port.binding_vif_type )
     dict.setdefault("binding_vnic_type",port.binding_vnic_type )
-    dict.setdefault("clear",port.clear )
+    dict.setdefault("clear",port.clear )#method
     dict.setdefault("convert_ids",port.convert_ids )
-    dict.setdefault("create",port.create)
-    dict.setdefault("create_by_id",port.create_by_id )
+    dict.setdefault("create",port.create)#method
+    dict.setdefault("create_by_id",port.create_by_id )#method
     dict.setdefault("created_at",port.created_at )
-    dict.setdefault("delete",port.delete )
+    dict.setdefault("delete",port.delete )#method
     dict.setdefault("description",port.description )
     dict.setdefault("device_id",port.device_id )
     dict.setdefault("device_owner",port.device_owner )
@@ -130,20 +149,20 @@ def extract_port(port):
     dict.setdefault("fixed_ips",port.fixed_ips )
     dict.setdefault("from_id",port.from_id )
     dict.setdefault("from_name",port.from_name )
-    dict.setdefault("get",port.get )
-    dict.setdefault("get_by_id",port.get_by_id )
-    dict.setdefault("head_data_by_id",port.head_data_by_id )
+    dict.setdefault("get",port.get )#method
+    dict.setdefault("get_by_id",port.get_by_id )#method
+    dict.setdefault("head_data_by_id",port.head_data_by_id )#method
     dict.setdefault("id",port.id )#
     dict.setdefault("id_attribute",port.id_attribute )
     dict.setdefault("is_admin_state_up",port.is_admin_state_up )
     dict.setdefault("is_dirty",port.is_dirty )
     dict.setdefault("is_port_security_enabled",port.is_port_security_enabled )
-    # dict.setdefault("items",port.items )
-    # dict.setdefault("iteritems",port.iteritems )
-    # dict.setdefault("iterkeys",port.iterkeys )
-    # dict.setdefault("itervalues",port.itervalues )
+    # dict.setdefault("items",port.items )#method
+    # dict.setdefault("iteritems",port.iteritems )#method
+    # dict.setdefault("iterkeys",port.iterkeys )#method
+    # dict.setdefault("itervalues",port.itervalues )#method
     dict.setdefault("keys",port.keys )
-    dict.setdefault("list",port.list )
+    dict.setdefault("list",port.list )#method
     dict.setdefault("location",port.location )
     dict.setdefault("mac_address",port.mac_address )
     dict.setdefault("name",port.name )#
@@ -167,12 +186,12 @@ def extract_port(port):
     dict.setdefault("setdefault",port.setdefault )
     dict.setdefault("status",port.status )#
     dict.setdefault("tenant_id",port.tenant_id )#
-    # dict.setdefault("to_dict",port.to_dict )
-    dict.setdefault("update",port.update )
+    dict.setdefault("to_dict",port.to_dict )#method
+    dict.setdefault("update",port.update )#method
     dict.setdefault("update_attrs",port.update_attrs )
     dict.setdefault("update_by_id",port.update_by_id )
     dict.setdefault("updated_at",port.updated_at )
-    # dict.setdefault("values",port.values )
+    dict.setdefault("values",port.values )#method
 
 
     return dict
@@ -211,11 +230,11 @@ def extract_network(networks,subnets):
         dict.setdefault("find", networks[i].find)
         dict.setdefault("from_id", networks[i].from_id)
         dict.setdefault("from_name", networks[i].from_name )
-        dict.setdefault("get", networks[i].get)
-        dict.setdefault("get_by_id", networks[i].get_by_id)
-        dict.setdefault("get_data_by_id", networks[i].get_data_by_id )
-        dict.setdefault("get_headers", networks[i].get_headers)
-        dict.setdefault("get_id", networks[i].get_id)
+        dict.setdefault("get", networks[i].get)#method
+        dict.setdefault("get_by_id", networks[i].get_by_id)#method
+        dict.setdefault("get_data_by_id", networks[i].get_data_by_id )#method
+        dict.setdefault("get_headers", networks[i].get_headers)#method
+        dict.setdefault("get_id", networks[i].get_id)#method
         dict.setdefault("get_resource_name", networks[i].get_resource_name)
         dict.setdefault("head", networks[i].head)
         dict.setdefault("head_by_id", networks[i].head_by_id)
@@ -531,7 +550,8 @@ def list_ports(conn):
     ports =conn.network.ports()
     list =[]
     for port in ports:
-        list.append(port.to_dict)
+        print port
+        list.append(extract_port(port))
     return list
 # openstack.network.v2.port.Port(attrs={u'status': u'ACTIVE',
                                         # u'binding:host_id': u'compute4',
@@ -544,7 +564,8 @@ def list_ports(conn):
                                         # u'device_owner': u'compute:nova',
                                         # u'binding:profile': {},
                                         # u'port_security_enabled': True,
-                                        # u'fixed_ips': [{u'subnet_id': u'e7d4b480-94d7-45dc-80e4-34c027b4cd33', u'ip_address': u'172.16.1.25'}],
+                                        # u'fixed_ips': [{u'subnet_id': u'e7d4b480-94d7-45dc-80e4-34c027b4cd33',
+                                                        # u'ip_address': u'172.16.1.25'}],
                                         # u'id': u'73da2c08-98d7-4505-9432-133424949e22',
                                         # u'security_groups': [u'a9f050a3-6143-4da7-ac16-ff09ca397939'],
                                         # u'device_id': u'c90a1ba0-6cfb-47f5-920b-5197e12bdfea',
@@ -558,7 +579,31 @@ def list_ports(conn):
                                         # u'tenant_id': u'02d5ad020bec441185dd901f61cb28db'},
                                 # loaded=True)
 
-
+#openstack.network.v2.port.Port(attrs={u'status': u'ACTIVE',
+                                    # u'binding:host_id': u'controller',
+                                    # u'allowed_address_pairs': [],
+                                    # u'extra_dhcp_opts': [],
+                                    # u'mac_address': u'fa:16:3e:61:6e:69',
+                                    # u'dns_assignment': [{u'hostname': u'host-172-16-1-1',
+                                    #                     u'ip_address': u'172.16.1.1',
+                                    #                     u'fqdn': u'host-172-16-1-1.openstacklocal.'}],
+                                    # u'device_owner': u'network:router_interface',
+                                    # u'binding:profile': {},
+                                    # u'port_security_enabled': False,
+                                    # u'fixed_ips': [{u'subnet_id': u'7035afbc-c47e-48c8-a8c2-214f3e3b2fb2',
+                                    #                 u'ip_address': u'172.16.1.1'}],
+                                    # u'id': u'ff759e18-fb7b-4903-ac63-e84160c12873',
+                                    # u'security_groups': [],
+                                    # u'device_id': u'e66cdb3c-b03d-4943-b655-d7ed735f7287',
+                                    # u'name': u'',
+                                    # u'admin_state_up': True,
+                                    # u'network_id': u'be59de43-fa77-4554-9149-1623835ba33f',
+                                    # u'dns_name': u'',
+                                    # u'binding:vif_details': {u'port_filter': True},
+                                    # u'binding:vnic_type': u'normal',
+                                    # u'binding:vif_type': u'bridge',
+                                    # u'tenant_id': u'7ad82b22a6924a978c54862efb3517f2'},
+                                # loaded=True)
 
 def create_ports(conn,**attrs):
     new_port = conn.network.create_port(**attrs)
@@ -642,6 +687,13 @@ def list_network_agents(conn):
 # Create a project network and subnet. This network can be used when creating a server and
 # allows the server to communicate with others servers on the same project network.
 # I plan to give this function the required parameters of subnet createation by a python object
+
+#create_network(**attrs)
+# Create a new network from attributes
+#
+# Parameters:attrs (dict)-Keyword arguments which will be used to create a Network, comprised of the properties on the Network class.
+# Returns:	The results of network creation
+# Return type: Network
 def create_network(conn, network_name, subnet_name, ip_version, cidr, gateway_ip):
     print("Create Network:")
     new_network = conn.network.create_network(name=network_name)
@@ -716,8 +768,7 @@ def list_routers(conn):
     routers = conn.network.routers()
     list =[]
     for router in routers:
-        list.append(router.to_dict)
-        # list.append(extract_router(router))
+        list.append(extract_router(router))
     return list
 
 
@@ -726,14 +777,15 @@ def list_routers(conn):
                                     #                                       u'network_id': u'4e9b7eea-fcd3-4773-bcb4-711b44979b18',
                                     #                                       u'enable_snat': True,
                                     #                                       u'external_fixed_ips': [{u'subnet_id': u'ce500f45-b8f9-42fa-a9e5-cd31b04b4822',
-                                    #                                                               u'ip_address': u'202.112.113.229'}]},
-                                    #                                       u'name': u'router-qll',
-                                    #                                       u'admin_state_up': True,
-                                    #                                       u'tenant_id': u'02d5ad020bec441185dd901f61cb28db',
-                                    #                                       u'distributed': False,
-                                    #                                       u'routes': [],
-                                    #                                       u'ha': False,
-                                    #                                       u'id': u'f48c689d-3fe2-4e5e-ac9e-5b2f4a28cca1'},
+                                    #                                                               u'ip_address': u'202.112.113.229'}]
+                                    #                                     },
+        #                                       u'name': u'router-qll',
+        #                                       u'admin_state_up': True,
+        #                                       u'tenant_id': u'02d5ad020bec441185dd901f61cb28db',
+        #                                       u'distributed': False,
+        #                                       u'routes': [],
+        #                                       u'ha': False,
+        #                                       u'id': u'f48c689d-3fe2-4e5e-ac9e-5b2f4a28cca1'},
         #                               loaded=True)
 
 
@@ -742,14 +794,14 @@ def list_routers(conn):
                                             #                            u'enable_snat': True,
                                             #                            u'external_fixed_ips': [{u'subnet_id': u'ce500f45-b8f9-42fa-a9e5-cd31b04b4822',
                                             #                                                     u'ip_address': u'202.112.113.231'}]},
-                                            #                           u'name': u'admin-router',
-                                            #                           u'admin_state_up': True,
-                                            #                           u'tenant_id': u'2f1bc8c34f094d049a201819732537a3',
-                                            #                           u'distributed': False,
-                                            #                           u'routes': [],
-                                            #                           u'ha': False,
-                                            #                           u'id': u'3f597b1f-f34c-41e7-bd1e-81321371545f'},
-#                                           loaded=True)
+                #                           u'name': u'admin-router',
+                #                           u'admin_state_up': True,
+                #                           u'tenant_id': u'2f1bc8c34f094d049a201819732537a3',
+                #                           u'distributed': False,
+                #                           u'routes': [],
+                #                           u'ha': False,
+                #                           u'id': u'3f597b1f-f34c-41e7-bd1e-81321371545f'},
+#                                     loaded=True)
 
 
 #/*****************************************************************/
@@ -760,10 +812,10 @@ def list_routers(conn):
 # Returns:	The results of router creation
 # Return type:	Router
 #/*****************************************************************/
-def create_router(conn,router_name,external_net_name):
-    new_router = conn.network.create_router(router_name,external_net_name)
+def create_router(conn,router_name):
+    new_router = conn.network.create_router(name=router_name)
     router_dict = extract_router(new_router)
-    return new_router
+    return router_dict
 
 
 def delete_router(conn,router_id):
@@ -772,16 +824,17 @@ def delete_router(conn,router_id):
 
 def update_router(conn,router_id):
     update_router = conn.network.update_router(router_id)
-    return update_router
+    return extract_router(update_router)
 
 
 def get_router(conn,router_id):
     router = conn.network.get_router(router_id)
     return router
 
+
 def find_router(conn,router_id):
     router = conn.network.find_router(router_id,ignore_missing=False)
-    return router
+    return router.to_dict
 
 #/*****************************************************************/
 #add_gateway_to_router(router, **body)
@@ -796,11 +849,11 @@ def find_router(conn,router_id):
 # Return type:
 # class:	~openstack.network.v2.router.Router
 #/*****************************************************************/
-def add_gateway_to_router(conn,router_id,public_net_name):
+def add_gateway_to_router(conn,router,public_net_id):
     print 'Add the router to public net'
-    router = conn.network.add_gateway_to_router(router_id,public_net_name)
+    router = conn.network.add_gateway_to_router(router,external_network=public_net_id)
     # router_dict = extract_router(router)
-    return router.to_dict
+    return extract_router(router)
 
 # remove_gateway_from_router(router, **body)
 # Remove Gateway from a router
@@ -813,11 +866,11 @@ def add_gateway_to_router(conn,router_id,public_net_name):
 #
 # Return type:
 # class:	~openstack.network.v2.router.Router
-def remove_gateway_from_router(conn,router_id,public_net_name):
+def remove_gateway_from_router(conn,router):
     print 'Remove the router to public net'
-    router = conn.network.remove_gateway_to_router(router_id,public_net_name)
+    router = conn.network.remove_gateway_to_router(router)
     # router_dict = extract_router(router)
-    return router.to_dict
+    return extract_router(router)
 
 
 #add_interface_to_router(router, subnet_id=None, port_id=None)
@@ -837,6 +890,7 @@ def add_interface_to_router(conn,router_id,subnet_id,port_id=None):
     router = conn.network.add_interface_to_router(router_id,subnet_id=None,port_id=None)
     # router_dict = extract_router(router)
     return router.to_dict
+
 
 
 def remove_interface_from_router(conn,router_id,subnet_id,port_id=None):

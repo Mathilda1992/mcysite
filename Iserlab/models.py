@@ -335,7 +335,7 @@ class Score(models.Model):
 #The db table used to store VM instance contained in the exp(data from openstack)
 class VMInstance(models.Model):
     name = models.CharField(max_length = 255)
-    owner = models.ForeignKey(User)
+    owner_name = models.CharField(max_length=50,null=True,blank=True)
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     vm = models.ForeignKey(VM)
@@ -356,7 +356,7 @@ class VMInstance(models.Model):
 
 class NetworkInstance(models.Model):
     name = models.CharField(max_length=100)
-    owner = models.ForeignKey(User)
+    owner_name = models.CharField(max_length=50,null=True,blank=True)
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     network = models.ForeignKey(Network)
@@ -377,31 +377,42 @@ class NetworkInstance(models.Model):
 
 
 class RouterInstance(models.Model):
+    owner_username = models.CharField(max_length=50)
     routerIntance_id = models.CharField(max_length=50)
     name = models.CharField(max_length=100)
     status = models.CharField(max_length=20)
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    gateway_net_id = models.CharField(max_length=50)
-
-    project_id =  models.CharField(max_length=50)
+    # gateway_net_id = models.CharField(max_length=50)
+    # gateway_subnet_id = models.CharField(max_length=50)
+    # gateway_ip_address = models.CharField(max_length=20)
     tenant_id = models.CharField(max_length=50)
-    username = models.CharField(max_length=50)
 
+    def __unicode__(self):
+        return u'name=%s,status=%s,owner=%s,id=%s' % (self.name,self.status,self.owner_username,self.routerIntance_id)
+
+    class Meta:
+        ordering = ['-createtime']
 
 class PortInstance(models.Model):
+    owner_username = models.CharField(max_length=50)
     portInstance_id = models.CharField(max_length=50)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,null=True,blank=True)
     status = models.CharField(max_length=20)#ACTIVE, DOWN, N/A
+    device_owner = models.CharField(max_length=50)  #
+    device_id = models.CharField(max_length=50)
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     network_id = models.CharField(max_length=50)
     subnet_id = models.CharField(max_length=50)
     ip_address = models.CharField(max_length=20)
     tenant_id = models.CharField(max_length=50)
-    project_id = models.CharField(max_length=50)
 
-    username = models.CharField(max_length=50)
+    def __unicode__(self):
+        return u'type=%s,owner=%s,ip=%s,id=%s,network_id=%s' % (self.device_owner,self.owner_username,self.ip_address,self.portInstance_id,self.network_id)
+
+    class Meta:
+        ordering = ['-createtime']
 
 
 

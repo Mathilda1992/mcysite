@@ -53,7 +53,11 @@ urlpatterns = [
     url(r'^network_delete/$', network_delete, name='network_delete'),
     url(r'^network_update/$', network_update, name='network_update'),
     url(r'^router_list/$',router_list,name='router_list'),
+    url(r'^router_create/$', router_create, name='router_create'),
+    url(r'^router_delete/$', router_delete, name='router_delete'),
+    url(r'^router_get/$', router_get, name='router_get'),
     url(r'^port_list/$', port_list, name='port_list'),
+
     url(r'^port_get/$', port_get, name='port_get'),
     url(r'^security_group_list/$', security_group_list, name='security_group_list'),
     url(r'^security_group_rules_list/$', security_group_rules_list, name='security_group_rules_list'),
