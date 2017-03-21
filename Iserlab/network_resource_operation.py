@@ -23,7 +23,7 @@ def extract_router(router):
     # dict.setdefault("_abc_negative_cache",router._abc_negative_cache)
     # dict.setdefault("_abc_negative_cache_version",router._abc_negative_cache_version)
     # dict.setdefault("_abc_registry",router._abc_registry)
-    dict.setdefault("_attrs",router._attrs)
+    # dict.setdefault("_attrs",router._attrs)
     # dict.setdefault("_dirty",router._dirty)
     # dict.setdefault("_from_attr",router._from_attr)
     # dict.setdefault("_get_create_body",router._get_create_body)
@@ -62,8 +62,8 @@ def extract_router(router):
     dict.setdefault("status",router.status )#
     dict.setdefault("tenant_id",router.tenant_id )#
     dict.setdefault("updated_at",router.updated_at )#
-    dict.setdefault("keys",router.keys)#method
-    dict.setdefault("values",router.values )#method
+
+
 
     # #---bound method---
     # dict.setdefault("add_gateway", router.add_gateway)#method
@@ -86,6 +86,7 @@ def extract_router(router):
     # dict.setdefault("iteritems",router.iteritems)#method
     # dict.setdefault("iterkeys",router.iterkeys)#method
     # dict.setdefault("itervalues",router.itervalues)#method
+    # dict.setdefault("keys",router.keys)#method
     # dict.setdefault("list",router.list)#method
     # dict.setdefault("remove_interface",router.remove_interface)#method
     # dict.setdefault("set_headers",router.set_headers)#method
@@ -94,6 +95,7 @@ def extract_router(router):
     # dict.setdefault("update",router.update )#method
     # dict.setdefault("update_attrs",router.update_attrs )#method
     # dict.setdefault("update_by_id",router.update_by_id )#method
+    # dict.setdefault("values", router.values)  # method
 
 
 
@@ -113,10 +115,13 @@ def extract_router(router):
 # 'update_attrs', 'update_by_id', 'updated_at', 'values']
 
 
+def extract_router2(router):
+    return router._attrs
 
+def extract_port2(port):
+    return port._attrs
 
 def extract_port(port):
-
     dict ={}
     dict.setdefault("admin_state_up",port.admin_state_up )#
     dict.setdefault("allow_create",port.allow_create )
@@ -192,14 +197,39 @@ def extract_port(port):
     dict.setdefault("update_by_id",port.update_by_id )
     dict.setdefault("updated_at",port.updated_at )
     dict.setdefault("values",port.values )#method
-
-
     return dict
 
+# ['_MutableMapping__marker', '__abstractmethods__', '__class__', '__contains__', '__delattr__', '__delitem__', '__dict__', '__doc__',
+# '__eq__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__iter__', '__len__', '__metaclass__', '__module__',
+# '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__',
+# '__weakref__', '_abc_cache', '_abc_negative_cache', '_abc_negative_cache_version', '_abc_registry', '_attrs', '_dirty', '_from_attr',
+# '_get_create_body', '_get_url', '_loaded', '_reset_dirty', '_update_attrs_from_response', 'admin_state_up', 'allow_create', 'allow_delete',
+# 'allow_head', 'allow_list', 'allow_retrieve', 'allow_update', 'allowed_address_pairs', 'base_path', 'binding:host_id', 'binding:profile',
+# 'binding:vif_details', 'binding:vif_type', 'binding:vnic_type', 'binding_host_id', 'binding_profile', 'binding_vif_details',
+# 'binding_vif_type', 'binding_vnic_type', 'clear', 'convert_ids', 'create', 'create_by_id', 'created_at', 'delete', 'delete_by_id',
+# 'description', 'device_id', 'device_owner', 'dns_assignment', 'dns_name', 'existing', 'extra_dhcp_opts', 'find', 'fixed_ips', 'from_id',
+# 'from_name', 'get', 'get_by_id', 'get_data_by_id', 'get_headers', 'get_id', 'get_resource_name', 'head', 'head_by_id', 'head_data_by_id',
+# 'id', 'id_attribute', 'is_admin_state_up', 'is_dirty', 'is_port_security_enabled', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys',
+# 'list', 'location', 'mac_address', 'name', 'name_attribute', 'network_id', 'new', 'patch_update', 'pop', 'popitem', 'port_security_enabled',
+# 'project_id', 'qos_policy_id', 'resource_key', 'resource_name', 'resources_key', 'revision_number', 'security_group_ids', 'security_groups',
+#  'service', 'set_headers', 'setdefault', 'status', 'tenant_id', 'to_dict', 'update', 'update_attrs', 'update_by_id', 'updated_at', 'values']
 
-def extract_topo(topo):
-    pass
 
+def extract_topo2(topo):
+    return topo._attrs
+
+def extract_network2(network,subnet):
+    net_dict = network._attrs
+    sub_dict = subnet._attrs
+    dict = {}
+    return dict
+
+def extract_net(network):
+
+    return network._attrs
+
+def extract_subnet(subnet):
+    return subnet._attrs
 
 
 def extract_network(networks,subnets):
@@ -426,10 +456,12 @@ def list_networks2(conn):
 def list_networks(conn):
     print("List Networks:")
     networks = conn.network.networks()
+
+    list =[]
     for network in networks:
-        print(network)
-        # print dir(network)
-    return networks
+
+        list.append(extract_net(network))
+    return list
     # output result*******
     # openstack.network.v2.network.Network(attrs={u'status': u'ACTIVE',
     #                                             u'subnets': [u'ce500f45-b8f9-42fa-a9e5-cd31b04b4822'],
@@ -496,7 +528,10 @@ def list_networks(conn):
 def list_subnets(conn):
     print("List Subnets:")
     subnets = conn.network.subnets()
-    return subnets
+    list =[]
+    for item in subnets:
+        list.append(extract_subnet(item))
+    return list
     #openstack.network.v2.subnet.Subnet(attrs={u'name': u'mcy-subnet222',
                                                 # u'enable_dhcp': True,
                                                 # u'network_id': u'8b0791f1-90c3-4241-b899-fe6060f22241',
@@ -551,7 +586,7 @@ def list_ports(conn):
     list =[]
     for port in ports:
         print port
-        list.append(extract_port(port))
+        list.append(extract_port2(port))
     return list
 # openstack.network.v2.port.Port(attrs={u'status': u'ACTIVE',
                                         # u'binding:host_id': u'compute4',
@@ -768,7 +803,8 @@ def list_routers(conn):
     routers = conn.network.routers()
     list =[]
     for router in routers:
-        list.append(extract_router(router))
+        # list.append(extract_router(router)
+        list.append(extract_router2(router))
     return list
 
 

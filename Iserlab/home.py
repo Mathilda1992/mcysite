@@ -1607,21 +1607,21 @@ def flavor_list(request):
 def network_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     # define sth used to deliver to html
-    NetworkList = network_resource_operation.list_networks2(conn)
+    NetworkList = network_resource_operation.list_networks(conn)
     return render(request, 'image_list.html', {'NetworkList': NetworkList})
 
 
 
 def subnet_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    s_dict_list = network_resource_operation.list_subnets(conn)
-    return HttpResponse('List subnets')
+    SubnetList = network_resource_operation.list_subnets(conn)
+    return render(request,'image_list.html',{'SubnetList':SubnetList})
 
 
 def router_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     routers = network_resource_operation.list_routers(conn)
-
+    # print routers[0]['_attrs']['external_gateway_info']['network_id']
     return render(request,'image_list.html',{'RouterList':routers})
 
 

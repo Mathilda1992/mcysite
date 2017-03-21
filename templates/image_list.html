@@ -76,6 +76,26 @@
 </p>
 
 
+
+<p>显示所有net信息</p>
+<p>
+    {% for item in NetworkList %}
+        <p>sub{{ forloop.counter }}：{{ item }}</p>
+    {% empty %}
+        <p>抱歉，网络列表为空</p>
+    {% endfor %}
+</p>
+
+<p>显示所有Sub信息</p>
+<p>
+    {% for item in SubnetList %}
+        <p>sub{{ forloop.counter }}：{{ item }}</p>
+    {% empty %}
+        <p>抱歉，网络列表为空</p>
+    {% endfor %}
+</p>
+
+
 <p>显示所有Router信息</p>
 <p>
     {% for item in RouterList %}
