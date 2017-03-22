@@ -1622,6 +1622,9 @@ def router_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     routers = network_resource_operation.list_routers(conn)
     # print routers[0]['_attrs']['external_gateway_info']['network_id']
+
+    #insert into RouterIntance db
+
     return render(request,'image_list.html',{'RouterList':routers})
 
 
@@ -1888,7 +1891,21 @@ def gateway_remove_from_router(request):
     return HttpResponse('Remove gateway from Router')
 
 def interface_add_to_router(request):
-    pass
+    auth_username = 'qinli'
+    auth_password = '123456'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'qinli'
+    region_name = 'RegionOne'
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    router_id = "938e9eda-bc98-44f2-9f81-6b01d14369da"
+    r = network_resource_operation.get_router(conn, router_id)
+    subnet_id = "a2dc25d3-c7cf-4fbf-85d7-3aef8618b584"
+
+    print "start add interface"
+    router_dict = network_resource_operation.add_interface_to_router(conn, r, subnet_id)
+    print router_dict
+    return HttpResponse('add interface to Router')
+
 
 def interface_delete_from_router(request):
     pass
@@ -1897,7 +1914,15 @@ def port_create(request):
     pass
 
 def port_delete(request):
-    pass
+    auth_username = 'qinli'
+    auth_password = '123456'
+    auth_url = 'http://202.112.113.220:5000/v2.0/'
+    project_name = 'qinli'
+    region_name = 'RegionOne'
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    port_id = ""
+    network_resource_operation.delete_port(conn,port_id)
+    return HttpResponse('delete port')
 
 def network_update(request):
     pass
@@ -2380,21 +2405,21 @@ def exp_score_launch(request,score_id):
     conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'], authDict['project_name'],
                                                      authDict['auth_username'], authDict['auth_password'])
 
-    #create router for the tenant, insert into RouterIntance
-    r = RouterInstance.objects.filter(owner_username=username)
-    if r:# the router already exists
-        pass
-    else:
-        router_name = username+"-router"
-        external_net_name = "public"
-        router_dict = network_resource_operation.create_router(conn,router_name,external_net_name)
-        print "here is router-------"
-        print router_dict
-        new_router = RouterInstance(owner_username=username,routerIntance_id=router_dict['id'],name=router_name,status=router_dict['status'],
-                                    gateway_net_id=router_dict[''],gateway_subnet_id=router_dict[''],gateway_ip_address=router_dict[''],
-                                    tenant_id=router_dict[''])
-
-    #create gateway for router
+    # #create router for the tenant, insert into RouterIntance
+    # r = RouterInstance.objects.filter(owner_username=username)
+    # if r:# the router already exists
+    #     pass
+    # else:
+    #     router_name = username+"-router"
+    #     external_net_name = "public"
+    #     router_dict = network_resource_operation.create_router(conn,router_name,external_net_name)
+    #     print "here is router-------"
+    #     print router_dict
+    #     new_router = RouterInstance(owner_username=username,routerIntance_id=router_dict['id'],name=router_name,status=router_dict['status'],
+    #                                 gateway_net_id=router_dict[''],gateway_subnet_id=router_dict[''],gateway_ip_address=router_dict[''],
+    #                                 tenant_id=router_dict[''])
+    #
+    # #create gateway for router
 
 
     #launch network, inser into NetworkInstance
@@ -2412,9 +2437,10 @@ def exp_score_launch(request,score_id):
         new_net.save()
 
 
-
-    #create interface to attach network to router
-
+        subnet_id = ""
+        #create interface to attach network to router
+        router = RouterInstance.objects.get(owner_username=username)
+        r = network_resource_operation.add_interface_to_router(conn,router,subnet_id)
 
     #launch VM , insert into VMInstance
     vms = score.exp.vm_set.all()

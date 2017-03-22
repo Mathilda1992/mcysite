@@ -225,7 +225,6 @@ def extract_network2(network,subnet):
     return dict
 
 def extract_net(network):
-
     return network._attrs
 
 def extract_subnet(subnet):
@@ -921,19 +920,19 @@ def remove_gateway_from_router(conn,router):
 #
 # Return type:
 # class:	~openstack.network.v2.router.Router
-def add_interface_to_router(conn,router_id,subnet_id,port_id=None):
+def add_interface_to_router(conn,router,subnet_id,port_id=None):
     print 'Add the subnet to router'
-    router = conn.network.add_interface_to_router(router_id,subnet_id=None,port_id=None)
+    router = conn.network.add_interface_to_router(router,subnet_id)
     # router_dict = extract_router(router)
-    return router.to_dict
+    return extract_router2(router)
 
 
 
-def remove_interface_from_router(conn,router_id,subnet_id,port_id=None):
+def remove_interface_from_router(conn,router,subnet_id,port_id=None):
     print 'Remove the subnet to router'
-    router = conn.network.remove_interface_to_router(router_id,subnet_id=None,port_id=None)
+    router = conn.network.remove_interface_to_router(router,subnet_id)
     # router_dict = extract_router(router)
-    return router.to_dict
+    return extract_router(router)
 
 
 #***********************Auto Allocated Topology Operations******************/
