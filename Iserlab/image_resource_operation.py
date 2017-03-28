@@ -169,22 +169,22 @@ def list_images(conn):
 
 
 
-def upload_image(conn,image_name):
+def upload_image(conn,image_name, image_data):
     print("Upload Image:")
 
     # Load fake image data for the example.
-    data = 'This is fake image data.'
+    data = image_data
 
     # Build the image attributes and upload the image.
     image_attrs = {
         'name': image_name,
         'data': data,
-        'disk_format': 'raw',
+        'disk_format': 'qcow2', # which was raw
         'container_format': 'bare',
-        'visibility': 'public',
+        'visibility': 'private', # which was public
     }
-    conn.image.upload_image(**image_attrs)
-    return 0
+    ret_image = conn.image.upload_image(**image_attrs)
+    return ret_image
 
 
 def delete_image(conn,image_ID):

@@ -419,3 +419,15 @@ class ExpDeliveryForm(forms.Form):
     # def __init__(self,*args,**kwargs):
     #     super(ExpDeliveryForm,self).__init__(*args,**kwargs)
     #     self.fields['group'].choices = [(i.pk,str(i)) for i in TempGroup.objects.all()]
+
+# 2017-03-28 qinli update
+class upload_form(forms.Form):
+    myfile = forms.FileField(label='Upload Local Image File', required=True)
+    file_name = forms.CharField(label='Image Name', max_length=255)
+    file_desc = forms.CharField(label='Description', widget=forms.Textarea(), required=False)
+
+class search_form(forms.Form):
+    id = forms.CharField(max_length=50, required=False)
+    name = forms.CharField(max_length=50, required=False)
+    owner = forms.CharField(max_length=50, required=False)
+    # end 2017-03-28 qinli update

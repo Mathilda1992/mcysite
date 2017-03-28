@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>search_result</title>
+</head>
+<body>
+    <p>镜像查找结果</p>
+    {% for i in list.0 %}
+        <br/>id:{{ i.image_id }}
+        <br/>name:{{ i.name }}
+        <br/>owner:{{ i.owner }}<br/>
+    {% endfor %}
+
+    <p>实验查找结果</p>
+    {% for i in list.1 %}
+        <br/>name:{{ i.exp_name }}
+        <br/>owner:{{ i.exp_owner }}<br/>
+    {% endfor %}
+</body>
+</html>

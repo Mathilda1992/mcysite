@@ -913,19 +913,47 @@ def repo_image_edit(request,i_id):
 
 
 
+# 2017-03-28 qinli update
+# def repo_image_delete(request,i_id):
+#     try:
+#         image = VMImage.objects.get(id=i_id)
+#     except VMImage.DoesNotExist:
+#         raise Http404
+#     result = VMImage.objects.filter(id=i_id).delete()
+#     #openstack API
+#
+#     if result:
+#         print "delete success"
+#     return HttpResponseRedirect('/repo_private_image_list/')
+
+
 def repo_image_delete(request,i_id):
     try:
         image = VMImage.objects.get(id=i_id)
     except VMImage.DoesNotExist:
         raise Http404
-    result = VMImage.objects.filter(id=i_id).delete()
-    #openstack API
 
-    if result:
+    username = request.session['username']
+    user_id = User.objects.get(username=username).id
+
+    img = VMImage.objects.get(id=i_id)
+
+    if img.owner_id == user_id:
+        image_id = img.image_id #image_id存的是openstack中的image_id
+        conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+
+        #删除OpenStack中的镜像
+        image_resource_operation.delete_image(conn, image_id)
+
+        #删除数据库中记录
+        img.delete()
         print "delete success"
+
     return HttpResponseRedirect('/repo_private_image_list/')
+#end 2017-03-28 qinli update
 
 
+# 2017-03-28 qinli update
 
 def repo_image_share(request,i_id):
     try:
@@ -936,6 +964,31 @@ def repo_image_share(request,i_id):
     if re:
         print "repo_image_share Success!"
     return HttpResponseRedirect('/repo_private_image_list/')
+
+
+def repo_image_share1(request,i_id):
+    try:
+        image = VMImage.objects.get(id=i_id)
+    except VMImage.DoesNotExist:
+        raise Http404
+
+    username = request.session['username']
+    user_id = User.objects.get(username=username).id
+
+    if VMImage.objects.filter(id=i_id):
+        image = VMImage.objects.get(id=i_id)
+        if image.is_shared == 'True':
+            image.is_shared = 'False'
+            image.save()
+            print 'image ' + i_id + ' is now private'
+            return HttpResponseRedirect('/repo_private_image_list/')
+        if image.is_shared == 'False':
+            image.is_shared = 'True'
+            image.save()
+            print 'image ' + i_id + ' is now shared'
+            return HttpResponseRedirect('/repo_private_image_list/')
+    return HttpResponseRedirect('/repo_private_image_list/')
+#end 2017-03-28 qinli update
 
 
 def repo_network_detail(request,n_id):
@@ -1201,39 +1254,111 @@ def repo_create_network(request):
 
 
 
+# 2017-03-28 qinli update
+# def repo_create_image(request):
+#     username = request.session['username']
+#     t = User.objects.get(username=username)
+#     # if request.method == 'POST':
+#     #     form = CreateImageForm(request.POST,request.FILES)
+#     #     if form.is_valid():
+#     #         repo_handle_upload_image()
+#     # pass
+#     if request.method =="POST":
+#         myfile = request.FILES.get("myfile",None)
+#         if not myfile:
+#             return HttpResponse("no file to choose")
+#         save_path = "/home/mcy/upload/files/images"
+#         destination = open(os.path.join(save_path,myfile.name),'wb+')
+#         for chunk in myfile.chunks():
+#             destination.write(chunk)
+#         destination.close()
+#
+#         #get data from form
+#         rf = CreateImageForm(request.POST)
+#         name = rf.data['name']
+#         desc = rf.data['desc']
+#
+#         #insert into db
+#         file_path = save_path+'/'+myfile.name
+#         new = VMImage(name=name,description=desc,path=file_path,owner=t)
+#         new.save()
+#
+#         # response = "congrats. your file \"" + myfile.name + "\" has been uploaded."
+#         return HttpResponseRedirect("/repo_home/")
+#     else:
+#         rf = CreateImageForm()
+#     return render(request,'repo_create_image.html',{'rf':rf})
+
+#上传文件
+
+#验证输入的镜像名是否可用
+def valid_name(name):
+    if VMImage.objects.filter(name=name):
+        return False
+    return True
+
+
+#上传镜像到服务器本地
+def upload_image_file(image_file):
+    save_path = "/home/mcy/upload/files/images"  # 文件存储的绝对路径
+    destination = open(os.path.join(save_path, image_file.name), 'wb+')  # 打开特定的文件进行二进制的写操作
+    for chunk in image_file.chunks():  # 分块写入文件
+        destination.write(chunk)
+    destination.close()
+    file_path = save_path + '/' + image_file.name
+    return file_path
+
 def repo_create_image(request):
     username = request.session['username']
-    t = User.objects.get(username=username)
-    # if request.method == 'POST':
-    #     form = CreateImageForm(request.POST,request.FILES)
-    #     if form.is_valid():
-    #         repo_handle_upload_image()
-    # pass
-    if request.method =="POST":
-        myfile = request.FILES.get("myfile",None)
-        if not myfile:
-            return HttpResponse("no file to choose")
-        save_path = "/home/mcy/upload/files/images"
-        destination = open(os.path.join(save_path,myfile.name),'wb+')
-        for chunk in myfile.chunks():
-            destination.write(chunk)
-        destination.close()
+    user_id = User.objects.get(username=username).id
+    if request.method == "POST":  # 请求方法为POST时，进行处理
+        # 取出表格中内容
+        rf = upload_form(request.POST)
+        image_name = rf.data['file_name']
 
-        #get data from form
-        rf = CreateImageForm(request.POST)
-        name = rf.data['name']
-        desc = rf.data['desc']
+        # 验证名字是否可用
+        if not valid_name(image_name):
+            return HttpResponse('the name is invalid!')
 
-        #insert into db
-        file_path = save_path+'/'+myfile.name
-        new = VMImage(name=name,description=desc,path=file_path,owner=t)
-        new.save()
+        # 上传镜像到服务器本地
+        image_file = request.FILES.get("myfile", None)  # 获取上传的文件，如果没有文件，则默认为None
+        if not image_file:
+            return HttpResponse("no files for upload!")
+        file_path = upload_image_file(image_file)
 
-        # response = "congrats. your file \"" + myfile.name + "\" has been uploaded."
+
+        # 将镜像upload到OpenStack
+        from image_resource_operation import upload_image
+        from createconn_openstackSDK import create_connection
+
+        with open(file_path) as imgfile:
+            image_data = imgfile.read()
+
+        conn = create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+        ret_image = upload_image(conn, image_name, image_data)
+
+        # 将文件信息写入数据库
+        new_image = VMImage()
+        # new_image.image_id = conn.image.get_image(ret_image)
+
+        # new_image.image_id = ret_image.id
+        new_image.image_id = ret_image.id
+        new_image.name = image_name
+        new_image.owner_id = user_id
+        new_image.is_shared = 'False'
+        new_image.own_project = 'True'
+        new_image.size = 0
+        # 其余Image信息补充
+        # pass
+        new_image.save()
+
+        print 'Upload image!'
         return HttpResponseRedirect("/repo_home/")
+
     else:
-        rf = CreateImageForm()
-    return render(request,'repo_create_image.html',{'rf':rf})
+        rf = upload_form()
+    return render(request, 'repo_create_image.html', {'rf':rf})
+#end 2017-03-28 qinli update
 
 
 def repo_handle_upload_image(f):
@@ -1265,6 +1390,85 @@ def download_file(request):
 
     return response
 
+
+# 2017-03-28 qinli update
+def repo_search(request):
+    from forms import search_form
+    if request.method == "POST":
+        rf = search_form(request.POST)
+
+        #当前用户名
+        username = request.session['username']
+        user_id = User.objects.get(username=username).id
+
+        if rf.is_valid():
+            id = rf.cleaned_data['id']
+            name = rf.cleaned_data['name']
+            owner = rf.cleaned_data['owner']
+
+        #处理Image部分
+            # 根据当前用户信息得到的其可见的Image
+            private_ilist = list(VMImage.objects.filter(owner_id=user_id))
+            shared_ilist = list(VMImage.objects.filter(is_shared='True'))
+            #可见的Image为公有和私有的并集
+            own_ilist = list(set(private_ilist) | set(shared_ilist))
+
+
+            # id选项非空，则筛选出符合要求的Image，取交集
+            if id:
+                id_ilist = list(VMImage.objects.filter(image_id=id))
+                own_ilist = list(set(own_ilist) & set(id_ilist))
+
+
+            # name选项非空，则筛选出符合要求的Image，取交集
+            if name:
+                name_ilist = list(VMImage.objects.filter(name=name))
+                own_ilist = list(set(own_ilist) & set(name_ilist))
+
+            # owner选项非空，则筛选出符合要求的Image，取交集
+            if owner:
+                owner_ilist = list(VMImage.objects.filter(owner__username=owner))
+                own_ilist = list(set(own_ilist) & set(owner_ilist))
+
+
+
+
+
+        #处理Experiment部分
+            # 根据当前用户信息得到的其可见的Experiment
+            private_elist = list(Experiment.objects.filter(exp_owner_id=user_id))
+            shared_elist = list(Experiment.objects.filter(is_shared='True'))
+            # 可见的Image为公有和私有的并集
+            own_elist = list(set(private_elist) | set(shared_elist))
+
+
+            # name选项非空，则筛选出符合要求的Experiment，取交集
+            if name:
+                name_elist = list(Experiment.objects.filter(exp_name=name))
+                own_elist = list(set(own_elist) & set(name_elist))
+
+            # owner选项非空，则筛选出符合要求的Experiment，取交集
+            if owner:
+                owner_elist = list(Experiment.objects.filter(exp_owner__username=owner))
+                own_elist = list(set(own_elist) & set(owner_elist))
+
+
+
+
+
+            own_list = []
+            own_list.append(own_ilist)
+            own_list.append(own_elist)
+
+            return render(request, 'search_result_ql.html', {'list': own_list})
+
+        else:
+            return HttpResponse('invalid input')
+
+    else:
+        rf = search_form()
+    return render(request, 'search_ql.html', {'rf': rf})
+#end 2017-03-28 qinli update
 
 
 

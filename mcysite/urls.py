@@ -89,7 +89,7 @@ urlpatterns = [
     # url(r'^new_add/(\d+)/(\d+)/$',add2,name='add2'),
     url(r'^bloglist/$',blog_list2),
     #test book example
-    url(r'^search/$',search,name='search'),#failed
+    # url(r'^search/$',search,name='search'),#failed
     url(r'^contact/$',contact,name='contact'),#need to test
 
 
@@ -140,6 +140,8 @@ urlpatterns = [
 
     #repo operate
     url(r'^repo_home/$',repo_home,name='repo_home'),
+
+    url(r'^repo_search/$',repo_search,name='repo_search'),
     url(r'^repo_public_list/$',repo_home,name='repo_home'),
     url(r'^repo_public_image_list/$', repo_public_image_list, name='repo_public_image_list'),
     url(r'^repo_private_exp_list/$',repo_private_exp_list,name='repo_private_exp_list'),
