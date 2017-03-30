@@ -2547,6 +2547,7 @@ def exp_detail(request,exp_id):
         raise Http404
     #get exp detail info from db
     E_Detail_Dict = experiment_operation.view_experiment_detail(exp_id)
+
     # output the group detail-----------------------------UI--------------------------
     c = {}
     c['username']=request.session['username']
@@ -2591,7 +2592,7 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
     return render(request,'exp_launch.html',c)
 
 #when stu launch and teacher check exp result, use this function
-def exp_score_launch(request,score_id):
+def exp_score_launch1(request,score_id):
     try:
         score = Score.objects.get(id=score_id)
     except Score.DoesNotExist:
@@ -2659,6 +2660,72 @@ def exp_score_launch(request,score_id):
 
     c = {}
     return render(request,'exp_score_launch.html',c)
+
+def show_expInstance(reuqest):
+    pass
+
+# 2017-03-28 qinli update
+def exp_score_launch(request,score_id):
+    try:
+        score = Score.objects.get(id=score_id)
+    except Score.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username,u.password)
+    else:
+        u = Student.objects.get(stu_username = username)
+        authDict = get_auth_info(u.stu_username,u.stu_password)
+
+    #conn to openstack API
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'], authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
+
+
+    #launch network, inser into NetworkInstance
+    # nets = score.exp.network.all()
+    nets = score.exp.exp_network.all()
+    router = RouterInstance.objects.get(owner_username=username)
+
+    for item in nets:
+        new_net_instance = network_resource_operation.create_network(conn,item.network_name,item.subnet_name,
+                                                                     item.ip_version,item.cidr,item.gateway_ip)
+        print "here is network *******"
+        print new_net_instance[0]
+        new_net = NetworkInstance(name=item.name,owner=u,network=item,exp_instance=score,
+                              network_instance_id=new_net_instance[0]['id'],subnet_instance_id=new_net_instance[0]['sub_id'],
+                              tenant_id = new_net_instance[0]['tenant_id'],status=new_net_instance[0]['status'],
+                              allocation_pools_start=new_net_instance[0]['sub_allocation_pools']['start'],
+                              allocation_pools_end=new_net_instance[0]['sub_allocation_pools']['end'])
+        new_net.save()
+
+        #create interface to attach network to router
+        r = network_resource_operation.add_interface_to_router(conn,router,new_net.subnet_instance_id)
+
+    #launch VM , insert into VMInstance
+    vms = score.exp.vm_set.all() #需要用foreignkey功能的话需要在VM的model中加入related_name
+    for item in vms:
+        vm_instance = compute_resource_operation.create_server2(conn, item.name, item.image_id, item.flavor,
+                                                                item.network.network_name, item.keypair)
+        print "here is vms &&&&&&&&&"
+        print vm_instance
+        new_vmInstance = VMInstance(name=item.name, owner_name=username, vm=item, exp_instance=score,
+                                    server_id=vm_instance[0]['id'], status='ACTIVE')
+        new_vmInstance.save()
+
+
+    #update Score db:starttime, situation,instance_status
+    re = Score.objects.get(id=score_id)
+    re.startTime = datetime.datetime.now()
+    re.situation = 'doing'
+    re.instance_status = 'LAUNCHED'
+    re.save()
+
+    c = {}
+    return render(request,'exp_score_launch.html',c)
+
 
 
 def exp_score_unlaunch(request,score_id):

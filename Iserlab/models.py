@@ -110,7 +110,7 @@ class Group(models.Model):
     stuCount = models.IntegerField()
     student = models.ManyToManyField(Student)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __unicode__(self):
         return u'%s,%s' % (self.name,self.teacher)
@@ -172,7 +172,7 @@ class Network(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
     owner = models.ForeignKey(User,null=True)#
-    is_shared = models.BooleanField(default=False)
+    is_shared = models.BooleanField(default=False)#unused
     shared_time = models.DateTimeField(auto_now=True, null=True, editable=True)
     enable_dhcp = models.BooleanField(default=True)
     allocation_pools_start = models.CharField(max_length=30,null=True,blank=True)
@@ -203,10 +203,10 @@ class Experiment(models.Model):
     exp_images = models.ManyToManyField(VMImage)#???
     exp_image_count = models.IntegerField(null=True,blank=True)
     exp_network = models.ManyToManyField(Network)
-    exp_guide = models.TextField(null=True,blank = True)
+    exp_guide = models.TextField(null=True,blank = True)#delete
     exp_guide_path = models.CharField(max_length=300,null=True,blank=True)
     exp_result = models.CharField(max_length = 500,null=True,blank = True)
-    exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)#??
+    exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)#??#delete
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(null=True,blank=True,editable=True)
     VM_count = models.IntegerField(default=0,null=True)
@@ -329,7 +329,7 @@ class Score(models.Model):
     # result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
     # reportUrl = models.URLField(null=True,blank=True)
     report_path = models.CharField(max_length=300, null=True, blank=True)
-    instance_status = models.CharField(max_length=20,null=True,blank=True,default='UNLAUNCHED')
+    instance_status = models.CharField(max_length=20,null=True,blank=True,default='UNLAUNCHED')#LAUNCHED
 
 
 #The db table used to store VM instance contained in the exp(data from openstack)
@@ -345,7 +345,7 @@ class VMInstance(models.Model):
     status = models.CharField(max_length = 20)#ERROR, ACTIVE,
     ip = models.CharField(max_length = 20,null=True,blank = True)
     vncurl = models.URLField(max_length=200,null=True)
-    result_image = models.CharField(max_length=100,null=True,blank=True)
+    result_image = models.IntegerField(max_length=100,null=True,blank=True)
 
     def __unicode__(self):
         return self.name
