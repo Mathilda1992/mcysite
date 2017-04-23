@@ -28,6 +28,13 @@ urlpatterns = [
     url(r'^download_file/$', download_file, name='download_file'),
 
 
+    #use to clear db
+    url(r'^clear_RouterInstance_db/$', clear_RouterInstance_db, name='clear_RouterInstance_db'),
+    url(r'^clear_ExpInstance_db/$', clear_ExpInstance_db, name='clear_ExpInstance_db'),
+    url(r'^clear_NetworkInstance_db/$', clear_NetworkInstance_db, name='clear_NetworkInstance_db'),
+    url(r'^clear_VMInstance_db/$', clear_VMInstance_db, name='clear_VMInstance_db'),
+
+
     url(r'^$',home,name='home'),
     url(r'^home/$',home,name='home'),
     url(r'^time/$',current_datetime,name = 'current_datetime'),
@@ -47,6 +54,7 @@ urlpatterns = [
     url(r'^server_delete/$', server_delete, name='server_delete'),
     url(r'^flavor_list/$', flavor_list, name='flavor_list'),
 
+    url(r'^network_subnet_list/$', network_subnet_list, name='network_subnet_list'),
     url(r'^network_list/$',network_list,name='network_list'),
     url(r'^subnet_list/$', subnet_list, name='subnet_list'),
     url(r'^network_create/$',network_create,name='network_create'),

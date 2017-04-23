@@ -12,88 +12,85 @@
 
 import os
 
-def extract_server(servers):
-    list =[]
-    for item in servers:
-        # print(dir(item))
-        dict ={}
-        print item.to_dict
-        dict.setdefault("access_ipv4",item.access_ipv4)#
-        dict.setdefault("access_ipv6",item.access_ipv6)#
-        dict.setdefault("add_security_group",item.add_security_group)
-        dict.setdefault("addresses", item.addresses)#
-        dict.setdefault("admin_password", item.admin_password)
-        dict.setdefault("allow_create",item.allow_create)
-        dict.setdefault("allow_delete",item.allow_delete)
-        dict.setdefault("allow_get",item.allow_get)
-        dict.setdefault("allow_head",item.allow_head)
-        dict.setdefault("allow_list",item.allow_list)
-        dict.setdefault("allow_update",item.allow_update)
-        dict.setdefault("attached_volumes",item.attached_volumes)
-        dict.setdefault("availability_zone",item.availability_zone)
-        dict.setdefault("base_path",item.base_path)
-        dict.setdefault("block_device_mapping",item.block_device_mapping)
-        dict.setdefault("change_password",item.change_password)
-        dict.setdefault("confirm_resize",item.confirm_resize)
-        dict.setdefault("create", item.create)
-        dict.setdefault("create_image", item.create_image)
-        dict.setdefault("created_at",item.created_at)#
-        dict.setdefault("delete",item.delete)
-        dict.setdefault("delete_metadata",item.delete_metadata)
-        dict.setdefault("disk_config",item.disk_config)
-        dict.setdefault("existing",item.existing)
-        dict.setdefault("find",item.find)
-        dict.setdefault("flavor", item.flavor)#
-        dict.setdefault("flavor_id", item.flavor_id)
-        dict.setdefault("force_delete",item.force_delete)
-        dict.setdefault("get",item.get)
-        dict.setdefault("get_metadata",item.get_metadata)
-        dict.setdefault("has_config_drive",item.has_config_drive)
-        dict.setdefault("head",item.head)
-        dict.setdefault("host_id", item.host_id)#
-        dict.setdefault("id",item.id)#
-        dict.setdefault("image", item.image)#
-        dict.setdefault("image_id", item.image_id)#
-        dict.setdefault("key_name", item.key_name)
-        dict.setdefault("launched_at", item.launched_at)#
-        dict.setdefault("links", item.links)#
-        dict.setdefault("list",item.list)
-        dict.setdefault("location",item.location)
-        dict.setdefault("metadata", item.metadata)
-        dict.setdefault("name", item.name)
-        dict.setdefault("networks", item.networks)
-        dict.setdefault("new",item.new)
-        dict.setdefault("patch_update",item.patch_update)
-        dict.setdefault("personality",item.personality)
-        dict.setdefault("power_state",item.power_state)
-        dict.setdefault("progress",item.progress)#
-        dict.setdefault("project_id",item.project_id)#
-        dict.setdefault("put_create",item.put_create)
-        dict.setdefault("reboot",item.reboot)
-        dict.setdefault("rebuild",item.rebuild)
-        dict.setdefault("remove_security_group",item.remove_security_group)
-        dict.setdefault("resize",item.resize)
-        dict.setdefault("resource_key",item.resource_key)
-        dict.setdefault("resources_key",item.resources_key)
-        dict.setdefault("revert_resize",item.revert_resize)
-        dict.setdefault("scheduler_hints",item.scheduler_hints)
-        dict.setdefault("security_groups", item.security_groups)
-        dict.setdefault("service",item.service)
-        dict.setdefault("set_metadata",item.set_metadata)
-        dict.setdefault("status", item.status)
-        dict.setdefault("task_state",item.task_state)
-        dict.setdefault("terminated_at",item.terminated_at)
-        # dict.setdefault("to_dict",item.to_dict)#it seems this attr is used to extract data in a dict type
-        dict.setdefault("update",item.update)
-        dict.setdefault("updated_at",item.updated_at)#
-        dict.setdefault("user_data",item.user_data)
-        dict.setdefault("user_id",item.user_id)
-        dict.setdefault("vm_state",item.vm_state)
+def extract_server2(item):
+    return item._attrs
 
-        list.append(dict)
-    print "output server data after extract"
-
-    return list
+def extract_server(item):
+    # print(dir(item))
+    dict ={}
+    dict.setdefault("access_ipv4",item.access_ipv4)#
+    dict.setdefault("access_ipv6",item.access_ipv6)#
+    dict.setdefault("add_security_group",item.add_security_group)
+    dict.setdefault("addresses", item.addresses)#
+    dict.setdefault("admin_password", item.admin_password)
+    dict.setdefault("allow_create",item.allow_create)
+    dict.setdefault("allow_delete",item.allow_delete)
+    dict.setdefault("allow_get",item.allow_get)
+    dict.setdefault("allow_head",item.allow_head)
+    dict.setdefault("allow_list",item.allow_list)
+    dict.setdefault("allow_update",item.allow_update)
+    dict.setdefault("attached_volumes",item.attached_volumes)
+    dict.setdefault("availability_zone",item.availability_zone)
+    dict.setdefault("base_path",item.base_path)
+    dict.setdefault("block_device_mapping",item.block_device_mapping)
+    dict.setdefault("change_password",item.change_password)
+    dict.setdefault("confirm_resize",item.confirm_resize)
+    dict.setdefault("create", item.create)
+    dict.setdefault("create_image", item.create_image)
+    dict.setdefault("created_at",item.created_at)#
+    dict.setdefault("delete",item.delete)
+    dict.setdefault("delete_metadata",item.delete_metadata)
+    dict.setdefault("disk_config",item.disk_config)
+    dict.setdefault("existing",item.existing)
+    dict.setdefault("find",item.find)
+    dict.setdefault("flavor", item.flavor)#
+    dict.setdefault("flavor_id", item.flavor_id)
+    dict.setdefault("force_delete",item.force_delete)
+    dict.setdefault("get",item.get)
+    dict.setdefault("get_metadata",item.get_metadata)
+    dict.setdefault("has_config_drive",item.has_config_drive)
+    dict.setdefault("head",item.head)
+    dict.setdefault("host_id", item.host_id)#
+    dict.setdefault("id",item.id)#
+    dict.setdefault("image", item.image)#
+    dict.setdefault("image_id", item.image_id)#
+    dict.setdefault("key_name", item.key_name)
+    dict.setdefault("launched_at", item.launched_at)#
+    dict.setdefault("links", item.links)#
+    dict.setdefault("list",item.list)
+    dict.setdefault("location",item.location)
+    dict.setdefault("metadata", item.metadata)
+    dict.setdefault("name", item.name)
+    dict.setdefault("networks", item.networks)
+    dict.setdefault("new",item.new)
+    dict.setdefault("patch_update",item.patch_update)
+    dict.setdefault("personality",item.personality)
+    dict.setdefault("power_state",item.power_state)
+    dict.setdefault("progress",item.progress)#
+    dict.setdefault("project_id",item.project_id)#
+    dict.setdefault("put_create",item.put_create)
+    dict.setdefault("reboot",item.reboot)
+    dict.setdefault("rebuild",item.rebuild)
+    dict.setdefault("remove_security_group",item.remove_security_group)
+    dict.setdefault("resize",item.resize)
+    dict.setdefault("resource_key",item.resource_key)
+    dict.setdefault("resources_key",item.resources_key)
+    dict.setdefault("revert_resize",item.revert_resize)
+    dict.setdefault("scheduler_hints",item.scheduler_hints)
+    dict.setdefault("security_groups", item.security_groups)
+    dict.setdefault("service",item.service)
+    dict.setdefault("set_metadata",item.set_metadata)
+    dict.setdefault("status", item.status)
+    dict.setdefault("task_state",item.task_state)
+    dict.setdefault("terminated_at",item.terminated_at)
+    # dict.setdefault("to_dict",item.to_dict)#it seems this attr is used to extract data in a dict type
+    dict.setdefault("update",item.update)
+    dict.setdefault("updated_at",item.updated_at)#
+    dict.setdefault("user_data",item.user_data)
+    dict.setdefault("user_id",item.user_id)
+    dict.setdefault("vm_state",item.vm_state)
+    print dict['id']
+    return dict
 
 #--------------result of dir(object):all function an attrs of the Server object-------------------
 #['__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__',
@@ -110,11 +107,12 @@ def extract_server(servers):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~List resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #A server is a virtual machine that provides access to a compute instance being run by your cloud provider.
 def list_servers(conn):
+    list = []
     print("List OpenStack Servers:")
     servers = conn.compute.servers()
     for server in servers:
-        print(server)
-    list = extract_server(conn.compute.servers())
+        # print(server)
+        list.append(extract_server(server))
     return list
 
 #****The output result is*******
@@ -156,6 +154,7 @@ def list_servers(conn):
 #                                       os-extended-volumes:volumes_attached=[],
 #                                       metadata={},
 #                                       Location=http://controller:8774/v2.1/7ad82b22a6924a978c54862efb3517f2/servers/1adafcac-d19c-4d84-bb19-ae296d298c63)
+
 
 #Before you create a VM, you should prepare below parameters:
 #image,flavor,network,keypair
@@ -282,29 +281,26 @@ def create_server(conn,server_name,image_name,flavor_name,network_name,private_k
 
 
 
-def create_server2(conn,server_name,image_name,flavor_name,network_name,private_keypair_name):
+def create_server2(conn,server_name,image_name,flavor_name,network_id,private_keypair_name):
     print("Create Server:")
     image = conn.compute.find_image(image_name)
     print image.id
     flavor = conn.compute.find_flavor(flavor_name)
     print flavor.id
-    network = conn.network.find_network(network_name)
-    print network.id
+    # network = conn.network.find_network(network_id)
+    # print network.id
     keypair = conn.compute.find_keypair(private_keypair_name)
     print keypair.id
     server = conn.compute.create_server(
         name=server_name, image_id=image.id, flavor_id=flavor.id,
-        networks=[{"uuid": network.id}], key_name=keypair.name)
+        networks=[{"uuid": network_id}], key_name=keypair.name)
 
     server = conn.compute.wait_for_server(server)
 
     # print("ssh -i {key} root@{ip}".format(
     #     key=private_keypair_file,
     #     ip=server.access_ipv4))
-    slist = []
-    slist.append(server)
-    list = extract_server(slist)
-    return list
+    return extract_server(server)
 
 
 

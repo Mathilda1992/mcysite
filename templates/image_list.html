@@ -144,7 +144,7 @@
 <p>显示当前所有虚拟机</p>
 <p>
     {% for server_dict in ServerList %}
-        <p>虚拟机{{ forloop.counter }}:{{ server_dict.to_dict}}</p>
+        <p>虚拟机{{ forloop.counter }}:{{ server_dict}}</p>
 
     {% empty %}
         <p>抱歉，虚拟机列表为空</p>

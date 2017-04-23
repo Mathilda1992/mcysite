@@ -49,6 +49,26 @@ def get_auth_info(username,password):
 #-----------form defination--------
 
 
+def clear_RouterInstance_db(request):
+    result = RouterInstance.objects.all().delete()
+    return HttpResponse("clear RouterInstance in db")
+
+
+def clear_ExpInstance_db(request):
+    result = ExpInstance.objects.all().delete()
+    return HttpResponse("clear ExpInstance in db")
+
+
+def clear_NetworkInstance_db(request):
+    result = NetworkInstance.objects.all().delete()
+    return HttpResponse("clear NetworkInstance in db")
+
+def clear_VMInstance_db(request):
+    result = VMInstance.objects.all().delete()
+    return HttpResponse("clear VMInstance in db")
+#----------------------
+
+
 def home(request):
     context={}
     context['role']=request.session['role']
@@ -1344,8 +1364,9 @@ def repo_create_image(request):
         # new_image.image_id = ret_image.id
         new_image.image_id = ret_image.id
         new_image.name = image_name
-        new_image.owner_id = user_id
+        # new_image.owner_id = user_id
         new_image.is_shared = 'False'
+        new_image.owner_name = username
         new_image.own_project = 'True'
         new_image.size = 0
         # 其余Image信息补充
@@ -1806,11 +1827,13 @@ def flavor_list(request):
     c = Context({'FlavorList': FlavorList})
     return render(request, 'image_list.html', c)
 
-
+def network_subnet_list(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    NetworkList = network_resource_operation.list_networks2(conn)
+    return render(request, 'image_list.html', {'NetworkList': NetworkList})
 
 def network_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
-    # define sth used to deliver to html
     NetworkList = network_resource_operation.list_networks(conn)
     return render(request, 'image_list.html', {'NetworkList': NetworkList})
 
@@ -1825,9 +1848,24 @@ def subnet_list(request):
 def router_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     routers = network_resource_operation.list_routers(conn)
-    # print routers[0]['_attrs']['external_gateway_info']['network_id']
 
-    #insert into RouterIntance db
+    for item in routers:
+        # get usefull info from APi returned data
+        status = item['status']
+        gateway_net_id = item['external_gateway_info']['network_id']
+        gateway_subnet_id = item['external_gateway_info']['external_fixed_ips'][0]['subnet_id']
+        gateway_ip_address = item['external_gateway_info']['external_fixed_ips'][0]['ip_address']
+        name = item['name']
+        routerIntance_id = item['id']
+        tenant_id = item['tenant_id']
+
+        project = identity_resource_operation.find_project(conn,item['tenant_id'])
+        owner_username = project['name']
+
+        #insert into RouterIntance db-----first check if already exist,if not then insert, to avoid repeat
+        RouterInstance.objects.get_or_create(owner_username = owner_username,routerIntance_id = routerIntance_id,name = name,status = status,
+                             gateway_net_id = gateway_net_id,gateway_subnet_id = gateway_subnet_id,
+                             gateway_ip_address = gateway_ip_address,tenant_id = tenant_id)
 
     return render(request,'image_list.html',{'RouterList':routers})
 
@@ -1867,10 +1905,14 @@ def server_list(request):
     return render(request, 'image_list.html', {'ServerList': ServerList})
 
 
-#list all image
+#list all image----we use this function
 def image_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     ImageList = image_resource_operation.list_images(conn)
+
+    # get usefull info from APi returned data
+
+    # insert into RouterIntance db
     context = {}
     context["ImageList"] = ImageList
     return render(request,'image_list.html',context)
@@ -1995,14 +2037,14 @@ def server_create(request):
 
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
 
-    server_name = 'demo-alice-cirros2'
+    server_name = 'demo-111-cirros2'
     image_name ='cirros'
     flavor_name = 'm1.tiny'
     network_name = 'private_alice'
     private_keypair_name = 'mykey'
     print 'before into ******'
-    slist = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name, network_name,private_keypair_name)
-    print slist[0]
+    server_dict = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name, network_name,private_keypair_name)
+    print server_dict['id']
     return HttpResponse('VM create Success!')
 
 
@@ -2572,41 +2614,56 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
         u = Student.objects.get(stu_username = username)
         authDict = get_auth_info(u.stu_username,u.stu_password)
 
+    # insert into ExpInstance db
+    print "here is inset into ExpInstance db"
+    name = e.exp_name+'_instance'
+    new_expInstance = ExpInstance(name= name,exp=e,owner_name=username,instance_status='Launching')
+    new_expInstance.save()
+    print new_expInstance.id
+
     # conn to openstack API
     conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
                                                      authDict['project_name'],
                                                      authDict['auth_username'], authDict['auth_password'])
-
-
-    images = e.exp_images.all()
-
-    vms = VM.objects.filter(exp=e)
-
-    #launch all networks that vms need
-    #---get network info
-    #---openstack API use
-    #---insert into NetworkInstance
-    #create router
-    #attach the network to router
-    #launch VM
-    #insert into ExpInstance db
+    #launch network, insert into networkInstance
     nets = e.exp_network.all()
     router = RouterInstance.objects.get(owner_username=username)#admin already create a router for this user when register it
     for item in nets:
         new_net_instance = network_resource_operation.create_network(conn,item.network_name,item.subnet_name,
                                                                      item.ip_version,item.cidr,item.gateway_ip)
         print "here is network *******"
-        print new_net_instance[0]
-        new_net = NetworkInstance(name=item.name,owner=u,network=item,exp_instance=score,
-                              network_instance_id=new_net_instance[0]['id'],subnet_instance_id=new_net_instance[0]['sub_id'],
-                              tenant_id = new_net_instance[0]['tenant_id'],status=new_net_instance[0]['status'],
-                              allocation_pools_start=new_net_instance[0]['sub_allocation_pools']['start'],
-                              allocation_pools_end=new_net_instance[0]['sub_allocation_pools']['end'])
+        print new_net_instance['id']
+        new_net = NetworkInstance(name=item.network_name,owner_name=username,network=item,belong_exp_instance_id=new_expInstance.id,
+                              network_instance_id=new_net_instance['id'],subnet_instance_id=new_net_instance['sub_id'],
+                              tenant_id = new_net_instance['tenant_id'],status=new_net_instance['status'],
+                              allocation_pools_start=new_net_instance['sub_allocation_pools'][0]['start'],
+                              allocation_pools_end=new_net_instance['sub_allocation_pools'][0]['end'])
         new_net.save()
 
         #create interface to attach network to router
-        r = network_resource_operation.add_interface_to_router(conn,router,new_net.subnet_instance_id)
+        print router.name
+        print router.routerIntance_id
+        r = network_resource_operation.add_interface_to_router(conn,router.routerIntance_id,new_net.subnet_instance_id)
 
+    # launch VM , insert into VMInstance
+    vms = e.vm_set.all()  # 需要用foreignkey功能的话需要在VM的model中加入related_name
+    for item in vms:
+        server_name = item.name
+        image_name = 'cirros'
+        flavor_name = 'm1.tiny'
+        network_name = item.network.network_name# should find the net instance
+        private_keypair_name = 'mykey'
+        print 'before into ******'
+        vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,network_id, private_keypair_name)
+        return HttpResponse('VM create Success!')
+
+        # vm_instance = compute_resource_operation.create_server2(conn, item.name, item.image.name, item.flavor,
+        #                                                         item.network.network_name, item.keypair)
+        print "here is vms &&&&&&&&&"
+        print vm_instance['id']
+        new_vmInstance = VMInstance(name=item.name, owner_name=username, vm=item, belong_exp_instance_id=new_expInstance.id,
+                                    server_id=vm_instance['id'], status='ACTIVE')
+        new_vmInstance.save()
 
 
 

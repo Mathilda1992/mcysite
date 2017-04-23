@@ -96,9 +96,6 @@ def extract_router(router):
     # dict.setdefault("update_attrs",router.update_attrs )#method
     # dict.setdefault("update_by_id",router.update_by_id )#method
     # dict.setdefault("values", router.values)  # method
-
-
-
     return dict
 
 #['_MutableMapping__marker', '__abstractmethods__', '__class__', '__contains__', '__delattr__', '__delitem__', '__dict__', '__doc__', '__eq__',
@@ -231,175 +228,170 @@ def extract_subnet(subnet):
     return subnet._attrs
 
 
-def extract_network(networks,subnets):
-    list = []
-    for i in range(0, networks.__len__()):
-        # print networks[i]
-        dict = {}
-        dict.setdefault("admin_state_up",networks[i].admin_state_up)#
-        dict.setdefault("allow_create", networks[i].allow_create)
-        dict.setdefault("allow_delete", networks[i].allow_delete)
-        dict.setdefault("allow_head", networks[i].allow_head)
-        dict.setdefault("allow_list", networks[i].allow_list)
-        dict.setdefault("allow_retrieve", networks[i].allow_retrieve)
-        dict.setdefault("allow_update", networks[i].allow_update)
-        dict.setdefault("availability_zone_hints", networks[i].availability_zone_hints)
-        dict.setdefault("availability_zones", networks[i].availability_zones)
-        dict.setdefault("base_path", networks[i].base_path)
-        dict.setdefault("clear", networks[i].clear)
-        dict.setdefault("convert_ids", networks[i].convert_ids)
-        dict.setdefault("create", networks[i].create)
-        dict.setdefault("create_by_id", networks[i].create_by_id)
-        dict.setdefault("created_at", networks[i].created_at)
-        dict.setdefault("delete", networks[i].delete)
-        dict.setdefault("delete_by_id", networks[i].delete_by_id)
-        dict.setdefault("description", networks[i].description)
-        dict.setdefault("dns_domain", networks[i].dns_domain)
-        # dict.setdefault("existing", networks[i].existing )
-        dict.setdefault("find", networks[i].find)
-        dict.setdefault("from_id", networks[i].from_id)
-        dict.setdefault("from_name", networks[i].from_name )
-        dict.setdefault("get", networks[i].get)#method
-        dict.setdefault("get_by_id", networks[i].get_by_id)#method
-        dict.setdefault("get_data_by_id", networks[i].get_data_by_id )#method
-        dict.setdefault("get_headers", networks[i].get_headers)#method
-        dict.setdefault("get_id", networks[i].get_id)#method
-        dict.setdefault("get_resource_name", networks[i].get_resource_name)
-        dict.setdefault("head", networks[i].head)
-        dict.setdefault("head_by_id", networks[i].head_by_id)
-        dict.setdefault("head_data_by_id", networks[i].head_data_by_id )
-        dict.setdefault("id", networks[i].id)#
-        dict.setdefault("id_attribute", networks[i].id_attribute)
-        dict.setdefault("ipv4_address_scope_id", networks[i].ipv4_address_scope_id)
-        dict.setdefault("ipv6_address_scope_id", networks[i].ipv6_address_scope_id )
-        dict.setdefault("is_admin_state_up", networks[i].is_admin_state_up)
-        dict.setdefault("is_default", networks[i].is_default)
-        dict.setdefault("is_dirty", networks[i].is_dirty )
-        dict.setdefault("is_port_security_enabled", networks[i].is_port_security_enabled)
-        dict.setdefault("is_router_external", networks[i].is_router_external)
-        dict.setdefault("is_shared", networks[i].is_shared )
-        dict.setdefault("items", networks[i].items)
-        # dict.setdefault("iteritems", networks[i].iteritems )
-        # dict.setdefault("iterkeys", networks[i].iterkeys)
-        # dict.setdefault("itervalues", networks[i].itervalues)
-        dict.setdefault("keys", networks[i].keys )
-        dict.setdefault("list", networks[i].list)
-        dict.setdefault("location", networks[i].location)
-        dict.setdefault("mtu", networks[i].mtu)#
-        dict.setdefault("name", networks[i].name)#
-        dict.setdefault("name_attribute", networks[i].name_attribute )
-        dict.setdefault("new", networks[i].new)
-        dict.setdefault("patch_update", networks[i].patch_update)
-        dict.setdefault("pop", networks[i].pop )
-        dict.setdefault("popitem", networks[i].popitem)
-        dict.setdefault("port_security_enabled", networks[i].port_security_enabled)
-        dict.setdefault("project_id", networks[i].project_id)#
-        # dict.setdefault("provider:physical_network", networks[i].physical_network)
-        # dict.setdefault("provider:network_type",networks[i].network_type)
-        # dict.setdefault("provider:segmentation_id",networks[i].provider)
-        dict.setdefault("provider_network_type", networks[i].provider_network_type )#
-        dict.setdefault("provider_physical_network", networks[i].provider_physical_network)#
-        dict.setdefault("provider_segmentation_id", networks[i].provider_segmentation_id)#
-        dict.setdefault("resource_key", networks[i].resource_key )
-        dict.setdefault("resource_name", networks[i].resource_name)
-        dict.setdefault("resources_key", networks[i].resources_key)
-        dict.setdefault("revision_number", networks[i].revision_number )
-        # dict.setdefault("router:external", networks[i].router:external)
-        dict.setdefault("segments", networks[i].segments)
-        dict.setdefault("service", networks[i].service)
-        dict.setdefault("set_headers", networks[i].set_headers )
-        dict.setdefault("setdefault", networks[i].setdefault)
-        dict.setdefault("shared", networks[i].shared)
-        dict.setdefault("status", networks[i].status)
-        dict.setdefault("subnet_ids", networks[i].subnet_ids)
-        dict.setdefault("subnets", networks[i].subnets)#
-        dict.setdefault("tenant_id", networks[i].tenant_id)
-        # dict.setdefault("to_dict", networks[i].to_dict )
-        dict.setdefault("update", networks[i].update)
-        dict.setdefault("update_attrs", networks[i].update_attrs)
-        dict.setdefault("update_by_id", networks[i].update_by_id )
-        dict.setdefault("updated_at", networks[i].updated_at)#
-        # dict.setdefault("values", networks[i].values)
+def extract_network(network,subnet):
+    dict = {}
+    dict.setdefault("admin_state_up",network.admin_state_up)#
+    dict.setdefault("allow_create", network.allow_create)
+    dict.setdefault("allow_delete", network.allow_delete)
+    dict.setdefault("allow_head", network.allow_head)
+    dict.setdefault("allow_list", network.allow_list)
+    dict.setdefault("allow_retrieve", network.allow_retrieve)
+    dict.setdefault("allow_update", network.allow_update)
+    dict.setdefault("availability_zone_hints", network.availability_zone_hints)
+    dict.setdefault("availability_zones", network.availability_zones)
+    dict.setdefault("base_path", network.base_path)
+    dict.setdefault("clear", network.clear)
+    dict.setdefault("convert_ids", network.convert_ids)
+    dict.setdefault("create", network.create)
+    dict.setdefault("create_by_id", network.create_by_id)
+    dict.setdefault("created_at", network.created_at)
+    dict.setdefault("delete", network.delete)
+    dict.setdefault("delete_by_id", network.delete_by_id)
+    dict.setdefault("description", network.description)
+    dict.setdefault("dns_domain", network.dns_domain)
+    # dict.setdefault("existing", networks[i].existing )
+    dict.setdefault("find", network.find)
+    dict.setdefault("from_id", network.from_id)
+    dict.setdefault("from_name", network.from_name )
+    dict.setdefault("get", network.get)#method
+    dict.setdefault("get_by_id", network.get_by_id)#method
+    dict.setdefault("get_data_by_id", network.get_data_by_id )#method
+    dict.setdefault("get_headers", network.get_headers)#method
+    dict.setdefault("get_id", network.get_id)#method
+    dict.setdefault("get_resource_name", network.get_resource_name)
+    dict.setdefault("head", network.head)
+    dict.setdefault("head_by_id", network.head_by_id)
+    dict.setdefault("head_data_by_id", network.head_data_by_id )
+    dict.setdefault("id", network.id)#
+    dict.setdefault("id_attribute", network.id_attribute)
+    dict.setdefault("ipv4_address_scope_id", network.ipv4_address_scope_id)
+    dict.setdefault("ipv6_address_scope_id", network.ipv6_address_scope_id )
+    dict.setdefault("is_admin_state_up", network.is_admin_state_up)
+    dict.setdefault("is_default", network.is_default)
+    dict.setdefault("is_dirty", network.is_dirty )
+    dict.setdefault("is_port_security_enabled", network.is_port_security_enabled)
+    dict.setdefault("is_router_external", network.is_router_external)
+    dict.setdefault("is_shared", network.is_shared )
+    dict.setdefault("items", network.items)
+    # dict.setdefault("iteritems", networks[i].iteritems )
+    # dict.setdefault("iterkeys", networks[i].iterkeys)
+    # dict.setdefault("itervalues", networks[i].itervalues)
+    dict.setdefault("keys", network.keys )
+    dict.setdefault("list", network.list)
+    dict.setdefault("location", network.location)
+    dict.setdefault("mtu", network.mtu)#
+    dict.setdefault("name", network.name)#
+    dict.setdefault("name_attribute", network.name_attribute )
+    dict.setdefault("new", network.new)
+    dict.setdefault("patch_update", network.patch_update)
+    dict.setdefault("pop", network.pop )
+    dict.setdefault("popitem", network.popitem)
+    dict.setdefault("port_security_enabled", network.port_security_enabled)
+    dict.setdefault("project_id", network.project_id)#
+    # dict.setdefault("provider:physical_network", networks[i].physical_network)
+    # dict.setdefault("provider:network_type",networks[i].network_type)
+    # dict.setdefault("provider:segmentation_id",networks[i].provider)
+    dict.setdefault("provider_network_type", network.provider_network_type )#
+    dict.setdefault("provider_physical_network", network.provider_physical_network)#
+    dict.setdefault("provider_segmentation_id", network.provider_segmentation_id)#
+    dict.setdefault("resource_key", network.resource_key )
+    dict.setdefault("resource_name", network.resource_name)
+    dict.setdefault("resources_key", network.resources_key)
+    dict.setdefault("revision_number", network.revision_number )
+    # dict.setdefault("router:external", networks[i].router:external)
+    dict.setdefault("segments", network.segments)
+    dict.setdefault("service", network.service)
+    dict.setdefault("set_headers", network.set_headers )
+    dict.setdefault("setdefault", network.setdefault)
+    dict.setdefault("shared", network.shared)
+    dict.setdefault("status", network.status)
+    dict.setdefault("subnet_ids", network.subnet_ids)
+    dict.setdefault("subnets", network.subnets)#
+    dict.setdefault("tenant_id", network.tenant_id)
+    # dict.setdefault("to_dict", networks[i].to_dict )
+    dict.setdefault("update", network.update)
+    dict.setdefault("update_attrs", network.update_attrs)
+    dict.setdefault("update_by_id", network.update_by_id )
+    dict.setdefault("updated_at", network.updated_at)#
+    # dict.setdefault("values", networks[i].values)
 
-        for j in range(0, subnets.__len__()):
-            if (networks[i].subnets[0] == subnets[j].id):
-                dict.setdefault("sub_allocation_pools", subnets[j].allocation_pools)#
-                dict.setdefault("sub_allow_create", subnets[j].allow_create )
-                dict.setdefault("sub_allow_delete", subnets[j].allow_delete)
-                dict.setdefault("sub_allow_head", subnets[j].allow_head)
-                dict.setdefault("sub_allow_list", subnets[j].allow_list)
-                dict.setdefault("sub_allow_retrieve", subnets[j].allow_retrieve)
-                dict.setdefault("sub_allow_update", subnets[j].allow_update)
-                dict.setdefault("sub_base_path", subnets[j].base_path)
-                dict.setdefault("sub_cidr", subnets[j].cidr)#
-                dict.setdefault("sub_clear", subnets[j].clear)
-                dict.setdefault("sub_convert_ids", subnets[j].convert_ids)
-                dict.setdefault("sub_create", subnets[j].create)
-                dict.setdefault("sub_create_by_id", subnets[j].create_by_id)
-                dict.setdefault("sub_created_at", subnets[j].created_at)#
-                dict.setdefault("sub_delete", subnets[j].delete)
-                dict.setdefault("sub_delete_by_id", subnets[j].delete_by_id)
-                dict.setdefault("sub_description", subnets[j].description)
-                dict.setdefault("sub_dns_nameservers", subnets[j].dns_nameservers)#
-                dict.setdefault("sub_enable_dhcp", subnets[j].enable_dhcp)#
-                dict.setdefault("sub_existing", subnets[j].existing)
-                dict.setdefault("sub_find", subnets[j].find)
-                dict.setdefault("sub_from_id", subnets[j].from_id)
-                dict.setdefault("sub_from_name", subnets[j].from_name)
-                dict.setdefault("sub_gateway_ip", subnets[j].gateway_ip)#
-                dict.setdefault("sub_get", subnets[j].get)
-                dict.setdefault("sub_get_by_id", subnets[j].get_by_id)
-                dict.setdefault("sub_get_data_by_id", subnets[j].get_data_by_id)
-                dict.setdefault("sub_get_headers", subnets[j].get_headers)
-                dict.setdefault("sub_get_id", subnets[j].get_id)
-                dict.setdefault("sub_get_resource_name", subnets[j].get_resource_name)
-                dict.setdefault("sub_head", subnets[j].head)
-                dict.setdefault("sub_head_by_id", subnets[j].head_by_id)
-                dict.setdefault("sub_head_data_by_id", subnets[j].head_data_by_id)
-                dict.setdefault("sub_host_routes", subnets[j].host_routes)#
-                dict.setdefault("sub_id", subnets[j].id)#
-                dict.setdefault("sub_id_attribute", subnets[j].id_attribute)
-                dict.setdefault("sub_ip_version", subnets[j].ip_version)#
-                dict.setdefault("sub_ipv6_address_mode", subnets[j].ipv6_address_mode)#
-                dict.setdefault("sub_ipv6_ra_mode", subnets[j].ipv6_ra_mode)#
-                dict.setdefault("sub_is_dhcp_enabled", subnets[j].is_dhcp_enabled)#
-                dict.setdefault("sub_is_dirty", subnets[j].is_dirty)
-                dict.setdefault("sub_items", subnets[j].items)
-                # dict.setdefault("sub_iteritems", subnets[j].iteritems)
-                # dict.setdefault("sub_iterkeys", subnets[j].iterkeys)
-                # dict.setdefault("sub_itervalues", subnets[j].itervalues)
-                dict.setdefault("sub_keys", subnets[j].keys)
-                dict.setdefault("sub_list", subnets[j].list)
-                dict.setdefault("sub_location", subnets[j].location)
-                dict.setdefault("sub_name", subnets[j].name)
-                dict.setdefault("sub_name_attribute", subnets[j].name_attribute)
-                dict.setdefault("sub_network_id", subnets[j].network_id)
-                dict.setdefault("sub_new", subnets[j].new)
-                dict.setdefault("sub_patch_update", subnets[j].patch_update)
-                dict.setdefault("sub_pop", subnets[j].pop)
-                # dict.setdefault("sub_popitem", subnets[j].popitem)
-                dict.setdefault("sub_project_id", subnets[j].project_id)
-                dict.setdefault("sub_resource_key", subnets[j].resource_key)
-                dict.setdefault("sub_resource_name", subnets[j].resource_name)
-                dict.setdefault("sub_resources_key", subnets[j].resources_key)
-                dict.setdefault("sub_revision_number", subnets[j].revision_number)
-                dict.setdefault("sub_segment_id", subnets[j].segment_id)
-                dict.setdefault("sub_service", subnets[j].service)
-                dict.setdefault("sub_service_types", subnets[j].service_types)
-                dict.setdefault("sub_set_headers", subnets[j].set_headers)
-                dict.setdefault("sub_setdefault", subnets[j].setdefault)
-                dict.setdefault("subnetpool_id", subnets[j].subnetpool_id)#
-                dict.setdefault("sub_subnet_pool_id", subnets[j].subnet_pool_id)
-                dict.setdefault("sub_tenant_id", subnets[j].tenant_id)#
-                # dict.setdefault("sub_to_dict", subnets[j].to_dict)
-                dict.setdefault("sub_update", subnets[j].update)
-                dict.setdefault("sub_update_attrs", subnets[j].update_attrs)
-                dict.setdefault("sub_update_by_id", subnets[j].update_by_id)
-                dict.setdefault("sub_updated_at", subnets[j].updated_at)
-                # dict.setdefault("sub_values", subnets[j].values)
+    #*******************get subnet data********************
+    dict.setdefault("sub_allocation_pools", subnet.allocation_pools)#
+    dict.setdefault("sub_allow_create", subnet.allow_create )
+    dict.setdefault("sub_allow_delete", subnet.allow_delete)
+    dict.setdefault("sub_allow_head", subnet.allow_head)
+    dict.setdefault("sub_allow_list", subnet.allow_list)
+    dict.setdefault("sub_allow_retrieve", subnet.allow_retrieve)
+    dict.setdefault("sub_allow_update", subnet.allow_update)
+    dict.setdefault("sub_base_path", subnet.base_path)
+    dict.setdefault("sub_cidr", subnet.cidr)#
+    dict.setdefault("sub_clear", subnet.clear)
+    dict.setdefault("sub_convert_ids", subnet.convert_ids)
+    dict.setdefault("sub_create", subnet.create)
+    dict.setdefault("sub_create_by_id", subnet.create_by_id)
+    dict.setdefault("sub_created_at", subnet.created_at)#
+    dict.setdefault("sub_delete", subnet.delete)
+    dict.setdefault("sub_delete_by_id", subnet.delete_by_id)
+    dict.setdefault("sub_description", subnet.description)
+    dict.setdefault("sub_dns_nameservers", subnet.dns_nameservers)#
+    dict.setdefault("sub_enable_dhcp", subnet.enable_dhcp)#
+    dict.setdefault("sub_existing", subnet.existing)
+    dict.setdefault("sub_find", subnet.find)
+    dict.setdefault("sub_from_id", subnet.from_id)
+    dict.setdefault("sub_from_name", subnet.from_name)
+    dict.setdefault("sub_gateway_ip", subnet.gateway_ip)#
+    dict.setdefault("sub_get", subnet.get)
+    dict.setdefault("sub_get_by_id", subnet.get_by_id)
+    dict.setdefault("sub_get_data_by_id", subnet.get_data_by_id)
+    dict.setdefault("sub_get_headers", subnet.get_headers)
+    dict.setdefault("sub_get_id", subnet.get_id)
+    dict.setdefault("sub_get_resource_name", subnet.get_resource_name)
+    dict.setdefault("sub_head", subnet.head)
+    dict.setdefault("sub_head_by_id", subnet.head_by_id)
+    dict.setdefault("sub_head_data_by_id", subnet.head_data_by_id)
+    dict.setdefault("sub_host_routes", subnet.host_routes)#
+    dict.setdefault("sub_id", subnet.id)#
+    dict.setdefault("sub_id_attribute", subnet.id_attribute)
+    dict.setdefault("sub_ip_version", subnet.ip_version)#
+    dict.setdefault("sub_ipv6_address_mode", subnet.ipv6_address_mode)#
+    dict.setdefault("sub_ipv6_ra_mode", subnet.ipv6_ra_mode)#
+    dict.setdefault("sub_is_dhcp_enabled", subnet.is_dhcp_enabled)#
+    dict.setdefault("sub_is_dirty", subnet.is_dirty)
+    dict.setdefault("sub_items", subnet.items)
+    # dict.setdefault("sub_iteritems", subnets[j].iteritems)
+    # dict.setdefault("sub_iterkeys", subnets[j].iterkeys)
+    # dict.setdefault("sub_itervalues", subnets[j].itervalues)
+    dict.setdefault("sub_keys", subnet.keys)
+    dict.setdefault("sub_list", subnet.list)
+    dict.setdefault("sub_location", subnet.location)
+    dict.setdefault("sub_name", subnet.name)
+    dict.setdefault("sub_name_attribute", subnet.name_attribute)
+    dict.setdefault("sub_network_id", subnet.network_id)
+    dict.setdefault("sub_new", subnet.new)
+    dict.setdefault("sub_patch_update", subnet.patch_update)
+    dict.setdefault("sub_pop", subnet.pop)
+    # dict.setdefault("sub_popitem", subnets[j].popitem)
+    dict.setdefault("sub_project_id", subnet.project_id)
+    dict.setdefault("sub_resource_key", subnet.resource_key)
+    dict.setdefault("sub_resource_name", subnet.resource_name)
+    dict.setdefault("sub_resources_key", subnet.resources_key)
+    dict.setdefault("sub_revision_number", subnet.revision_number)
+    dict.setdefault("sub_segment_id", subnet.segment_id)
+    dict.setdefault("sub_service", subnet.service)
+    dict.setdefault("sub_service_types", subnet.service_types)
+    dict.setdefault("sub_set_headers", subnet.set_headers)
+    dict.setdefault("sub_setdefault", subnet.setdefault)
+    dict.setdefault("subnetpool_id", subnet.subnetpool_id)#
+    dict.setdefault("sub_subnet_pool_id", subnet.subnet_pool_id)
+    dict.setdefault("sub_tenant_id", subnet.tenant_id)#
+    # dict.setdefault("sub_to_dict", subnets[j].to_dict)
+    dict.setdefault("sub_update", subnet.update)
+    dict.setdefault("sub_update_attrs", subnet.update_attrs)
+    dict.setdefault("sub_update_by_id", subnet.update_by_id)
+    dict.setdefault("sub_updated_at", subnet.updated_at)
+    # dict.setdefault("sub_values", subnets[j].values)
 
-        list.append(dict)
-    return list
+    return dict
 
     #-----------result of dir(network): all attrs of Network object-----------------------------
     #['_MutableMapping__marker', '__abstractmethods__', '__class__', '__contains__', '__delattr__', '__delitem__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__',
@@ -438,9 +430,19 @@ def list_networks2(conn):
         NetworkList.append(i)
     for i in subnets:
         SubnetList.append(i)
-    print NetworkList[0]
-    list = extract_network(NetworkList,SubnetList)
-    print "List network after extract"
+    # list = extract_network(NetworkList,SubnetList)
+    # print "List network after extract"
+    list =[]
+    for net in NetworkList:
+        print "net_id"
+        print extract_net(net)['name']
+        net_id = extract_net(net)['id']
+        for subnet in SubnetList:
+            if extract_net(net)['id'] == extract_subnet(subnet)['network_id']:
+                print "---subnet_id"
+                print extract_subnet(subnet)['name']
+                list.append(extract_network(net,subnet))
+        print "*************"
 
     return list
 
@@ -455,10 +457,9 @@ def list_networks2(conn):
 def list_networks(conn):
     print("List Networks:")
     networks = conn.network.networks()
-
     list =[]
     for network in networks:
-
+        print extract_net(network)
         list.append(extract_net(network))
     return list
     # output result*******
@@ -529,6 +530,7 @@ def list_subnets(conn):
     subnets = conn.network.subnets()
     list =[]
     for item in subnets:
+        print extract_subnet(item)
         list.append(extract_subnet(item))
     return list
     #openstack.network.v2.subnet.Subnet(attrs={u'name': u'mcy-subnet222',
@@ -731,8 +733,7 @@ def list_network_agents(conn):
 def create_network(conn, network_name, subnet_name, ip_version, cidr, gateway_ip):
     print("Create Network:")
     new_network = conn.network.create_network(name=network_name)
-    list1 =[]
-    list1.append(new_network)
+
     # print(new_network)
     # print new_network.id
     new_subnet = conn.network.create_subnet(
@@ -742,11 +743,10 @@ def create_network(conn, network_name, subnet_name, ip_version, cidr, gateway_ip
         cidr=cidr,
         gateway_ip=gateway_ip)
     # print(new_subnet)
-    list2=[]
-    list2.append(new_subnet)
+
 
     #analyse the network object data into a dict!!!!!!!
-    list=extract_network(list1,list2)
+    list=extract_network(new_network,new_subnet)
     return list
 
 
@@ -804,6 +804,7 @@ def list_routers(conn):
     for router in routers:
         # list.append(extract_router(router)
         list.append(extract_router2(router))
+        print extract_router2(router)
     return list
 
 
@@ -869,7 +870,7 @@ def get_router(conn,router_id):
 
 def find_router(conn,router_id):
     router = conn.network.find_router(router_id,ignore_missing=False)
-    return router.to_dict
+    return router._attrs
 
 #/*****************************************************************/
 #add_gateway_to_router(router, **body)
@@ -920,11 +921,14 @@ def remove_gateway_from_router(conn,router):
 #
 # Return type:
 # class:	~openstack.network.v2.router.Router
-def add_interface_to_router(conn,router,subnet_id,port_id=None):
+def add_interface_to_router(conn,router_id,subnet_id,port_id=None):
     print 'Add the subnet to router'
-    router = conn.network.add_interface_to_router(router,subnet_id)
+    router1 = conn.network.get_router(router_id)
+    router = conn.network.add_interface_to_router(router1,subnet_id)
+    print router
     # router_dict = extract_router(router)
-    return extract_router2(router)
+    # return extract_router2(router)
+    return router
 
 
 

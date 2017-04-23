@@ -54,15 +54,17 @@ class SocreAdmin(admin.ModelAdmin):
 class VMAdmin(admin.ModelAdmin):
     list_display = ('id','owner','exp','image','network','created_at')
 
+class ExpInstanceAdmin(admin.ModelAdmin):
+    list_display = ('id','owner_name','exp','createtime','instance_status')
 
 class VMInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id','name','owner_name','server_id','exp_instance','vm','ip',)
+    list_display = ('id','name','owner_name','server_id','belong_exp_instance_id','vm','ip',)
 
 class NetworkInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id','name','owner_name','network_instance_id','exp_instance','network')
+    list_display = ('id','name','owner_name','network_instance_id','belong_exp_instance_id','network')
 
 class RouterInstanceAdmin(admin.ModelAdmin):
-    list_display = ('id','name','createtime','owner_username','routerIntance_id')
+    list_display = ('id','name','createtime','owner_username','gateway_ip_address','routerIntance_id')
 
 class PortInstanceAdmin(admin.ModelAdmin):
     list_display = ('id','owner_username','status','device_owner','network_id','ip_address','portInstance_id')
@@ -84,10 +86,7 @@ admin.site.register(NetworkCart)
 admin.site.register(NetworkInstance,NetworkInstanceAdmin)
 admin.site.register(RouterInstance,RouterInstanceAdmin)
 admin.site.register(PortInstance,PortInstanceAdmin)
-
-admin.site.register(ExpInstanceTeacher)
-admin.site.register(VMInstanceTeacher)
-admin.site.register(NetworkInstanceTeacher)
+admin.site.register(ExpInstance,ExpInstanceAdmin)
 
 admin.site.register(TempExp)
 admin.site.register(TempGroup)

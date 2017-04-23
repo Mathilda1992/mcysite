@@ -125,6 +125,7 @@ class VMImage(models.Model):
     image_id = models.CharField(max_length = 36,null=True,blank=True)
     name = models.CharField(max_length = 255)
     owner = models.ForeignKey(User)
+    owner_name = models.CharField(max_length=50,null=True,blank=True)
     own_project = models.CharField(max_length= 32,null=True)
     is_public = models.CharField(max_length = 10,default = 'YES')
     description = models.TextField(max_length=500,blank=True)
@@ -172,6 +173,7 @@ class Network(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
     owner = models.ForeignKey(User,null=True)#
+    owner_name = models.CharField(max_length=50, null=True, blank=True)
     is_shared = models.BooleanField(default=False)#unused
     shared_time = models.DateTimeField(auto_now=True, null=True, editable=True)#unused
     enable_dhcp = models.BooleanField(default=True)
@@ -199,14 +201,12 @@ class Experiment(models.Model):
     exp_createtime = models.DateTimeField(auto_now_add = True,editable = True)
     exp_updatetime = models.DateTimeField(auto_now = True,blank = True)#the default value is equal to created_time
     exp_owner = models.ForeignKey(User)
-    #exp template
     exp_images = models.ManyToManyField(VMImage)#???
     exp_image_count = models.IntegerField(null=True,blank=True)
     exp_network = models.ManyToManyField(Network)
     # exp_guide = models.TextField(null=True,blank = True)#delete
     exp_guide_path = models.CharField(max_length=300,null=True,blank=True)
     # exp_result = models.CharField(max_length = 500,null=True,blank = True)
-    # exp_reportDIR =  models.CharField(max_length = 150,null=True,blank = True)#??#delete
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(null=True,blank=True,editable=True)
     VM_count = models.IntegerField(default=0,null=True)
@@ -309,13 +309,21 @@ class Delivery(models.Model):
     class Meta:
         ordering = ['-delivery_time']
 
-class ExpInstanceTeacher(models.Model):
+class ExpInstance(models.Model):
     name = models.CharField(max_length=100,default='exp_instance')
     exp = models.ForeignKey(Experiment)
-    teacher = models.ForeignKey(User)
-    createTime = models.DateTimeField(auto_now_add=True, editable=True)
+    owner_name = models.CharField(max_length=50)
+    createtime = models.DateTimeField(auto_now_add=True, editable=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     instance_status = models.CharField(max_length=20, null=True, blank=True, default='UNLAUNCHED')  # LAUNCHED
+    score_id = models.IntegerField(null=True,blank=True)#if the user is a student, please fill this field
+
+    def __unicode__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['-createtime']
+
 
 
 class Score(models.Model):
@@ -324,6 +332,7 @@ class Score(models.Model):
     scorer = models.ForeignKey(User)
     group_id = models.IntegerField(null=True,blank=True)
     delivery_id = models.IntegerField(null=True,blank=True)
+    exp_instance_id = models.IntegerField(null=True,blank=True)
     createTime = models.DateTimeField(auto_now_add=True, editable=True)
     startTime = models.DateTimeField(null=True,blank=True,editable=True)
     finishedTime = models.DateTimeField(null=True,blank=True,editable=True)
@@ -336,29 +345,10 @@ class Score(models.Model):
     result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
     # reportUrl = models.URLField(null=True,blank=True)
     report_path = models.CharField(max_length=300, null=True, blank=True)
-    instance_status = models.CharField(max_length=20,null=True,blank=True,default='UNLAUNCHED')#LAUNCHED
+    # instance_status = models.CharField(max_length=20,null=True,blank=True,default='UNLAUNCHED')#LAUNCHED
 
 
-class VMInstanceTeacher(models.Model):
-    name = models.CharField(max_length=255)
-    owner_name = models.CharField(max_length=50)
-    createtime = models.DateTimeField(auto_now_add=True)
-    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    vm = models.ForeignKey(VM)
-    exp_instance_teacher = models.ForeignKey(ExpInstanceTeacher)
-    server_id = models.CharField(max_length=100)
-    status = models.CharField(max_length = 20)#ERROR, ACTIVE,Shutoff,Suspended,Paused
-    ip = models.CharField(max_length=20, null=True, blank=True)
-    vncurl = models.URLField(max_length=200, null=True)
-    result_image = models.IntegerField(max_length=100, null=True, blank=True)
 
-
-    def __unicode__(self):
-        return self.name
-
-
-    class Meta:
-        ordering = ['-createtime']
 
 
 
@@ -369,10 +359,11 @@ class VMInstance(models.Model):
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     vm = models.ForeignKey(VM)
-    exp_instance = models.ForeignKey(Score)
+    belong_exp_instance_id = models.IntegerField(null=True,blank=True)
+    # exp_instance = models.ForeignKey(Score)
     # after finishing creation, fill below fields
     server_id = models.CharField(max_length = 100)
-    status = models.CharField(max_length = 20)#ERROR, ACTIVE,
+    status = models.CharField(max_length = 20)#ERROR, ACTIVE,Shutoff,Suspended,Paused
     ip = models.CharField(max_length = 20,null=True,blank = True)
     vncurl = models.URLField(max_length=200,null=True)
     result_image = models.IntegerField(max_length=100,null=True,blank=True)
@@ -384,26 +375,6 @@ class VMInstance(models.Model):
         ordering = ['-createtime']
 
 
-class NetworkInstanceTeacher(models.Model):
-    name = models.CharField(max_length=100)
-    owner_name = models.CharField(max_length=50,null=True,blank=True)
-    createtime = models.DateTimeField(auto_now_add=True)
-    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    network = models.ForeignKey(Network)
-    exp_instance_teacher = models.ForeignKey(ExpInstanceTeacher)
-    # after finishing creation, fill below fields
-    network_instance_id = models.CharField(max_length=50, null=True, blank=True)
-    subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
-    tenant_id = models.CharField(max_length=50, null=True, blank=True)
-    status = models.CharField(max_length=20,null=True,blank=True)
-    allocation_pools_start = models.CharField(max_length=20,null=True,blank=True)
-    allocation_pools_end = models.CharField(max_length=20, null=True, blank=True)
-
-    def __unicode__(self):
-        return u'name=%s,creator=%s,created=%s' % (self.network_name, self.owner, self.createtime)
-
-    class Meta:
-        ordering = ['-createtime']
 
 class NetworkInstance(models.Model):
     name = models.CharField(max_length=100)
@@ -411,7 +382,8 @@ class NetworkInstance(models.Model):
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     network = models.ForeignKey(Network)
-    exp_instance = models.ForeignKey(Score)
+    belong_exp_instance_id = models.IntegerField(null=True, blank=True)
+    # exp_instance = models.ForeignKey(Score)
     # after finishing creation, fill below fields
     network_instance_id = models.CharField(max_length=50, null=True, blank=True)
     subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
@@ -421,7 +393,7 @@ class NetworkInstance(models.Model):
     allocation_pools_end = models.CharField(max_length=20, null=True, blank=True)
 
     def __unicode__(self):
-        return u'name=%s,creator=%s,created=%s' % (self.network_name, self.owner, self.createtime)
+        return u'name=%s,creator=%s,created=%s' % (self.name, self.owner_name, self.createtime)
 
     class Meta:
         ordering = ['-createtime']
@@ -434,9 +406,9 @@ class RouterInstance(models.Model):
     status = models.CharField(max_length=20)
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    # gateway_net_id = models.CharField(max_length=50)
-    # gateway_subnet_id = models.CharField(max_length=50)
-    # gateway_ip_address = models.CharField(max_length=20)
+    gateway_net_id = models.CharField(max_length=50,null=True, blank=True)
+    gateway_subnet_id = models.CharField(max_length=50,null=True, blank=True)
+    gateway_ip_address = models.CharField(max_length=20,null=True, blank=True)
     tenant_id = models.CharField(max_length=50)
 
     def __unicode__(self):

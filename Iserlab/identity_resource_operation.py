@@ -78,46 +78,40 @@ def update_user(conn):
     pass
 
 #***************************Project Operations***************************************
-def extract_project(projects):
-    list = []
-    for item in projects:
-        print item
-        dict = {}
-        dict.setdefault("allow_create ", item.allow_create)
-        dict.setdefault("allow_delete ", item.allow_delete)
-        dict.setdefault("allow_get ", item.allow_get)
-        dict.setdefault("allow_head ", item.allow_head)
-        dict.setdefault("allow_list ", item.allow_list)
-        dict.setdefault("allow_update ", item.allow_update)
-        dict.setdefault("base_path ", item.base_path)
-        dict.setdefault("create ", item.create)
-        dict.setdefault("delete ", item.delete)
-        dict.setdefault("description ", item.description)
-        dict.setdefault("domain_id ", item.domain_id)  #
-        dict.setdefault("existing ", item.existing)
-        dict.setdefault("find ", item.find)
-        dict.setdefault("get ", item.get)
-        dict.setdefault("head ", item.head)
-        dict.setdefault("id", item.id)  #
-        dict.setdefault("is_domain",item.is_domain)
-        dict.setdefault("is_enabled", item.is_enabled)  #
-        dict.setdefault("list ", item.list)
-        dict.setdefault("location ", item.location)
-        dict.setdefault("name", item.name)  #
-        dict.setdefault("new ", item.new)
-        dict.setdefault("parent_id", item.parent_id)
-        dict.setdefault("patch_update ", item.patch_update)
-        dict.setdefault("put_create ", item.put_create)
-        dict.setdefault("resource_key ", item.resource_key)
-        dict.setdefault("resources_key ", item.resources_key)
-        dict.setdefault("service ", item.service)
-        # dict.setdefault("to_dict ", item.to_dict)
-        dict.setdefault("update ", item.update)
-        list.append(dict)
+def extract_project(item):
+    dict = {}
+    dict.setdefault("allow_create ", item.allow_create)
+    dict.setdefault("allow_delete ", item.allow_delete)
+    dict.setdefault("allow_get ", item.allow_get)
+    dict.setdefault("allow_head ", item.allow_head)
+    dict.setdefault("allow_list ", item.allow_list)
+    dict.setdefault("allow_update ", item.allow_update)
+    dict.setdefault("base_path ", item.base_path)
+    dict.setdefault("create ", item.create)
+    dict.setdefault("delete ", item.delete)
+    dict.setdefault("description ", item.description)
+    dict.setdefault("domain_id ", item.domain_id)  #
+    dict.setdefault("existing ", item.existing)
+    dict.setdefault("find ", item.find)
+    dict.setdefault("get ", item.get)
+    dict.setdefault("head ", item.head)
+    dict.setdefault("id", item.id)  #
+    dict.setdefault("is_domain",item.is_domain)
+    dict.setdefault("is_enabled", item.is_enabled)  #
+    dict.setdefault("list ", item.list)
+    dict.setdefault("location ", item.location)
+    dict.setdefault("name", item.name)  #
+    dict.setdefault("new ", item.new)
+    dict.setdefault("parent_id", item.parent_id)
+    dict.setdefault("patch_update ", item.patch_update)
+    dict.setdefault("put_create ", item.put_create)
+    dict.setdefault("resource_key ", item.resource_key)
+    dict.setdefault("resources_key ", item.resources_key)
+    dict.setdefault("service ", item.service)
+    # dict.setdefault("to_dict ", item.to_dict)
+    dict.setdefault("update ", item.update)
 
-    for i in list:
-        print i
-    return list
+    return dict
 #--------------------all attrs of project to access-------------------------------------
 #['__class__', '__delattr__', '__dict__', '__doc__', '__eq__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__',
 # '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_alternate_id', '_body', '_body_mapping', '_collect_attrs', '_consume_attrs', '_filter_component',
@@ -130,7 +124,12 @@ def extract_project(projects):
 def list_projects(conn):
     print("List openstack Projects:")
     projects = conn.identity.projects()
-    return extract_project(projects)
+
+    list =[]
+    for item in projects:
+        list.append(extract_project(item))
+    # return extract_project(projects)
+    return list
 
 #List Projects:
 #openstack.identity.v3.project.Project(is_domain=False, description=QuLeilei Project, enabled=True, domain_id=default, parent_id=None, id=02d5ad020bec441185dd901f61cb28db, name=quleilei)
@@ -153,8 +152,7 @@ def get_project(conn,project):
 
 def find_project(conn,id_or_name):
     project = conn.identity.find_project(id_or_name)
-    print project
-    return project
+    return extract_project(project)
 
 
 def update_project(conn,project,**attrs):
