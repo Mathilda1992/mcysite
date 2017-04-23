@@ -7,9 +7,9 @@
 <body>
 
     <div class="header">
-        <h1 align="center">Experiment Processing situation in Delivery:
-            <a href="{% url 'delivery_detail' Delivery.id %}" target="_blank">{{ Delivery.id }}</a>
-            <a href="javascript:window.opener=null;window.open('','_self');window.close()" >关闭</a>
+        <h1 align="center">Delivery-
+            <a href="{% url 'delivery_detail' Delivery.id %}" target="_blank">{{ Delivery.id }}</a>的实验进展情况
+            |<a href="javascript:window.opener=null;window.open('','_self');window.close()" >关闭</a></h1>
         <h3 align="center"><a href="{% url 'exp_detail' Delivery.exp.id %}" target="_blank">{{ Delivery.exp.exp_name }}</a>~
             <a href="{% url 'group_view' Delivery.group.id %}" target="_blank">{{ Delivery.group.name }}</a></h3>
     </div>

@@ -128,13 +128,13 @@ class AddExpForm(forms.Form):
                                          )
     vm_count = forms.IntegerField(label="VM Count")
     # vm_idList = forms.MultipleChoiceField(label='Include VMs',)
-    guide = forms.CharField(label="Guide",
-                            widget=forms.Textarea(),
-                            required = False)
+    # guide = forms.CharField(label="Guide",
+    #                         widget=forms.Textarea(),
+    #                         required = False)
     guide_file = forms.FileField(label='Upload Guide File', required=True)
-    refer_result = forms.CharField(label="Refer Result",
-                                   widget=forms.Textarea(),
-                                   required=False,)
+    # refer_result = forms.CharField(label="Refer Result",
+    #                                widget=forms.Textarea(),
+    #                                required=False,)
 
     def __init__(self,*args,**kwargs):
         super(AddExpForm,self).__init__(*args,**kwargs)
@@ -165,12 +165,12 @@ class EditExpForm(forms.Form):# the same with AddExpForm
                                                 )
     vm_count = forms.IntegerField(label="VM Count")
     # vm_idList = forms.MultipleChoiceField(label='Include VMs',)
-    guide = forms.CharField(label="Guide",
-                            widget=forms.Textarea(),
-                            required = False)
-    refer_result = forms.CharField(label="Refer Result",
-                                   widget=forms.Textarea(),
-                                   required=False,)
+    # guide = forms.CharField(label="Guide",
+    #                         widget=forms.Textarea(),
+    #                         required = False)
+    # refer_result = forms.CharField(label="Refer Result",
+    #                                widget=forms.Textarea(),
+    #                                required=False,)
 
     def __init__(self,*args,**kwargs):
         super(EditExpForm,self).__init__(*args,**kwargs)

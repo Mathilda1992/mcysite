@@ -3,7 +3,7 @@
 {% block content %}
 
     {% ifequal role 'teacher' %}
-        <p>这里是教学统计中心，教员可以进行查看学生实验情况，评价实验结果，查看成绩统计，集中进行实验分发管理等一系列与教学相关的业务操作。</p>
+
         <div class="header">
             <h1 align="center">实验进展情况</h1>
         </div>
@@ -13,8 +13,8 @@
                 <div class="title">
                     <h2><a href="{% url 'exp_detail' item.exp.id %}" target="_blank">{{ item.exp.exp_name }}</a>~
                         <a href="{% url 'group_view' item.group.id %}" target="_blank">{{ item.group.name }}</a></h2>
-                    <a href="{% url 'teach_situation_detail_by_delivery' item.id %}" target="_blank">(本次分发)进展详情</a>|
-                    <a href="{% url 'teach_score_list_by_deliveryID' item.id %}" >(本次分发)查看成绩</a>
+                    <a href="{% url 'teach_situation_detail_by_delivery' item.id %}" target="_blank">本次分发进展详情</a>|
+                    <a href="{% url 'teach_score_list_by_deliveryID' item.id %}" >查看成绩</a>
                 </div>
             <div class="info">
                 <span class="catagory" style="color: #ff9900;">所属delivery：{{ item.id }}</span>
@@ -22,8 +22,8 @@
                 <span class="author" style="color: #4a86e8;">未做：{{ item.undo_count }}人</span>
                 <span class="author" style="color: #4a86e8;">正在做：{{ item.doing_count }}人</span>
                 <span class="author" style="color: #4a86e8;">已完成：{{ item.done_count }}人</span>
-                <span class="created" style="color: #6aa84e;">开始时间：{{ item.start_time |date:"Y-m-d H:i" }}</span>
-                <span class="created" style="color: #6aa84e;">结束时间：{{ item.stop_time |date:"Y-m-d H:i" }}</span>
+                <span class="created" style="color: #6aa84e;">开始时间：{{ item.start_time |date:"Y-m-d" }}</span>
+                <span class="created" style="color: #6aa84e;">结束时间：{{ item.stop_time |date:"Y-m-d" }}</span>
             </div>
             </div>
         {% endfor %}

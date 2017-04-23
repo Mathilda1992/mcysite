@@ -56,7 +56,6 @@ def home(request):
     context['hello']='welcome to our platfowm'
     context['currentTime']= showTime.formatTime2()
     context['currentTimeStamp']=showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
-
     return render(request,'home.html',context)
 
 
@@ -190,6 +189,7 @@ def delivery_detail(request,d_id):
     except Delivery.DoesNotExist:
         raise Http404
     #get delivery detail from db
+    print d.start_time
     context = {}
     s_list = d.group.student.all()
     D_detial_dict = {'id':d_id,'name':d.name,'desc':d.desc,'exp':d.exp,'teacher':d.teacher,'group':d.group,
@@ -2028,6 +2028,7 @@ def network_create(request):
     project_name = 'qinli'
     region_name = 'RegionOne'
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+
     network_name = 'qinli-network222'
     subnet_name = 'qinli-subnet222'
     ip_version = '4'
@@ -2404,8 +2405,8 @@ def exp_edit(request,exp_id):
         update_desc = rf.data['desc']
         update_images_idList = rf.data['images_idList']
         update_networks_idList = rf.data['networks_idList']
-        update_guide = rf.data['guide']
-        update_refer_result = rf.data['refer_result']
+        # update_guide = rf.data['guide']
+        # update_refer_result = rf.data['refer_result']
 
         update_imageList =[]
         update_networkList=[]
@@ -2416,8 +2417,9 @@ def exp_edit(request,exp_id):
 
         #update basic info for exp
         re = Experiment.objects.filter(id=exp_id).update(exp_name=update_name,exp_description=update_desc,
-                                                         exp_image_count=len(update_imageList),exp_guide=update_guide,
-                                                         exp_result=update_refer_result,exp_updatetime=datetime.datetime.now())
+                                                         exp_image_count=len(update_imageList),
+                                                         # exp_guide=update_guide,exp_result=update_refer_result,
+                                                         exp_updatetime=datetime.datetime.now())
         update_e = Experiment.objects.get(id=exp_id)
         #update image list and network list for exp
         for i in range(0,len(update_imageList)):
@@ -2442,8 +2444,8 @@ def exp_edit(request,exp_id):
         attrs['desc'] = e.exp_description
         attrs['images_idList'] = images_idList
         attrs['networks_idList'] = networks_idList
-        attrs['guide'] = e.exp_guide
-        attrs['refer_result'] = e.exp_result
+        # attrs['guide'] = e.exp_guide
+        # attrs['refer_result'] = e.exp_result
         gf = EditExpForm(initial=attrs)
     return render_to_response("exp_edit.html",{'rf':gf})
 
@@ -2563,26 +2565,51 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
         raise Http404
     username = request.session['username']
     role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username,u.password)
+    else:
+        u = Student.objects.get(stu_username = username)
+        authDict = get_auth_info(u.stu_username,u.stu_password)
 
-    t = User.objects.get(username=username)
+    # conn to openstack API
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                     authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
+
+
     images = e.exp_images.all()
 
     vms = VM.objects.filter(exp=e)
+
     #launch all networks that vms need
     #---get network info
-    networks = e.exp_network.all()
     #---openstack API use
-
     #---insert into NetworkInstance
-
     #create router
-
-
     #attach the network to router
-
     #launch VM
-
     #insert into ExpInstance db
+    nets = e.exp_network.all()
+    router = RouterInstance.objects.get(owner_username=username)#admin already create a router for this user when register it
+    for item in nets:
+        new_net_instance = network_resource_operation.create_network(conn,item.network_name,item.subnet_name,
+                                                                     item.ip_version,item.cidr,item.gateway_ip)
+        print "here is network *******"
+        print new_net_instance[0]
+        new_net = NetworkInstance(name=item.name,owner=u,network=item,exp_instance=score,
+                              network_instance_id=new_net_instance[0]['id'],subnet_instance_id=new_net_instance[0]['sub_id'],
+                              tenant_id = new_net_instance[0]['tenant_id'],status=new_net_instance[0]['status'],
+                              allocation_pools_start=new_net_instance[0]['sub_allocation_pools']['start'],
+                              allocation_pools_end=new_net_instance[0]['sub_allocation_pools']['end'])
+        new_net.save()
+
+        #create interface to attach network to router
+        r = network_resource_operation.add_interface_to_router(conn,router,new_net.subnet_instance_id)
+
+
+
+
 
     c = {}
     c['netDict']=''
@@ -2838,6 +2865,18 @@ def exp_guide_download(reuqest,exp_id):
         return HttpResponse("This exp does not have a guide file!")
 
 
+def score_report_download(request,score_id):
+    try:
+        s = Score.objects.get(id=score_id)
+    except Score.DoesNotExist:
+        raise Http404
+    if s.report_path:
+        response = StreamingHttpResponse(file_iterator(s.report_path))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format(s.report_path)
+        return response
+    else:
+        return HttpResponse("This exp does not have a guide file!")
 
 #***********************************************************************#
 #                  Teacher add student user                             #

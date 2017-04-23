@@ -125,6 +125,7 @@ urlpatterns = [
     url(r'^exp_launch/(\d+)/$', exp_launch, name='exp_launch'),
     url(r'^exp_submit/(\d+)/$', exp_submit, name='exp_submit'),
     url(r'^exp_guide_download/(\d+)/$', exp_guide_download, name='exp_guide_download'),
+    url(r'^score_report_download/(\d+)/$', score_report_download, name='score_report_download'),
     # url(r'^exp_network_launch/$',exp_network_launch,name='luanch_exp_network'),
 
     url(r'^exp_score_launch/(\d+)/$', exp_score_launch, name='exp_score_launch'),

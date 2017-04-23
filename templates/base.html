@@ -5,7 +5,7 @@
     <title>{% block title %}DEFAULT TITLE---Iserlab{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://127.0.0.1:8000/static/css/bootstrap.min.css">
 
     <style>
         .blog{
@@ -31,8 +31,9 @@
 
 
 <div align="center">
-    <h1>欢迎来到Iserlab：基于OpenStack的网络攻防实验室</h1>
-    <p>当前时间 {{ currentTime }}当前时间戳 {{ currentTimeStamp }}</p>
+{#    <h1>欢迎来到IserLab：基于OpenStack的系统安全实验平台</h1>#}
+{#    <h1>当前时间 {{ currentTime }}</h1>#}
+{#    <p>当前时间戳 {{ currentTimeStamp }}</p>#}
 
     <h2>{{ message1 }}</h2>
     <h2>{{ conn_result }}</h2>
@@ -48,7 +49,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand">{{ username }}, Welcome</a>
+			<a class="navbar-brand">{{ username }}, 欢迎来到IserLab</a>
 		</div>
 		<div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav nav-tabs">
@@ -121,7 +122,7 @@
 						<li><a href="/delivery_create/" target="_blank">新建分发任务</a></li>
       				</ul>
     			</li>
-				<li><a href="/download_file/"><span class="glyphicon glyphicon-save">下载</span></a></li>
+{#				<li><a href="/download_file/"><span class="glyphicon glyphicon-save">下载</span></a></li>#}
                 <li><a href="/openstack_API_home"><span class="glyphicon glyphicon-cloud">测试OpenStackAPI连接</span></a></li>
 				<li><a href="/login/"><span class="glyphicon glyphicon-log-out">退出</span></a></li>
 
@@ -152,7 +153,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand">{{ username }}, Welcome</a>
+			<a class="navbar-brand">{{ username }}, 欢迎来到IserLab</a>
 		</div>
             <!--    ly 方案一 开始 这里实验管理&教学统计均设置下拉框 使用此方案时可以删除页面上的小标题链接  -->
 
@@ -205,9 +206,9 @@
 {% endifequal %}
 
 <!-- jQuery (Bootstrap 插件需要引入) -->
-<script src="https://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="http://127.0.0.1:8000/static/js/jquery-3.2.1.js"></script>
 <!-- 包含了所有编译插件 -->
-<script src="https://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="http://127.0.0.1:8000/static/js/bootstrap.min.js"></script>
 
 
 {% block content %}

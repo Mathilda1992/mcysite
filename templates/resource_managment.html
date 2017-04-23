@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>这里是用户查看资源库中已有资源的页面，包含公共资源库和个人资源库，默认是展示用户个人的资源列表</p>
-
     <div class="header">
         <h1 align="center">公共实验资源</h1>
     </div>
@@ -22,7 +20,7 @@
         <div class="info">
             <span class="author" style="color: #4a86e8;">标签：系统安全</span>
             <span class="catagory" style="color: #ff9900;">实验编号：{{ item.id }}</span>
-            <span class="catagory" style="color: #ff9900;">主机数量：{{ item.exp_image_count }}</span>
+            <span class="catagory" style="color: #ff9900;">主机数量：{{ item.VM_count }}</span>
             <span class="author" style="color: #4a86e8;">上传者：{{ item.exp_owner }}</span>
             <span class="created" style="color: #6aa84e;">共享时间：{{ item.shared_time |date:"Y-m-d H:i" }}</span>
 

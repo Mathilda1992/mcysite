@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>这里是学员管理页面，主要实现添加学员用户，查看学员基本信息功能</p>
 
     <div class="header">
-        <h1 align="center">My Groups</h1>
+        <h1 align="center">群组列表</h1>
     </div>
 
     {% for item in GroupList %}
@@ -16,10 +15,10 @@
                 <a href="{% url 'group_delete' item.id %}" >删除群组</a>
             </div>
         <div class="info">
-            <span class="catagory" style="color: #ff9900;">ID：{{ item.id }}</span>
+            <span class="catagory" style="color: #ff9900;">Group ID：{{ item.id }}</span>
             <span class="catagory" style="color: #ff9900;">学生人数：{{ item.stuCount }}</span>
             <span class="author" style="color: #4a86e8;">创建者：{{ item.teacher }}</span>
-            <span class="created" style="color: #6aa84e;">创建日期：{{ item.created_at |date:"Y-m-d H:i" }}</span>
+            <span class="created" style="color: #6aa84e;">创建时间：{{ item.created_at |date:"Y-m-d H:i" }}</span>
         </div>
         <div class="summary">
             {{ item.desc | truncatechars:100 }}

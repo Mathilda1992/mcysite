@@ -85,5 +85,9 @@ admin.site.register(NetworkInstance,NetworkInstanceAdmin)
 admin.site.register(RouterInstance,RouterInstanceAdmin)
 admin.site.register(PortInstance,PortInstanceAdmin)
 
+admin.site.register(ExpInstanceTeacher)
+admin.site.register(VMInstanceTeacher)
+admin.site.register(NetworkInstanceTeacher)
+
 admin.site.register(TempExp)
 admin.site.register(TempGroup)

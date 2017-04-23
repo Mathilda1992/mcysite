@@ -5,7 +5,7 @@
     <title>Group Student List</title>
 </head>
 <body>
-<p>显示当前group中的所有学生</p>
+<p>显示当前群组所包含的学生</p>
 <p>
     {% for item in G_Stu_List %}
     <p>Student{{ forloop.counter }}:STU_ID{{ item.id }};STU_NAME:{{ item.stu_username }};STU_EMALI:{{ item.stu_email }}</p>

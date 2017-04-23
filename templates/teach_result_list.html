@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <p>这里是教学统计中心，教员可以进行查看学生实验情况，评价实验结果，查看成绩统计，集中进行实验分发管理等一系列与教学相关的业务操作。</p>
+
 
     <div class="header">
         <h1 align="center">列出实验结果</h1>
@@ -14,7 +14,7 @@
                 <h2><a href="{% url 'exp_detail' item.exp.id %}" target="_blank">{{ item.exp.exp_name }}</a>~
                     {{ item.stu.stu_username }}</h2>
 
-                    <a href="{% url 'exp_score_launch' item.id%}" target="_blank">启动</a>|
+                    <a href="{% url 'exp_score_launch' item.id%}" target="_blank">启动实验</a>|
                     <a href="{% url 'teach_result_score' item.id %}" target="_blank">评分</a>
 
 
@@ -28,11 +28,11 @@
 
                 <span class="author" style="color: #4a86e8;">操作次数：{{ item.times }}</span>
 
-                <span class="catagory" style="color: #ff9900;">结果模板：{{ item.result_exp_id  }}</span>
+{#                <span class="catagory" style="color: #ff9900;">结果模板：{{ item.result_exp_id  }}</span>#}
+                <span class="catagory" style="color: #ff9900;">实验报告：</span><a href="{% url 'score_report_download' item.id%}">下载</a>
 
-                <span class="author" style="color: #4a86e8;">实验报告：{{ item.reportUrl  }}</span>
 
-                <span class="created" style="color: #6aa84e;">实验结果：{{ item.result}}</span>
+{#                <span class="created" style="color: #6aa84e;">实验结果：{{ item.result}}</span>#}
 
             </div>
         </div>

@@ -8,17 +8,16 @@
 
 
 <div class="header">
-    <span><a href="{% url 'exp_detail' E_Detail_Dict.id %}">{{ E_Detail_Dict.exp_name }}</a></span>
+    <h1>查看实验详情</h1>
+{#    <span>显示实验<a href="{% url 'exp_detail' E_Detail_Dict.id %}">{{ E_Detail_Dict.exp_name }}</a>详情</span>#}
 </div>
 
 <div class="content">
     <div class="blog">
         <div class="title">
-            <a href="#"><h2>{{ E_Detail_Dict.exp_name }}</h2></a>
+            <a href="{% url 'exp_detail' E_Detail_Dict.id %}"><h2>{{ E_Detail_Dict.exp_name }}</h2></a>
         </div>
         <div>
-            <p>显示当前Experiment详情
-
                 <a href="{% url 'exp_edit' E_Detail_Dict.id %}" target="_blank">编辑</a>|
                 <a href="{% url 'exp_share' E_Detail_Dict.id %}" >共享</a>|
 
@@ -36,8 +35,8 @@
             <span class="catagory" style="color: #ff9900;">包含主机数量：{{ E_Detail_Dict.VM_count }}</span>
             <span class="author" style="color: #4a86e8;">所有者：{{ E_Detail_Dict.exp_owner }}</span>
             <span class="author" style="color: #4a86e8;">是否共享：{{ E_Detail_Dict.is_shared }}</span>
-            <span class="created" style="color: #6aa84e;">创建日期：{{ E_Detail_Dict.exp_createtime |date:"Y-m-d H:i" }}</span>
-            <span class="created" style="color: #6aa84e;">更新日期：{{ E_Detail_Dict.exp_updatetime |date:"Y-m-d H:i" }}</span>
+            <span class="created" style="color: #6aa84e;">创建时间：{{ E_Detail_Dict.exp_createtime |date:"Y-m-d H:i" }}</span>
+            <span class="created" style="color: #6aa84e;">更新时间：{{ E_Detail_Dict.exp_updatetime |date:"Y-m-d H:i" }}</span>
         </div>
         <div class="summary">
             实验描述：{{ E_Detail_Dict.exp_description }}
@@ -61,7 +60,7 @@
         </div>
 
         <div class="summary">
-            包含主机：[<a href="{% url 'exp_create_VM' E_Detail_Dict.id %}" target="_blank">添加虚拟机</a>]
+            包含主机：[<a href="{% url 'exp_create_VM' E_Detail_Dict.id %}" target="_blank">添加主机</a>]
             {% for item in E_Detail_Dict.VMList %}
                 <ul>
                     <li><a href="{% url 'repo_VM_detail' item.id %}" target="_blank">{{ item.name }}</a>[<a href="{% url 'repo_VM_delete' item.id %}" >删除</a>]</li>
@@ -70,32 +69,33 @@
         </div>
 
         <div>
-            <p>实验网络拓扑：</p>
+            <p>实验拓扑：</p>
         </div>
         <div>
-            实验指南：{{ E_Detail_Dict.exp_guide }}
+{#            实验指导书：{{ E_Detail_Dict.exp_guide }}#}
+            实验指导书：<a href="{% url 'exp_guide_download' E_Detail_Dict.id%}">下载</a>
         </div>
 
 {#        {% ifequal role 'teacher' %}#}
+{#            <div>#}
+{#                实验结果参考（教师给出实验结果作为评分依据）：{{ E_Detail_Dict.exp_result }}#}
+{#            </div>#}
+{#            <div>#}
+{#                实验报告（学生所提交的实验报告所在repo目录）：{{ E_Detail_Dict.exp_reportDIR }}#}
+{#            </div>#}
             <div>
-                实验结果参考（教师给出实验结果作为评分依据）：{{ E_Detail_Dict.exp_result }}
-            </div>
-            <div>
-                实验报告（学生所提交的实验报告所在repo目录）：{{ E_Detail_Dict.exp_reportDIR }}
-            </div>
-            <div>
-                分发历史记录:
-                <table>
+                分发记录:
+                <table cellpadding="10">
                     <tr>
-                        <td>ID</td>
-                        <td>Delivery Name</td>
-                        <td>Delivery Time</td>
-                        <td>Group</td>
+                        <th >ID</th>
+                        <th>记录名称</th>
+                        <th>分发时间</th>
+                        <th>目标群组</th>
                     </tr>
 
                     {% for item in E_Detail_Dict.delivery_history %}
                         <tr>
-                            <td><a href="{% url 'delivery_detail' item.id %}"><span class="catagory" style="color: #ff9900;">{{ item.id }}</span></a></td>
+                            <td><a href="{% url 'delivery_detail' item.id %}" target="_blank"><span class="catagory" style="color: #ff9900;">{{ item.id }}</span></a></td>
                             <td><span class="author" style="color: #4a86e8">{{ item.name }}</span></td>
                             <td><span class="created" style="color: #6aa84f">{{ item.delivery_time|date:"Y-m-d H:i" }}</span></td>
                             <td><span class="category" style="color: #ff9900;">{{ item.group.name }}</span></td>

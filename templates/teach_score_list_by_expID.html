@@ -6,19 +6,30 @@
 </head>
 <body>
     <div class="header">
-        <h1 align="center">显示实验:{{ exp.exp_name }}成绩统计</h1>
-        <h3 align="center">实验总人数：{{ score_count }}~总成绩：{{ total_score }}~平均成绩{{ ave_score }}</h3>
+        <h1 align="center">实验{{ exp.exp_name }}的成绩统计</h1>
+        <h3 align="center">实验总人数：{{ score_count }}|总成绩：{{ total_score }}|平均成绩:{{ ave_score }}</h3>
     </div>
 
-    {% for item in ScoreList %}
-        <div align="center" class="blog">
 
-            <div class="info">
-                <span class="catagory" style="color: #ff9900;">实验学生：{{ item.stu.stu_username }}</span>
-                <span class="author" style="color: #4a86e8;">分数：{{ item.score }}</span>
-                <span class="created" style="color: #6aa84e;">完成时间：{{ item.finishedTime|date:"Y-m-d H:i" }}</span>
-            </div>
+    <div align="center" class="blog">
+        <div class="info">
+
+            <table cellpadding="10">
+                <tr>
+                    <th >实验学生</th>
+                    <th>分数</th>
+                    <th>完成时间</th>
+                </tr>
+                {% for item in ScoreList %}
+                <tr>
+                    <td><span class="category" style="color: #ff9900;">{{ item.stu.stu_username }}</span></td>
+                    <td><span class="author" style="color: #4a86e8">{{ item.score }}</span></td>
+                    <td><span class="created" style="color: #6aa84f">{{ item.finishedTime|date:"Y-m-d H:i" }}</span></td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
-    {% endfor %}
+    </div>
+
 </body>
 </html>
