@@ -136,16 +136,30 @@ urlpatterns = [
     url(r'^score_report_download/(\d+)/$', score_report_download, name='score_report_download'),
     # url(r'^exp_network_launch/$',exp_network_launch,name='luanch_exp_network'),
 
+    #----old launch function, maybe we should delete them
     url(r'^exp_score_launch/(\d+)/$', exp_score_launch, name='exp_score_launch'),
     url(r'^exp_score_unlaunch/(\d+)/$', exp_score_unlaunch, name='exp_score_unlaunch'),
     url(r'^exp_score_clean/(\d+)/$', exp_score_clean, name='exp_score_clean'),
-
+    #-------------------------------------------
     url(r'^exp_list_undo/$',exp_list_undo,name='exp_list_undo'),
     url(r'^exp_list_doing/$', exp_list_doing, name='exp_list_doing'),
     url(r'^exp_list_done/$', exp_list_done, name='exp_list_done'),
     url(r'^exp_list_scored/$', exp_list_scored, name='exp_list_scored'),
 
+    #exp instance operate
+    url(r'^exp_instance_list/$',exp_instance_list,name='exp_instance_list'),
+    url(r'^exp_instance_detail/(\d+)/$', exp_instance_detail, name='exp_instance_detail'),
+    url(r'^exp_instance_goto/(\d+)/$', exp_instance_goto, name='exp_instance_goto'),
+    url(r'^exp_instance_save/(\d+)/$', exp_instance_save, name='exp_instance_save'),
+    url(r'^exp_instance_delete/(\d+)/$', exp_instance_delete, name='exp_instance_delete'),
+
     url(r'^exp_instance_start/(\d+)/$', exp_instance_start, name='exp_instance_start'),
+    url(r'^exp_instance_stop/(\d+)/$', exp_instance_stop, name='exp_instance_stop'),
+    url(r'^exp_instance_pause/(\d+)/$', exp_instance_pause, name='exp_instance_pause'),
+    url(r'^exp_instance_unpause/(\d+)/$', exp_instance_unpause, name='exp_instance_unpause'),
+    url(r'^exp_instance_suspend/(\d+)/$', exp_instance_suspend, name='exp_instance_suspend'),
+    url(r'^exp_instance_resume/(\d+)/$', exp_instance_resume, name='exp_instance_resume'),
+
 
     #repo operate
     url(r'^repo_home/$',repo_home,name='repo_home'),

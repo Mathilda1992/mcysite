@@ -247,6 +247,40 @@ class ScoreForm(forms.Form):
 
 #delivery form
 EXP_YEAR_CHOICES=('2017','2018','2019')
+#update in 2017-4-24 with qinli
+class AddDeliveryForm(forms.ModelForm):
+    name = forms.CharField(label='Delivery Name',
+                           max_length=50,
+                           error_messages={'required': 'The delivery can not be null!','max_length':'The delivery name is too long'})
+    desc = forms.CharField(label='Description', max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
+                           initial="Replace with your description",
+                           error_messages={'max_length': 'The description is too long'})
+
+    # exp = forms.ModelMultipleChoiceField(label='Select Exp',
+    #                                      queryset=Experiment.objects.all(),
+    #                                      widget=forms.CheckboxSelectMultiple,
+    #                                      error_messages={'required': 'At least choose one'},
+    #                                      )
+    # group = forms.ModelMultipleChoiceField(label="Select Group",
+    #                                        queryset=Group.objects.all(),
+    #                                        widget=forms.CheckboxSelectMultiple,
+    #                                        error_messages={'required': 'At least choose one'},
+    #                                        )
+    startDateTime = forms.DateField(label='Starttime',
+                                    widget=forms.SelectDateWidget,
+                                    # initial=datetime.datetime.now(),
+                                    )
+    endDateTime = forms.DateField(label='Endtime',
+                                  widget=forms.SelectDateWidget,
+                                  # initial=datetime.datetime.now(),
+                                  )
+
+    class Meta:
+        model = Delivery
+        fields = ['exp','group']
+
 
 
 # class CreateDeliveryForm(forms.Form):
@@ -279,34 +313,35 @@ EXP_YEAR_CHOICES=('2017','2018','2019')
 #                                   )
 
 
-class AddDeliveryForm(forms.Form):
-    name = forms.CharField(label='Delivery Name',
-                           max_length=50,
-                           error_messages={'required': 'The delivery can not be null!','max_length':'The delivery name is too long'})
-    desc = forms.CharField(label='Description', max_length=500,
-                           widget=forms.Textarea(),
-                           required=False,
-                           initial="Replace with your description",
-                           error_messages={'max_length': 'The description is too long'})
+# class AddDeliveryForm(forms.Form):
+#     name = forms.CharField(label='Delivery Name',
+#                            max_length=50,
+#                            error_messages={'required': 'The delivery can not be null!','max_length':'The delivery name is too long'})
+#     desc = forms.CharField(label='Description', max_length=500,
+#                            widget=forms.Textarea(),
+#                            required=False,
+#                            initial="Replace with your description",
+#                            error_messages={'max_length': 'The description is too long'})
+#
+#     exp = forms.ModelMultipleChoiceField(label='Select Exp',
+#                                          queryset=Experiment.objects.all(),
+#                                          widget=forms.CheckboxSelectMultiple,
+#                                          error_messages={'required': 'At least choose one'},
+#                                          )
+#     group = forms.ModelMultipleChoiceField(label="Select Group",
+#                                            queryset=Group.objects.all(),
+#                                            widget=forms.CheckboxSelectMultiple,
+#                                            error_messages={'required': 'At least choose one'},
+#                                            )
+#     startDateTime = forms.DateField(label='Starttime',
+#                                     widget=forms.SelectDateWidget,
+#                                     # initial=datetime.datetime.now(),
+#                                     )
+#     endDateTime = forms.DateField(label='Endtime',
+#                                   widget=forms.SelectDateWidget,
+#                                   # initial=datetime.datetime.now(),
+#                                   )
 
-    exp = forms.ModelMultipleChoiceField(label='Select Exp',
-                                         queryset=Experiment.objects.all(),
-                                         widget=forms.CheckboxSelectMultiple,
-                                         error_messages={'required': 'At least choose one'},
-                                         )
-    group = forms.ModelMultipleChoiceField(label="Select Group",
-                                           queryset=Group.objects.all(),
-                                           widget=forms.CheckboxSelectMultiple,
-                                           error_messages={'required': 'At least choose one'},
-                                           )
-    startDateTime = forms.DateField(label='Starttime',
-                                    widget=forms.SelectDateWidget,
-                                    # initial=datetime.datetime.now(),
-                                    )
-    endDateTime = forms.DateField(label='Endtime',
-                                  widget=forms.SelectDateWidget,
-                                  # initial=datetime.datetime.now(),
-                                  )
     # def __init__(self, eQuerySet=None,gQuerySet=None,*args, **kwargs):
     #     super(AddDeliveryForm, self).__init__(*args, **kwargs)
     #     exp = forms.ModelMultipleChoiceField(label='Select Exp',

@@ -252,7 +252,60 @@ def delivery_edit(request,d_id):
         gf = EditDeliveryForm(initial=attrs)
     return render_to_response("delivery_edit.html",{'rf':gf})
 
-# def delivery_create(request):
+#mcy and qinli try on 2017-4-24 with ModleForm
+def delivery_create(request):
+    username = request.session['username']
+    teacher = User.objects.get(username=username)
+    if request.method =='POST':
+        rf = AddDeliveryForm(request.POST)
+        print "####"
+        if rf.is_valid():
+            print "******"
+            #get data from the form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            elist = rf.cleaned_data['exp']
+            glist = rf.cleaned_data['group']
+            startDateTime = rf.cleaned_data['startDateTime']
+            endDateTime = rf.cleaned_data['endDateTime']
+            #prepare other required data
+
+            delivery_time = datetime.datetime.now()
+
+            expList =[]
+            for item in elist:
+                expList.append(Experiment.objects.get(exp_name=item.exp_name))
+            groupList = []
+            for item in glist:
+                groupList.append((Group.objects.get(name=item.name)))
+
+            # insert into db:delivery
+            for i in range(0,len(expList)):
+                for j in range(0,len(groupList)):
+                    stulist = groupList[j].student.all()
+                    d = Delivery(name=name,desc=desc,delivery_time=delivery_time,teacher=teacher,
+                                 start_time=startDateTime,stop_time=endDateTime,
+                                 exp=expList[i],group=groupList[j],total_stu=len(stulist))
+                    d.save()
+            #insert into db:score
+            d_List = Delivery.objects.filter(name=name,teacher=teacher)
+            for i in range(0,len(d_List)):
+                stulist = d_List[i].group.student.all()
+                for j in range(0,len(stulist)):#insert a record into score db for every stu
+                    new_score = Score(exp=d_List[i].exp,stu=stulist[j],scorer= teacher,delivery_id=d_List[i].id)
+                    print new_score
+                    new_score.save()
+        return HttpResponseRedirect('/delivery_list/')
+    else:
+        rf = AddDeliveryForm()
+        rf.base_fields['exp'].queryset = Experiment.objects.filter(exp_owner=teacher)
+        rf.base_fields['group'].queryset = Group.objects.filter(teacher = teacher)
+    return render_to_response("delivery_create.html",{'rf':rf})
+
+
+
+
+# def delivery_create(request): # by mcy
 #     username = request.session['username']
 #     teacher = User.objects.get(username=username)
 #     eQuerySet = Experiment.objects.filter(exp_owner=teacher)
@@ -321,74 +374,74 @@ def delivery_edit(request,d_id):
 #     return render_to_response("delivery_create.html",{'rf':rf})
 
 
-#mcy and qinli try on 2017-3-19
-def delivery_create(request):
-    username = request.session['username']
-    teacher = User.objects.get(username=username)
-    # eQuerySet = Experiment.objects.filter(exp_owner=teacher)
-    # gQuerySet = Group.objects.filter(teacher=teacher)
-
-    # # clear the TempExp
-    # TempExp.objects.all().delete()
-    # #insert into TempExp
-    # EList= Experiment.objects.filter(exp_owner=teacher)
-    # for item in EList:
-    #     new = TempExp(exp_name=item.exp_name,exp_description=item.exp_description,exp_owner=item.exp_owner,exp_image_count=item.exp_image_count,
-    #                    exp_guide=item.exp_guide,exp_result=item.exp_result,exp_guide_path=item.exp_guide_path)
-    #     new.save()
-    #
-    #
-    # #clear the TempGroup
-    # TempGroup.objects.all().delete()
-    # #insert into TempGroup
-    # GList=Group.objects.filter(teacher=teacher)
-    # for item in GList:
-    #     new = TempGroup(name=item.name, desc=item.desc, teacher=item.teacher, stuCount=item.stuCount)
-    #     new.save()
-
-    if request.method =='POST':
-        rf = AddDeliveryForm(request.POST)
-        print "####"
-        if rf.is_valid():
-            print "******"
-            #get data from the form
-            name = rf.cleaned_data['name']
-            desc = rf.cleaned_data['desc']
-            elist = rf.cleaned_data['exp']
-            glist = rf.cleaned_data['group']
-            startDateTime = rf.cleaned_data['startDateTime']
-            endDateTime = rf.cleaned_data['endDateTime']
-            #prepare other required data
-
-            delivery_time = datetime.datetime.now()
-
-            expList =[]
-            for item in elist:
-                expList.append(Experiment.objects.get(exp_name=item.exp_name))
-            groupList = []
-            for item in glist:
-                groupList.append((Group.objects.get(name=item.name)))
-
-            # insert into db:delivery
-            for i in range(0,len(expList)):
-                for j in range(0,len(groupList)):
-                    stulist = groupList[j].student.all()
-                    d = Delivery(name=name,desc=desc,delivery_time=delivery_time,teacher=teacher,
-                                 start_time=startDateTime,stop_time=endDateTime,
-                                 exp=expList[i],group=groupList[j],total_stu=len(stulist))
-                    d.save()
-            #insert into db:score
-            d_List = Delivery.objects.filter(name=name,teacher=teacher)
-            for i in range(0,len(d_List)):
-                stulist = d_List[i].group.student.all()
-                for j in range(0,len(stulist)):#insert a record into score db for every stu
-                    new_score = Score(exp=d_List[i].exp,stu=stulist[j],scorer= teacher,delivery_id=d_List[i].id)
-                    print new_score
-                    new_score.save()
-        return HttpResponseRedirect('/delivery_list/')
-    else:
-        rf = AddDeliveryForm()
-    return render_to_response("delivery_create.html",{'rf':rf})
+# #mcy and qinli try on 2017-3-19
+# def delivery_create(request):
+#     username = request.session['username']
+#     teacher = User.objects.get(username=username)
+#     # eQuerySet = Experiment.objects.filter(exp_owner=teacher)
+#     # gQuerySet = Group.objects.filter(teacher=teacher)
+#
+#     # # clear the TempExp
+#     # TempExp.objects.all().delete()
+#     # #insert into TempExp
+#     # EList= Experiment.objects.filter(exp_owner=teacher)
+#     # for item in EList:
+#     #     new = TempExp(exp_name=item.exp_name,exp_description=item.exp_description,exp_owner=item.exp_owner,exp_image_count=item.exp_image_count,
+#     #                    exp_guide=item.exp_guide,exp_result=item.exp_result,exp_guide_path=item.exp_guide_path)
+#     #     new.save()
+#     #
+#     #
+#     # #clear the TempGroup
+#     # TempGroup.objects.all().delete()
+#     # #insert into TempGroup
+#     # GList=Group.objects.filter(teacher=teacher)
+#     # for item in GList:
+#     #     new = TempGroup(name=item.name, desc=item.desc, teacher=item.teacher, stuCount=item.stuCount)
+#     #     new.save()
+#
+#     if request.method =='POST':
+#         rf = AddDeliveryForm(request.POST)
+#         print "####"
+#         if rf.is_valid():
+#             print "******"
+#             #get data from the form
+#             name = rf.cleaned_data['name']
+#             desc = rf.cleaned_data['desc']
+#             elist = rf.cleaned_data['exp']
+#             glist = rf.cleaned_data['group']
+#             startDateTime = rf.cleaned_data['startDateTime']
+#             endDateTime = rf.cleaned_data['endDateTime']
+#             #prepare other required data
+#
+#             delivery_time = datetime.datetime.now()
+#
+#             expList =[]
+#             for item in elist:
+#                 expList.append(Experiment.objects.get(exp_name=item.exp_name))
+#             groupList = []
+#             for item in glist:
+#                 groupList.append((Group.objects.get(name=item.name)))
+#
+#             # insert into db:delivery
+#             for i in range(0,len(expList)):
+#                 for j in range(0,len(groupList)):
+#                     stulist = groupList[j].student.all()
+#                     d = Delivery(name=name,desc=desc,delivery_time=delivery_time,teacher=teacher,
+#                                  start_time=startDateTime,stop_time=endDateTime,
+#                                  exp=expList[i],group=groupList[j],total_stu=len(stulist))
+#                     d.save()
+#             #insert into db:score
+#             d_List = Delivery.objects.filter(name=name,teacher=teacher)
+#             for i in range(0,len(d_List)):
+#                 stulist = d_List[i].group.student.all()
+#                 for j in range(0,len(stulist)):#insert a record into score db for every stu
+#                     new_score = Score(exp=d_List[i].exp,stu=stulist[j],scorer= teacher,delivery_id=d_List[i].id)
+#                     print new_score
+#                     new_score.save()
+#         return HttpResponseRedirect('/delivery_list/')
+#     else:
+#         rf = AddDeliveryForm()
+#     return render_to_response("delivery_create.html",{'rf':rf})
 
 
 
@@ -2598,33 +2651,6 @@ def exp_detail(request,exp_id):
     c['E_Detail_Dict'] = E_Detail_Dict
     return render(request, 'exp_detail.html', c)
 
-def delivery_list(request):
-    context = {}
-    context['role'] = request.session['role']
-    context['username'] = request.session['username']
-    context['hello'] = 'welcome to our platfowm'
-    context['currentTime'] = showTime.formatTime2()
-    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
-
-    username = request.session['username']
-    teacher = User.objects.get(username=username)
-    DeliveryList = Delivery.objects.filter(teacher=teacher).order_by('-delivery_time')
-    context['DeliveryList'] = DeliveryList
-    return render(request, 'delivery_list.html', context)
-
-
-def exp_instance_list(request):
-    context = {}
-    context['role'] = request.session['role']
-    context['username'] = request.session['username']
-    context['hello'] = 'welcome to our platfowm'
-    context['currentTime'] = showTime.formatTime2()
-    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
-
-    username = request.session['username']
-    ExpInstanceList = ExpInstance.objects.filter(owner_name = username).order_by('-createtime')
-    context['ExpInstanceList'] = ExpInstanceList
-    return render(request,'exp_instance_list.html',context)
 
 
 #teacher
@@ -2701,18 +2727,6 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
     return render(request,'exp_launch.html',c)
 
 
-def exp_unlaunch(request,score_id):
-    #delete VM
-
-    #delete interface
-
-    #delete network
-
-    #delete gateway
-
-    #delete router
-    pass
-
 
 
 #when stu launch and teacher check exp result, use this function
@@ -2785,8 +2799,6 @@ def exp_score_launch1(request,score_id):
     c = {}
     return render(request,'exp_score_launch.html',c)
 
-def show_expInstance(reuqest):
-    pass
 
 # 2017-03-28 qinli update
 def exp_score_launch(request,score_id):
@@ -2878,7 +2890,47 @@ def exp_vm_launch(request):
     pass
 
 #teacher and student both have
+def exp_instance_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
+    username = request.session['username']
+    ExpInstanceList = ExpInstance.objects.filter(owner_name = username).order_by('-createtime')
+    context['ExpInstanceList'] = ExpInstanceList
+    return render(request,'exp_instance_list.html',context)
+
+
+
+def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info
+    pass
+
+def exp_instance_goto(request,exp_i_id):#make user login the operate server
+    pass
+
+def exp_instance_save(request,exp_i_id):#save the instance as a template
+    pass
+
+
+def exp_instance_delete(request,exp_i_id):#delete the exp instance
+    #delete VM
+
+    #delete interface
+
+    #delete network
+
+    #delete gateway
+
+    #delete router
+    pass
+
 def exp_instance_start(request,exp_i_id):
+    pass
+
+def exp_instance_stop(request,exp_i_id):
     pass
 
 def exp_instance_pause(request,exp_i_id):
@@ -2893,12 +2945,7 @@ def exp_instance_suspend(request,exp_i_id):
 def exp_instance_resume(request,exp_i_id):
     pass
 
-#teacher and student both have
-def exp_instance_stop(request,exp_i_id):
-    pass
 
-def exp_instance_save(request,exp_i_id):
-    pass
 
 
 
