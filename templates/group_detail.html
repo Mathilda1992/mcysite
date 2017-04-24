@@ -2,49 +2,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Group Detail</title>
+    <title>群组详情</title>
 </head>
 <body>
 
     <div class="header">
-        <h1>查看群组详情</h1>
-{#        <span>显示群组<a href="{% url 'group_view' G_Detail_Dict.id %}">{{ G_Detail_Dict.name }}</a>详情</span>#}
+        <h1>群组详情：{{ G_Detail_Dict.name }}</h1>
+        <div>
+            <a href="{% url 'group_edit' G_Detail_Dict.id %}" target="_blank">编辑群组</a>
+            |<a href="javascript:window.opener=null;window.open('','_self');window.close()" >关闭</a>
+        </div>
     </div>
 
     <div class="content">
-        <div class="blog">
-            <div class="title">
-                <a href="{% url 'group_view' G_Detail_Dict.id %}"><h2>{{ G_Detail_Dict.name }}</h2></a>
-            </div>
-            <p><a href="{% url 'group_edit' G_Detail_Dict.id %}" target="_blank">编辑群组</a>
-                |<a href="javascript:window.opener=null;window.open('','_self');window.close()" >关闭</a></p>
+        <h2>群组概况</h2>
+        <table cellpadding="5">
+            <tr><td>名称</td><td>{{ G_Detail_Dict.name }}</td></tr>
+            <tr><td>编号</td><td>{{ G_Detail_Dict.id }}</td></tr>
+            <tr><td>创建者</td><td>{{ G_Detail_Dict.teacher.username }}</td></tr>
+            <tr><td>创建时间</td><td>{{ G_Detail_Dict.created_at|date:"Y-m-d H:i" }}</td></tr>
+            <tr><td>更新时间</td><td>{{ G_Detail_Dict.updated_at|date:"Y-m-d H:i" }}</td></tr>
+            <tr><td>学生人数</td><td>{{ G_Detail_Dict.stucount }}</td></tr>
+            <tr><td>群组描述</td><td>{{ G_Detail_Dict.desc }}</td></tr>
 
-            <div class="info">
-                <span class="category" style="color: #ff9900;">学生人数：{{ G_Detail_Dict.stucount }}</span>
-                <span class="author" style="color: #4a86e8">创建者：{{ G_Detail_Dict.teacher }}</span>
-                <span class="created" style="color: #6aa84f">创建时间：{{ G_Detail_Dict.created_at|date:"Y-m-d H:i" }}</span>
-            </div>
-            <div class="summary">
-                群组描述：{{ G_Detail_Dict.desc }}
-            </div>
-            <p>学生列表：</p>
-                <table cellpadding="10">
-                    <tr>
-                        <th >ID</th>
-                        <th>用户名</th>
-                        <th>邮箱</th>
-                    </tr>
-                    {% for item in G_Detail_Dict.stulist %}
-                    <tr>
-                        <td><span class="category" style="color: #ff9900;">{{ item.id }}</span></td>
-                        <td><span class="author" style="color: #4a86e8">{{ item.stu_username }}</span></td>
-                        <td><span class="created" style="color: #6aa84f">{{ item.stu_email }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </table>
+        </table>
 
-            </div>
-        </div>
+
+        <h2>学生列表</h2>
+            <table cellpadding="5">
+                <tr>
+                    <th>ID</th>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                </tr>
+                {% for item in G_Detail_Dict.stulist %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.stu_username }}</td>
+                    <td>{{ item.stu_email }}</td>
+                </tr>
+                {% endfor %}
+            </table>
     </div>
 
 </body>

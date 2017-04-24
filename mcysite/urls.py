@@ -160,6 +160,20 @@ urlpatterns = [
     url(r'^exp_instance_suspend/(\d+)/$', exp_instance_suspend, name='exp_instance_suspend'),
     url(r'^exp_instance_resume/(\d+)/$', exp_instance_resume, name='exp_instance_resume'),
 
+    #vm instance operate
+    url(r'^vm_instance_list/$',vm_instance_list,name='vm_instance_list'),
+    url(r'^vm_instance_detail/(\d+)/$', vm_instance_detail, name='vm_instance_detail'),
+    url(r'^vm_instance_goto/(\d+)/$', vm_instance_goto, name='vm_instance_goto'),
+    url(r'^vm_instance_save/(\d+)/$', vm_instance_save, name='vm_instance_save'),
+    url(r'^vm_instance_delete/(\d+)/$', vm_instance_delete, name='vm_instance_delete'),
+
+    #net instance operate
+    url(r'^net_instance_list/$', net_instance_list, name='net_instance_list'),
+    url(r'^net_instance_detail/(\d+)/$', net_instance_detail, name='net_instance_detail'),
+    url(r'^net_instance_edit/(\d+)/$', net_instance_edit, name='net_instance_edit'),
+    url(r'^net_instance_save/(\d+)/$', net_instance_save, name='net_instance_save'),
+    url(r'^net_instance_delete/(\d+)/$', net_instance_delete, name='net_instance_delete'),
+
 
     #repo operate
     url(r'^repo_home/$',repo_home,name='repo_home'),

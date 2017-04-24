@@ -2,45 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Image Detail</title>
+    <title>镜像详情</title>
 </head>
 <body>
 
     <div class="header">
-        <span>显示镜像详情</span>
+        <h1>镜像详情：{{ DetailDict.name }}</h1>
+        <div>
+            {% ifequal username DetailDict.owner.username %}
+                <a href="{% url 'repo_image_edit' DetailDict.id %}" target="_blank">编辑</a></h2>
+                |<a href="javascript:window.opener=null;window.open('','_self');window.close()" >关闭</a>
+            {% endifequal %}
+        </div>
     </div>
 
     <div class="content">
-        <div class="blog">
-            <div class="title">
-                <h2><a href="#">{{ DetailDict.name }}</a>
-                    {% ifequal username DetailDict.owner.username %}
-                        |<a href="{% url 'repo_image_edit' DetailDict.id %}" target="_blank">编辑</a></h2>
-                    {% endifequal %}
-            </div>
-            <div class="info">
-                <span class="category" style="color: #ff9900;">镜像ID：{{ DetailDict.id }}</span>
-                <span class="author" style="color: #4a86e8">镜像名称：{{ DetailDict.name }}</span>
-                <span class="author" style="color: #4a86e8">镜像所有者：{{ DetailDict.owner.username }}</span>
-                <span class="created" style="color: #6aa84f">创建时间：{{ DetailDict.created_at|date:"Y-m-d H:i" }}</span>
-                <span class="created" style="color: #6aa84f">更新时间：{{ DetailDict.updated_at|date:"Y-m-d H:i" }}</span>
+        <h2>基本信息</h2>
+        <table cellpadding="5">
+            <tr><td>名称</td><td>{{ DetailDict.name }}</td></tr>
+            <tr><td>编号</td><td>{{ DetailDict.id }}</td></tr>
+            <tr><td>创建者</td><td>{{ DetailDict.owner.username }}</td></tr>
+            <tr><td>创建时间</td><td>{{ DetailDict.created_at|date:"Y-m-d H:i" }}</td></tr>
+            <tr><td>更新时间</td><td>{{ DetailDict.updated_at|date:"Y-m-d H:i" }}</td></tr>
+            <tr><td>状态</td><td>{{ DetailDict.status }}</td></tr>
+            <tr><td>系统类型</td><td>{{ DetailDict.os }}</td></tr>
+            <tr><td>共享的</td><td>{{ DetailDict.is_shared }}</td></tr>
+            <tr><td>描述</td><td>{{ DetailDict.desc }}</td></tr>
+        </table>
 
-            </div>
-            <div class="summary">
-                min_disk：{{ DetailDict.min_disk}}
-            </div>
-            <div class="summary">
-                min_ram：{{ DetailDict.min_ram }}
-            </div>
-            <div class="summary">
-                is_shared：{{ DetailDict.is_shared }}
-            </div>
-            <div class="summary">
-                镜像描述：{{ DetailDict.desc }}
-            </div>
+        <h2>规格</h2>
+        <table cellpadding="5">
+            <tr><td>大小</td><td>{{ DetailDict.size }}</td></tr>
+            <tr><td>格式</td><td>{{ DetailDict.disk_format }}</td></tr>
+        </table>
 
-
-        </div>
     </div>
 
 </body>

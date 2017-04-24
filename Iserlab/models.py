@@ -139,6 +139,8 @@ class VMImage(models.Model):
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(auto_now=True, null=True,editable=True)
     path=models.CharField(max_length=300,null=True,blank=True)
+    os = models.CharField(max_length=30,null=True,blank=True)
+    disk_format=models.CharField(max_length=20,default="QCOW2")
 
     def __unicode__(self):
         return u'name=%s,creater=%s' % (self.name,self.owner)
@@ -200,7 +202,8 @@ class Experiment(models.Model):
     exp_description = models.TextField(blank = True,max_length=500)
     exp_createtime = models.DateTimeField(auto_now_add = True,editable = True)
     exp_updatetime = models.DateTimeField(auto_now = True,blank = True)#the default value is equal to created_time
-    exp_owner = models.ForeignKey(User)
+    exp_owner = models.ForeignKey(User,null=True)
+    owner_name = models.CharField(max_length=50, null=True, blank=True)
     exp_images = models.ManyToManyField(VMImage)#???
     exp_image_count = models.IntegerField(null=True,blank=True)
     exp_network = models.ManyToManyField(Network)
@@ -268,6 +271,7 @@ class VM(models.Model):
     name = models.CharField(max_length=100)
     desc = models.TextField(max_length=500,null=True,blank=True)
     owner = models.ForeignKey(User,null=True)
+    owner_name = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True,blank=True,editable=True)
     updated_at = models.DateTimeField(auto_now=True, null=True,blank=True,editable=True)
     exp = models.ForeignKey(Experiment)
@@ -315,7 +319,8 @@ class ExpInstance(models.Model):
     owner_name = models.CharField(max_length=50)
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    instance_status = models.CharField(max_length=20, null=True, blank=True, default='UNLAUNCHED')  # LAUNCHED
+    instance_status = models.CharField(max_length=20, null=True, blank=True, default='UNCHEDED')
+    # ACTIVE,SHUTOFF,PAUSED,SUSPENDED
     score_id = models.IntegerField(null=True,blank=True)#if the user is a student, please fill this field
 
     def __unicode__(self):
@@ -348,8 +353,27 @@ class Score(models.Model):
     # instance_status = models.CharField(max_length=20,null=True,blank=True,default='UNLAUNCHED')#LAUNCHED
 
 
+class NetworkInstance(models.Model):
+    name = models.CharField(max_length=100)
+    owner_name = models.CharField(max_length=50, null=True, blank=True)
+    createtime = models.DateTimeField(auto_now_add=True)
+    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
+    network = models.ForeignKey(Network)
+    belong_exp_instance_id = models.IntegerField(null=True, blank=True)
+    # exp_instance = models.ForeignKey(Score)
 
+    network_instance_id = models.CharField(max_length=50, null=True, blank=True)
+    subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
+    tenant_id = models.CharField(max_length=50, null=True, blank=True)
+    status = models.CharField(max_length=20, null=True, blank=True)
+    allocation_pools_start = models.CharField(max_length=20, null=True, blank=True)
+    allocation_pools_end = models.CharField(max_length=20, null=True, blank=True)
 
+    def __unicode__(self):
+        return u'name=%s,creator=%s,created=%s' % (self.name, self.owner_name, self.createtime)
+
+    class Meta:
+        ordering = ['-createtime']
 
 
 #The db table used to store VM instance contained in the exp(data from openstack)
@@ -365,8 +389,9 @@ class VMInstance(models.Model):
     server_id = models.CharField(max_length = 100)
     status = models.CharField(max_length = 20)#ERROR, ACTIVE,Shutoff,Suspended,Paused
     ip = models.CharField(max_length = 20,null=True,blank = True)
-    vncurl = models.URLField(max_length=200,null=True)
+    vncurl = models.URLField(max_length=200,null=True,blank=True)
     result_image = models.IntegerField(max_length=100,null=True,blank=True)
+    connect_net = models.ForeignKey(NetworkInstance,null=True)
 
     def __unicode__(self):
         return self.name
@@ -376,27 +401,7 @@ class VMInstance(models.Model):
 
 
 
-class NetworkInstance(models.Model):
-    name = models.CharField(max_length=100)
-    owner_name = models.CharField(max_length=50,null=True,blank=True)
-    createtime = models.DateTimeField(auto_now_add=True)
-    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    network = models.ForeignKey(Network)
-    belong_exp_instance_id = models.IntegerField(null=True, blank=True)
-    # exp_instance = models.ForeignKey(Score)
-    # after finishing creation, fill below fields
-    network_instance_id = models.CharField(max_length=50, null=True, blank=True)
-    subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
-    tenant_id = models.CharField(max_length=50, null=True, blank=True)
-    status = models.CharField(max_length=20,null=True,blank=True)
-    allocation_pools_start = models.CharField(max_length=20,null=True,blank=True)
-    allocation_pools_end = models.CharField(max_length=20, null=True, blank=True)
 
-    def __unicode__(self):
-        return u'name=%s,creator=%s,created=%s' % (self.name, self.owner_name, self.createtime)
-
-    class Meta:
-        ordering = ['-createtime']
 
 
 class RouterInstance(models.Model):

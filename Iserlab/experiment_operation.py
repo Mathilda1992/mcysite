@@ -92,7 +92,6 @@ def view_experiment_detail(experiment_id):
     edict['VM_count']=e.VM_count
     VMList = VM.objects.filter(exp=e).order_by('-created_at')
     edict['VMList']=VMList
-
     # print edict
     # for key,value in edict.items():
     #     print 'key=%s,value=%s' % (key,value)

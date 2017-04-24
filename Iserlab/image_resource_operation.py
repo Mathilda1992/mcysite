@@ -92,6 +92,8 @@ def extract_image(item):
     dict.setdefault("vm_mode",item.vm_mode)
     dict.setdefault("vmware_adaptertype",item.vmware_adaptertype)
     dict.setdefault("vmware_ostype",item.vmware_ostype)
+    print item.size
+    print
     return dict
 
     # -----------result of dir(image): all attrs of Image object-----------------------------

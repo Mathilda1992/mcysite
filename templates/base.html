@@ -22,7 +22,9 @@
             padding-left: 50px;
         }
     </style>
-<!--[if lt IE 9]>
+{% block head %}
+{% endblock %}
+    <!--[if lt IE 9]>
 	<script src="https://apps.bdimg.com/libs/html5shiv/3.7/html5shiv.min.js"></script>
 <![endif]-->
 </head>
@@ -68,6 +70,9 @@
        					<li><a href="/exp_home/">实验列表</a></li>
 						<li><a href="/exp_create/" target="_blank">创建实验</a></li>
                         <li><a href="/exp_instance_list/" target="_blank">实验实例列表</a></li>
+                        <li><a href="/vm_instance_list/" target="_blank">主机实例列表</a></li>
+                        <li><a href="/net_instance_list/" target="_blank">网络实例列表</a></li>
+
       				</ul>
     			</li>
 				<li class="dropdown">
@@ -99,7 +104,7 @@
             				<a role="menuitem" tabindex="-1" href="/repo_create_network/" target="_blank">创建网络</a>
         				</li>
                         <li role="presentation">
-            				<a role="menuitem" tabindex="-1" href="/repo_private_VM_list/">我的虚拟机资源</a>
+            				<a role="menuitem" tabindex="-1" href="/repo_private_VM_list/">我的主机资源</a>
         				</li>
                         <li role="presentation" class="divider"></li>
         				<li role="presentation" class="dropdown-header">购物车</li>

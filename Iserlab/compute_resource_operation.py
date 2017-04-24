@@ -12,8 +12,6 @@
 
 import os
 
-def extract_server2(item):
-    return item._attrs
 
 def extract_server(item):
     # print(dir(item))
@@ -22,6 +20,7 @@ def extract_server(item):
     dict.setdefault("access_ipv6",item.access_ipv6)#
     dict.setdefault("add_security_group",item.add_security_group)
     dict.setdefault("addresses", item.addresses)#
+    #return ::: {u'mcy-network222': [{u'OS-EXT-IPS-MAC:mac_addr': u'fa:16:3e:ed:5b:26', u'version': 4, u'addr': u'10.0.5.64', u'OS-EXT-IPS:type': u'fixed'}]}
     dict.setdefault("admin_password", item.admin_password)
     dict.setdefault("allow_create",item.allow_create)
     dict.setdefault("allow_delete",item.allow_delete)
@@ -89,7 +88,6 @@ def extract_server(item):
     dict.setdefault("user_data",item.user_data)
     dict.setdefault("user_id",item.user_id)
     dict.setdefault("vm_state",item.vm_state)
-    print dict['id']
     return dict
 
 #--------------result of dir(object):all function an attrs of the Server object-------------------

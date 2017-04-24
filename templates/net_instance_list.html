@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="header">
+        <h1 align="center">网络实例列表</h1>
+    </div>
+
+    {% for item in NetworkInstanceList %}
+        <div align="center" class="blog">
+            <div class="title">
+                <h2><a href="{% url 'exp_instance_detail' item.id %}" target="_blank">{{ item.id }}</a>：<a href="{% url 'exp_instance_detail' item.id %}" target="_blank">{{ item.name }}</a></h2>
+                <a href="{% url 'net_instance_detail' item.id %}" target="_blank">查看详情</a>|
+                <a href="{% url 'net_instance_edit' item.id %}" target="_blank">编辑网络实例</a>|
+                <a href="{% url 'net_instance_save' item.id %}" target="_blank">保存为模板</a>|
+                <a href="{% url 'net_instance_delete' item.id %}" target="_blank">删除实例</a>
+            </div>
+        <div class="info">
+            <span class="catagory" style="color: #ff9900;">所属实验实例：{{ item.belong_exp_instance_id }}</span>
+            <span class="catagory" style="color: #ff9900;">网络模板源：{{ item.network.network_name }}</span>
+            <span class="author" style="color: #4a86e8;">创建者：{{ item.owner_name }}</span>
+            <span class="catagory" style="color: #ff9900;">CIDR：{{ item.network.cidr }}</span>
+            <span class="created" style="color: #6aa84e;">创建时间：{{ item.createtime |date:"Y-m-d H:i" }}</span>
+            <span class="created" style="color: #6aa84e;">更新时间：{{ item.updatetime |date:"Y-m-d H:i" }}</span>
+            <span class="catagory" style="color: #ff9900;">实例状态：{{ item.status }}</span>
+            <span class="catagory" style="color: #ff9900;">网络ID：{{ item.network_instance_id }}</span>
+
+        </div>
+        <div class="summary">
+            {{ item.desc | truncatechars:100 }}
+        </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}
+
+
+

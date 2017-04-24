@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 #This page just include those data wanted to be show on home.html
+import json
 from django.contrib import messages
 from django.shortcuts import render,render_to_response
 from django.http import HttpResponse,Http404
@@ -1647,6 +1648,11 @@ def group_view(request,group_id):
 
     #output the group detail-----------------------------UI--------------------------
     c = {}
+    c['role'] = request.session['role']
+    c['username'] = request.session['username']
+    c['hello'] = 'welcome to our platfowm'
+    c['currentTime'] = showTime.formatTime2()
+    c['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
     c['G_Detail_Dict']=G_Detail_Dict
     return render(request,'group_detail.html',c)
 
@@ -2637,6 +2643,7 @@ def exp_delete(request,exp_id):
 
 
 #teacher and stu different
+
 def exp_detail(request,exp_id):
     try:
         e = Experiment.objects.get(id=exp_id)
@@ -2649,7 +2656,48 @@ def exp_detail(request,exp_id):
     c = {}
     c['username']=request.session['username']
     c['E_Detail_Dict'] = E_Detail_Dict
-    return render(request, 'exp_detail.html', c)
+    images = e.exp_images.all()
+    vms = VM.objects.filter(exp=e)
+    networks = e.exp_network.all()
+
+    topo_ndict = {}
+    count = 0
+    topo_info = '{"nodes":['
+    for vm in vms:
+        count = count + 1
+        topo_info = topo_info + '{"name":"' + vm.name + '","id":' + str(count) + '},'
+        topo_ndict[vm.name] = count
+    for network in networks:
+        count = count + 1
+        topo_info = topo_info + '{"name":"' + network.network_name + '","id":' + str(count) + '},'
+        topo_ndict[network.network_name] = count
+    count = count + 1
+    topo_info = topo_info + '{"name":"Router","id":' + str(count) + ',"x":-100,"y":-50}], "edges": ['
+    topo_ndict['router'] = count
+
+    count = 0
+    for vm in vms:
+        count = count + 1
+        if count != 1:
+            topo_info = topo_info + ','
+        topo_info = topo_info + '{"name":"edge' + str(count) + '","from":' + str(topo_ndict[vm.name]) + ',"to":' + str(
+            topo_ndict[vm.network.network_name]) + '}'
+    for network in networks:
+        count = count + 1
+        if count != 1:
+            topo_info = topo_info + ','
+        topo_info = topo_info + '{"name":"edge' + str(count) + '","from":' + str(
+            topo_ndict[network.network_name]) + ',"to":' + str(topo_ndict['router']) + '}'
+
+    topo_info = topo_info + ']}'
+    Topo = []
+    Topo.append(topo_info)
+
+    #  Topo=['{"nodes":[{"name": "C", "id": 3},{"name": "A", "x": -100, "y": -50, "id": 1}, {"name": "B", "id": 2}], "edges": [{"name": "Edge", "from":1, "to":2}]}']
+
+    # ly topo 2017/4/6    return render(request, 'exp_detail.html',{'Topo':json.dumps(Topo),'c':c})
+    return render(request, 'exp_detail.html', {'Topo': json.dumps(Topo), 'c': c})
+    #return render(request, 'exp_detail.html', c)
 
 
 
@@ -2708,23 +2756,19 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
         flavor_name = 'm1.tiny'
         network_name = item.network.network_name# should find the net instance
         private_keypair_name = 'mykey'
-        print 'before into ******'
         vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,network_name, private_keypair_name)
         print "here is vms &&&&&&&&&"
         print vm_instance['id']
         new_vmInstance = VMInstance(name=item.name, owner_name=username, vm=item, belong_exp_instance_id=new_expInstance.id,
-                                    server_id=vm_instance['id'], status='ACTIVE')
+                                    server_id=vm_instance['id'], status=vm_instance['status'])
         new_vmInstance.save()
     print "--------VM create complete-------"
 
     #if both network and VMs create successfully, should update the status of ExpInstance
     re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE")
-    c = {}
-    c['netDict']=''
-    c['routerDict']=''
-    c['vmDict']=''
 
-    return render(request,'exp_launch.html',c)
+    return HttpResponseRedirect('/exp_instance_list/')
+
 
 
 
@@ -2904,9 +2948,100 @@ def exp_instance_list(request):
     return render(request,'exp_instance_list.html',context)
 
 
+#only teacher has
+def vm_instance_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
 
-def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info
+    username = request.session['username']
+    VMInstanceList = VMInstance.objects.filter(owner_name = username).order_by('-createtime')
+    context['VMInstanceList'] = VMInstanceList
+    return render(request,'vm_instance_list.html',context)
+
+
+
+
+def vm_instance_goto(request,v_id):
     pass
+
+def vm_instance_save(request,v_id):
+    pass
+
+def vm_instance_delete(request,v_id):
+    pass
+
+def net_instance_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
+    username = request.session['username']
+    NetworkInstanceList = NetworkInstance.objects.filter(owner_name=username).order_by('-createtime')
+    context['NetworkInstanceList'] = NetworkInstanceList
+    return render(request, 'net_instance_list.html', context)
+
+def net_instance_detail(request,n_id):
+
+    pass
+
+def net_instance_edit(request,n_id):
+    pass
+
+def net_instance_save(request,n_id):
+    pass
+
+def net_instance_delete(request,n_id):
+    pass
+
+
+#teacher and student diff
+def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info detail
+    try:
+        ei = ExpInstance.objects.get(id=exp_i_id)
+    except ExpInstance.DoesNotExist:
+        raise Http404
+    ei_dict={}
+    ei_dict['id']=ei.id
+    ei_dict['name']=ei.name
+    ei_dict['exp']=ei.exp
+    ei_dict['owner_name']=ei.owner_name
+    ei_dict['createtime']=ei.createtime
+    ei_dict['updatetime']=ei.updatetime
+    ei_dict['instance_status']=ei.instance_status
+    ei_dict['score_id']=ei.score_id#only student use this field
+
+    #get all net instance of the exp instance
+    niList = NetworkInstance.objects.filter(belong_exp_instance_id=exp_i_id)
+    #get all vm instance of the exp instance
+    viList = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
+    print viList
+
+    ei_dict['net_instances'] = niList
+    ei_dict['vm_instances'] = viList
+
+    c = {}
+    c['username']=request.session['username']
+    c['role']=request.session['role']
+    c['E_I_Detail_Dict'] = ei_dict
+    return render(request,'exp_instance_detail.html',c)
+
+
+def vm_instance_detail(request,v_id):
+    try:
+        vi = VMInstance.objects.get(id=v_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
+    vi_dict={}
+    
+    pass
+
 
 def exp_instance_goto(request,exp_i_id):#make user login the operate server
     pass
