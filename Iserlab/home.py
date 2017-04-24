@@ -2598,6 +2598,34 @@ def exp_detail(request,exp_id):
     c['E_Detail_Dict'] = E_Detail_Dict
     return render(request, 'exp_detail.html', c)
 
+def delivery_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
+    username = request.session['username']
+    teacher = User.objects.get(username=username)
+    DeliveryList = Delivery.objects.filter(teacher=teacher).order_by('-delivery_time')
+    context['DeliveryList'] = DeliveryList
+    return render(request, 'delivery_list.html', context)
+
+
+def exp_instance_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
+    username = request.session['username']
+    ExpInstanceList = ExpInstance.objects.filter(owner_name = username).order_by('-createtime')
+    context['ExpInstanceList'] = ExpInstanceList
+    return render(request,'exp_instance_list.html',context)
+
 
 #teacher
 def exp_launch(request,exp_id):# in fact, it create ExpInstance
@@ -2644,36 +2672,48 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
         print router.name
         print router.routerIntance_id
         r = network_resource_operation.add_interface_to_router(conn,router.routerIntance_id,new_net.subnet_instance_id)
+    print "--------net create complete-------"
 
     # launch VM , insert into VMInstance
     vms = e.vm_set.all()  # 需要用foreignkey功能的话需要在VM的model中加入related_name
     for item in vms:
         server_name = item.name
-        image_name = 'cirros'
+        image_name = item.image.name
         flavor_name = 'm1.tiny'
         network_name = item.network.network_name# should find the net instance
         private_keypair_name = 'mykey'
         print 'before into ******'
-        vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,network_id, private_keypair_name)
-        return HttpResponse('VM create Success!')
-
-        # vm_instance = compute_resource_operation.create_server2(conn, item.name, item.image.name, item.flavor,
-        #                                                         item.network.network_name, item.keypair)
+        vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,network_name, private_keypair_name)
         print "here is vms &&&&&&&&&"
         print vm_instance['id']
         new_vmInstance = VMInstance(name=item.name, owner_name=username, vm=item, belong_exp_instance_id=new_expInstance.id,
                                     server_id=vm_instance['id'], status='ACTIVE')
         new_vmInstance.save()
+    print "--------VM create complete-------"
 
-
-
-
+    #if both network and VMs create successfully, should update the status of ExpInstance
+    re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE")
     c = {}
     c['netDict']=''
     c['routerDict']=''
     c['vmDict']=''
 
     return render(request,'exp_launch.html',c)
+
+
+def exp_unlaunch(request,score_id):
+    #delete VM
+
+    #delete interface
+
+    #delete network
+
+    #delete gateway
+
+    #delete router
+    pass
+
+
 
 #when stu launch and teacher check exp result, use this function
 def exp_score_launch1(request,score_id):

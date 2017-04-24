@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <div class="header">
+        <h1 align="center">实验实例</h1>
+    </div>
+
+    {% for item in DeliveryList %}
+        <div align="center" class="blog">
+            <div class="title">
+                <h2><a href="{% url 'delivery_detail' item.id %}" target="_blank">{{ item.id }}</a>：<a href="{% url 'delivery_detail' item.id %}" target="_blank">{{ item.name }}</a></h2>
+                <a href="{% url 'delivery_detail' item.id %}" target="_blank">详情</a>|
+                <a href="{% url 'delivery_edit' item.id %}" target="_blank">编辑</a>|
+                <a href="{% url 'delivery_delete' item.id %}" >删除</a>
+
+            </div>
+        <div class="info">
+            <span class="catagory" style="color: #ff9900;">实验名称：{{ item.exp.exp_name }}</span>
+            <span class="author" style="color: #4a86e8;">分发群组：{{ item.group.name }}</span>
+            <span class="created" style="color: #6aa84e;">分发日期：{{ item.delivery_time |date:"Y-m-d H:i" }}</span>
+
+        </div>
+        <div class="summary">
+            {{ item.desc | truncatechars:100 }}
+        </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}
+
+
+

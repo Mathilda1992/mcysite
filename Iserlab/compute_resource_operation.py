@@ -281,19 +281,19 @@ def create_server(conn,server_name,image_name,flavor_name,network_name,private_k
 
 
 
-def create_server2(conn,server_name,image_name,flavor_name,network_id,private_keypair_name):
+def create_server2(conn,server_name,image_name,flavor_name,network_name,private_keypair_name):
     print("Create Server:")
     image = conn.compute.find_image(image_name)
-    print image.id
+    # print image.id
     flavor = conn.compute.find_flavor(flavor_name)
-    print flavor.id
-    # network = conn.network.find_network(network_id)
+    # print flavor.id
+    network = conn.network.find_network(network_name)
     # print network.id
     keypair = conn.compute.find_keypair(private_keypair_name)
-    print keypair.id
+    # print keypair.id
     server = conn.compute.create_server(
         name=server_name, image_id=image.id, flavor_id=flavor.id,
-        networks=[{"uuid": network_id}], key_name=keypair.name)
+        networks=[{"uuid": network.id}], key_name=keypair.name)
 
     server = conn.compute.wait_for_server(server)
 
