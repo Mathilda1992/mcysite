@@ -72,7 +72,7 @@ def view_experiment_detail(experiment_id):
     edict={'id':experiment_id}
     ##edict={}.fromkeys('id','name','owner','imageCount','imagelist','network','is_shared','description')
     edict['exp_name'] = e.exp_name
-    edict['exp_owner'] = e.exp_owner
+    edict['exp_owner_name'] = e.exp_owner_name
     edict['exp_createtime']=e.exp_createtime
     edict['exp_updatetime']=e.exp_updatetime
     edict['exp_image_count'] = e.exp_image_count
@@ -85,10 +85,7 @@ def view_experiment_detail(experiment_id):
     deliverys = Delivery.objects.filter(exp=e, teacher=e.exp_owner).order_by('-delivery_time')
     edict['delivery_history'] = deliverys
     edict['exp_description'] = e.exp_description
-    # edict['exp_guide'] = e.exp_guide
     edict['exp_guide_path']=e.exp_guide_path
-    # edict['exp_result'] =e.exp_result
-    # edict['exp_reportDIR']=e.exp_reportDIR
     edict['VM_count']=e.VM_count
     VMList = VM.objects.filter(exp=e).order_by('-created_at')
     edict['VMList']=VMList

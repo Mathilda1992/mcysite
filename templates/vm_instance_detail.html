@@ -6,5 +6,37 @@
 </head>
 <body>
 
+    <div class="header">
+        <h1>主机详情:{{ DetailDict.name }}</h1>
+        <div>
+            {% ifequal username DetailDict.owner.username %}
+                <a href="{% url 'vm_instance_goto' DetailDict.id %}" target="_blank">进入主机</a>
+                |<a href="javascript:window.opener=null;window.open('','_self');window.close()" >关闭</a>
+            {% endifequal %}
+        </div>
+    </div>
+
+    <div class="content">
+        <h2>主机概述</h2>
+        <table cellpadding="5">
+            <tr><td>名称</td><td>{{ DetailDict.name }}</td></tr>
+            <tr><td>编号</td><td>{{ DetailDict.id }}</td></tr>
+            <tr><td>创建者</td><td>{{ DetailDict.owner_name }}</td></tr>
+            <tr><td>创建时间</td><td>{{ DetailDict.created_at|date:"Y-m-d H:i" }}</td></tr>
+            <tr><td>更新时间</td><td>{{ DetailDict.updated_at|date:"Y-m-d H:i" }}</td></tr>
+            <tr><td>所属实验</td><td>{{ DetailDict.belong_exp_instance_id }}</td></tr>
+            <tr><td>状态</td><td>{{ DetailDict.status}}</td></tr>
+            <tr><td>主机描述</td><td>{{ DetailDict.vm.desc }}</td></tr>
+        </table>
+
+        <h2>云中虚拟机资源</h2>
+        <table cellpadding="5">
+            <tr><td>主机ID</td><td>{{ DetailDict.server_id}}</td></tr>
+            <tr><td>所用镜像</td><td>{{ DetailDict.vm.image.name }}({{ DetailDict.vm.image.image_id }})</td></tr>
+            <tr><td>所连网络</td><td>{{ DetailDict.connect_net.name}}({{ DetailDict.connect_net.network.cidr }})</td></tr>
+
+        </table>
+    </div>
+
 </body>
 </html>

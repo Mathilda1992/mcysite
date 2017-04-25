@@ -24,7 +24,7 @@ class GroupAdmin(admin.ModelAdmin):
 
 #
 class ExperimentAdmin(admin.ModelAdmin):
-    list_display = ('id','exp_name','exp_owner','is_shared','exp_image_count','exp_createtime','exp_updatetime',)
+    list_display = ('id','exp_name','exp_owner_name','is_shared','exp_image_count','exp_createtime','exp_updatetime',)
     filter_horizontal = ('exp_images','exp_network',)
 
     #ERRORS:
@@ -33,12 +33,12 @@ class ExperimentAdmin(admin.ModelAdmin):
 
 
 class VMImageAdmin(admin.ModelAdmin):
-    list_display = ('id','image_id','name','owner','own_project','is_public',)
+    list_display = ('id','image_id','name','owner_name','own_project','is_public',)
     filter_horizontal = ('tags',)
 
 
 class NetworkAdmin(admin.ModelAdmin):
-    list_display = ('id','network_name','subnet_name','cidr','owner','is_shared','created_at',)
+    list_display = ('id','network_name','subnet_name','cidr','owner_name','is_shared','created_at',)
 
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name','createtime')
@@ -52,7 +52,7 @@ class SocreAdmin(admin.ModelAdmin):
     list_display = ('id','exp','stu','createTime','situation','finishedTime','score','scoreTime')
 
 class VMAdmin(admin.ModelAdmin):
-    list_display = ('id','owner','exp','image','network','created_at')
+    list_display = ('id','owner_name','exp','image','network','created_at')
 
 class ExpInstanceAdmin(admin.ModelAdmin):
     list_display = ('id','owner_name','exp','createtime','instance_status')
@@ -68,6 +68,12 @@ class RouterInstanceAdmin(admin.ModelAdmin):
 
 class PortInstanceAdmin(admin.ModelAdmin):
     list_display = ('id','owner_username','status','device_owner','network_id','ip_address','portInstance_id')
+
+# class TempExpAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'exp_name', 'exp_owner_name', 'is_shared', 'exp_image_count', 'exp_createtime', 'exp_updatetime')
+#
+# class TempGroupAdmin(admin.ModelAdmin):
+#     list_display = ('id', 'name', 'teacher', 'stuCount', 'created_at',)
 #
 
 admin.site.register(User,UserAdmin)
@@ -88,5 +94,9 @@ admin.site.register(RouterInstance,RouterInstanceAdmin)
 admin.site.register(PortInstance,PortInstanceAdmin)
 admin.site.register(ExpInstance,ExpInstanceAdmin)
 
-admin.site.register(TempExp)
-admin.site.register(TempGroup)
+# admin.site.register(TempExp,TempExpAdmin)
+# admin.site.register(TempGroup,TempGroupAdmin)
+
+admin.site.register(MyTempExp)
+admin.site.register(MyTempGroup)
+

@@ -67,6 +67,10 @@ def clear_NetworkInstance_db(request):
 def clear_VMInstance_db(request):
     result = VMInstance.objects.all().delete()
     return HttpResponse("clear VMInstance in db")
+
+def clear_Scores_db(request):
+    Score.objects.all().delete()
+    return HttpResponse("clear Scores in db")
 #----------------------
 
 
@@ -109,7 +113,7 @@ def exp_home(request):
     role = request.session['role']
     if role=='teacher':
         teacher = User.objects.get(username=username)
-        ExpList = Experiment.objects.filter(exp_owner=teacher).order_by('-exp_createtime')
+        ExpList = Experiment.objects.filter(exp_owner_name=username).order_by('-exp_createtime')
         # print dir(ExpList[0])
         context['ExpList'] = ExpList
 
@@ -254,84 +258,11 @@ def delivery_edit(request,d_id):
     return render_to_response("delivery_edit.html",{'rf':gf})
 
 #mcy and qinli try on 2017-4-24 with ModleForm
-def delivery_create(request):
-    username = request.session['username']
-    teacher = User.objects.get(username=username)
-    if request.method =='POST':
-        rf = AddDeliveryForm(request.POST)
-        print "####"
-        if rf.is_valid():
-            print "******"
-            #get data from the form
-            name = rf.cleaned_data['name']
-            desc = rf.cleaned_data['desc']
-            elist = rf.cleaned_data['exp']
-            glist = rf.cleaned_data['group']
-            startDateTime = rf.cleaned_data['startDateTime']
-            endDateTime = rf.cleaned_data['endDateTime']
-            #prepare other required data
-
-            delivery_time = datetime.datetime.now()
-
-            expList =[]
-            for item in elist:
-                expList.append(Experiment.objects.get(exp_name=item.exp_name))
-            groupList = []
-            for item in glist:
-                groupList.append((Group.objects.get(name=item.name)))
-
-            # insert into db:delivery
-            for i in range(0,len(expList)):
-                for j in range(0,len(groupList)):
-                    stulist = groupList[j].student.all()
-                    d = Delivery(name=name,desc=desc,delivery_time=delivery_time,teacher=teacher,
-                                 start_time=startDateTime,stop_time=endDateTime,
-                                 exp=expList[i],group=groupList[j],total_stu=len(stulist))
-                    d.save()
-            #insert into db:score
-            d_List = Delivery.objects.filter(name=name,teacher=teacher)
-            for i in range(0,len(d_List)):
-                stulist = d_List[i].group.student.all()
-                for j in range(0,len(stulist)):#insert a record into score db for every stu
-                    new_score = Score(exp=d_List[i].exp,stu=stulist[j],scorer= teacher,delivery_id=d_List[i].id)
-                    print new_score
-                    new_score.save()
-        return HttpResponseRedirect('/delivery_list/')
-    else:
-        rf = AddDeliveryForm()
-        rf.base_fields['exp'].queryset = Experiment.objects.filter(exp_owner=teacher)
-        rf.base_fields['group'].queryset = Group.objects.filter(teacher = teacher)
-    return render_to_response("delivery_create.html",{'rf':rf})
-
-
-
-
-# def delivery_create(request): # by mcy
+# def delivery_create(request):
 #     username = request.session['username']
 #     teacher = User.objects.get(username=username)
-#     eQuerySet = Experiment.objects.filter(exp_owner=teacher)
-#     gQuerySet = Group.objects.filter(teacher=teacher)
-#
-#     # clear the TempExp
-#     TempExp.objects.all().delete()
-#     #insert into TempExp
-#     EList= Experiment.objects.filter(exp_owner=teacher)
-#     for item in EList:
-#         new = TempExp(exp_name=item.exp_name,exp_description=item.exp_description,exp_owner=item.exp_owner,exp_image_count=item.exp_image_count,
-#                        exp_guide=item.exp_guide,exp_result=item.exp_result,exp_guide_path=item.exp_guide_path)
-#         new.save()
-#
-#
-#     #clear the TempGroup
-#     TempGroup.objects.all().delete()
-#     #insert into TempGroup
-#     GList=Group.objects.filter(teacher=teacher)
-#     for item in GList:
-#         new = TempGroup(name=item.name, desc=item.desc, teacher=item.teacher, stuCount=item.stuCount)
-#         new.save()
-#
 #     if request.method =='POST':
-#         rf = CreateDeliveryForm(request.POST)
+#         rf = AddDeliveryForm(request.POST)
 #         print "####"
 #         if rf.is_valid():
 #             print "******"
@@ -371,24 +302,89 @@ def delivery_create(request):
 #                     new_score.save()
 #         return HttpResponseRedirect('/delivery_list/')
 #     else:
-#         rf = CreateDeliveryForm()
+#         rf = AddDeliveryForm()
+#         rf.base_fields['exp'].queryset = Experiment.objects.filter(exp_owner_name=username)
+#         rf.base_fields['group'].queryset = Group.objects.filter(teacher = teacher)
 #     return render_to_response("delivery_create.html",{'rf':rf})
+
+
+
+
+def delivery_create(request): # by mcy using MyTempExp and MyTempGroup 2017-4-25
+    username = request.session['username']
+    teacher = User.objects.get(username=username)
+
+    if request.method =='POST':
+        rf = AddDeliveryForm(request.POST)
+        if rf.is_valid():
+            #get data from the form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            e_idlist = rf.cleaned_data['exp']#this is MyTempExp id
+            g_idlist = rf.cleaned_data['group']#this is MyTempGroup id
+            startDateTime = rf.cleaned_data['startDateTime']
+            endDateTime = rf.cleaned_data['endDateTime']
+            #prepare other required data
+
+            delivery_time = datetime.datetime.now()
+
+            expList =[]#should be actual Exp in Experiment
+            for i in e_idlist:
+                temp_exp = MyTempExp.objects.get(id=i)
+                expList.append(Experiment.objects.get(id=temp_exp.exp.id))
+            groupList = []#should be actual Group in Group
+            for i in g_idlist:
+                temp_group = MyTempGroup.objects.get(id=i)
+                groupList.append(Group.objects.get(id=temp_group.group.id))
+
+            # insert into db:delivery
+            for i in range(0,len(expList)):
+                for j in range(0,len(groupList)):
+                    stulist = groupList[j].student.all()
+                    d = Delivery(name=name,desc=desc,delivery_time=delivery_time,teacher=teacher,
+                                 start_time=startDateTime,stop_time=endDateTime,
+                                 exp=expList[i],group=groupList[j],total_stu=len(stulist))
+                    d.save()
+            #insert into db:score
+            d_List = Delivery.objects.filter(name=name,teacher=teacher)
+            for i in range(0,len(d_List)):
+                stulist = d_List[i].group.student.all()
+                for j in range(0,len(stulist)):#insert a record into score db for every stu
+                    new_score = Score(exp=d_List[i].exp,stu=stulist[j],scorer= teacher,delivery_id=d_List[i].id)
+                    new_score.save()
+        return HttpResponseRedirect('/delivery_list/')
+    else:
+        # clear the MyTempExp
+        MyTempExp.objects.all().delete()
+        # insert into MyTempExp
+        EList = Experiment.objects.filter(exp_owner_name=username)
+        for item in EList:
+            new = MyTempExp(teacher=teacher, exp=item)
+            new.save()
+        # clear the MyTempGroup
+        MyTempGroup.objects.all().delete()
+        # insert into MyTempGroup
+        GList = Group.objects.filter(teacher=teacher)
+        for item in GList:
+            new = MyTempGroup(teacher=teacher, group=item)
+            new.save()
+        rf = AddDeliveryForm()
+    return render_to_response("delivery_create.html",{'rf':rf})
 
 
 # #mcy and qinli try on 2017-3-19
 # def delivery_create(request):
 #     username = request.session['username']
 #     teacher = User.objects.get(username=username)
-#     # eQuerySet = Experiment.objects.filter(exp_owner=teacher)
+#     # eQuerySet = Experiment.objects.filter(exp_owner_name=username)
 #     # gQuerySet = Group.objects.filter(teacher=teacher)
 #
-#     # # clear the TempExp
-#     # TempExp.objects.all().delete()
-#     # #insert into TempExp
-#     # EList= Experiment.objects.filter(exp_owner=teacher)
+#     # # clear the MyTempExp
+#     # MyTempExp.objects.all().delete()
+#     # #insert into MyTempExp
+#     # EList= Experiment.objects.filter(exp_owner_name=username)
 #     # for item in EList:
-#     #     new = TempExp(exp_name=item.exp_name,exp_description=item.exp_description,exp_owner=item.exp_owner,exp_image_count=item.exp_image_count,
-#     #                    exp_guide=item.exp_guide,exp_result=item.exp_result,exp_guide_path=item.exp_guide_path)
+#     #     new = MyTempExp(teacher=teacher,exp=item)
 #     #     new.save()
 #     #
 #     #
@@ -452,12 +448,12 @@ def delivery_create(request):
 #     username = request.session['username']
 #     teacher = User.objects.get(username=username)
 #
-#     #clear the TempExp
-#     TempExp.objects.all().delete()
-#     #insert into TempExp
-#     EList= Experiment.objects.filter(exp_owner=teacher)
+#     #clear the MyTempExp
+#     MyTempExp.objects.all().delete()
+#     #insert into MyTempExp
+#     EList= Experiment.objects.filter(exp_owner_name=username)
 #     for item in EList:
-#         new = TempExp(name=item.exp_name,owner=teacher)
+#         new = MyTempExp(teacher=teacher,exp=item)
 #         new.save()
 #
 #     #clear the TempGroup
@@ -1246,7 +1242,7 @@ def repo_private_exp_list(request):
 
     username = request.session['username']
     teacher = User.objects.get(username=username)
-    PrivateExpList = Experiment.objects.filter(exp_owner=teacher).order_by('-exp_createtime')
+    PrivateExpList = Experiment.objects.filter(exp_owner_name=username).order_by('-exp_createtime')
     context['PrivateExpList'] = PrivateExpList
     return render(request,"repo_private_exp_list.html",context)
 
@@ -1262,7 +1258,7 @@ def repo_private_image_list(request):
 
     username = request.session['username']
     t = User.objects.get(username=username)
-    PrivateImageList = VMImage.objects.filter(owner=t).order_by('-created_at')
+    PrivateImageList = VMImage.objects.filter(owner_name=username).order_by('-created_at')
     context['PrivateImageList']=PrivateImageList
     return render(request,"repo_private_image_list.html",context)
 
@@ -1278,7 +1274,7 @@ def repo_private_network_list(request):
 
     username = request.session['username']
     t = User.objects.get(username=username)
-    NetList = Network.objects.filter(owner=t).order_by('-created_at')
+    NetList = Network.objects.filter(owner_name=username).order_by('-created_at')
     context['NetList']= NetList
     return render(request,"repo_private_network_list.html",context)
 
@@ -1292,7 +1288,7 @@ def repo_private_VM_list(request):
 
     username = request.session['username']
     t = User.objects.get(username=username)
-    VMList = VM.objects.filter(owner=t).order_by('-created_at')
+    VMList = VM.objects.filter(owner_name=username).order_by('-created_at')
     context['VMList']=VMList
     return render(request,"repo_private_VM_list.html",context)
 
@@ -1317,7 +1313,7 @@ def repo_create_network(request):
             enable_dhcp=rf.cleaned_data['enable_dhcp']
 
             #insert into db
-            n = Network(owner=t,network_name=name,network_description=desc,subnet_name=subnet_name,ip_version=ip_version,
+            n = Network(owner_name=username,network_name=name,network_description=desc,subnet_name=subnet_name,ip_version=ip_version,
                         cidr=cidr,gateway_ip=gateway,allocation_pools_start=allocation_pools_start,
                         allocation_pools_end=allocation_pools_end,enable_dhcp=enable_dhcp)
             n.save()
@@ -1354,7 +1350,7 @@ def repo_create_network(request):
 #
 #         #insert into db
 #         file_path = save_path+'/'+myfile.name
-#         new = VMImage(name=name,description=desc,path=file_path,owner=t)
+#         new = VMImage(name=name,description=desc,path=file_path,owner_name=username)
 #         new.save()
 #
 #         # response = "congrats. your file \"" + myfile.name + "\" has been uploaded."
@@ -1698,7 +1694,7 @@ def group_create(request):
             gname = rf.cleaned_data['gname']
             desc = rf.cleaned_data['desc']
             stu_idlist = rf.cleaned_data['stulist']
-
+            print stu_idlist
             #insert into db
             gteacher = User.objects.get(username=username)
             stulist = []
@@ -2311,48 +2307,40 @@ def exp_copy(request,exp_id):
     except Experiment.DoesNotExist:
         raise Http404
 
-    imageList = e.exp_images.all()
-    networkList = e.exp_network.all()
-    images_idList=[]
-    networks_idList=[]
+    imageList = e.exp_images.all()#these are VMImage records
+    networkList = e.exp_network.all()#these are Network records
+    images_idList=[]#should be ImageCart id
+    networks_idList=[]#should be NetworkCart id
     for item in imageList:
-        images_idList.append(item.id)
+        image_in_cart = ImageCart.objects.get(image = item)
+        images_idList.append(image_in_cart.id)
     for item in networkList:
-        networks_idList.append(item.id)
-    # initial the form
-    attrs = {}
-    attrs['name'] = e.exp_name + "_copy"
-    attrs['desc'] = e.exp_description
-    attrs['images_idList'] = images_idList
-    attrs['networks_idList'] = networks_idList
-    attrs['guide'] = e.exp_guide
-    attrs['refer_result'] = e.exp_result
-    gf = AddExpForm(request, initial=attrs)
+        network_in_cart = NetworkCart.objects.get(network = item)
+        networks_idList.append(network_in_cart.id)
 
     #insert a new record into db
     username = request.session['username']
     t = User.objects.get(username=username)
     if request.method == 'POST':
-        rf = EditExpForm(request.POST)
+        rf = CopyExpForm(request.POST)
         if rf.is_valid():
             #get input data from form
             name = rf.cleaned_data['name']
             desc = rf.cleaned_data['desc']
-            images_idList = rf.cleaned_data['images_idList']
-            networks_idList = rf.cleaned_data['networks_idList']
-            guide = rf.cleaned_data['guide']
-            refer_result=rf.cleaned_data['refer_result']
+            images_idList = rf.cleaned_data['images_idList']#this is ImageCart id
+            networks_idList = rf.cleaned_data['networks_idList']#this is NetworkCart id
+
             #get images
             imageList=[]
             for i in images_idList:
-                imageList.append(VMImage.objects.get(id=i))
+                image_in_cart = ImageCart.objects.get(id =i)
+                imageList.append(VMImage.objects.get(id=image_in_cart.image.id))
+            #get networks
             networkList=[]
             for i in networks_idList:
-                networkList.append(Network.objects.get(id=i))
-            #get networks
-
-            e = Experiment(exp_name=name,exp_description=desc,exp_owner=t,exp_image_count=len(imageList),
-                           exp_guide=guide,exp_result=refer_result)
+                network_in_cart = NetworkCart.objects.get(id=i)
+                networkList.append(Network.objects.get(id=network_in_cart.network.id))
+            e = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=len(imageList))
             e.save()
             for item in imageList:
                 e.exp_images.add(item)
@@ -2360,9 +2348,17 @@ def exp_copy(request,exp_id):
                 e.exp_network.add(item)
 
             #refresh the exp list
-                return HttpResponseRedirect('/exp_home/')
+            return HttpResponseRedirect('/exp_home/')
     else:
-        rf = EditExpForm()
+        # initial the form
+        attrs = {}
+        attrs['name'] = e.exp_name + "_copy"
+        attrs['desc'] = e.exp_description
+        attrs['images_idList'] = images_idList#should be ImageCart id
+        attrs['networks_idList'] = networks_idList#should be NetworkCart id
+        attrs['vm_count']=e.VM_count
+        gf = CopyExpForm(initial=attrs)
+
     return render_to_response("exp_copy.html",{'rf':gf})
 
 
@@ -2371,50 +2367,52 @@ def exp_copy(request,exp_id):
 def exp_create(request):
     username = request.session['username']
     t = User.objects.get(username=username)
-    print request.user
     if request.method == 'POST':
-        guideFile = request.FILES.get("guide_file",None)
-        if not guideFile:
-            return HttpResponse("no file to choose")
-            # messages.error(request,"no file to choose")
-        save_path = "/home/mcy/upload/files"
-        destination = open(os.path.join(save_path,guideFile.name),'wb+')
-        for chunk in guideFile.chunks():
-            destination.write(chunk)
-        destination.close()
-
         rf = AddExpForm(request.POST)
-        # if rf.is_valid():
-        #get input data from form
-        name = rf.data['name']
-        desc = rf.data['desc']
-        images_idList = rf.data['images_idList']
-        networks_idList = rf.data['networks_idList']
-        guide = rf.data['guide']
-        refer_result=rf.data['refer_result']
-        #get images
-        imageList=[]
-        for i in images_idList:
-            imageList.append(VMImage.objects.get(id=i))
-        # get networks
-        networkList=[]
-        for i in networks_idList:
-            networkList.append(Network.objects.get(id=i))
+        if rf.is_valid():
+            guideFile = request.FILES.get("guide_file",None)
+            if not guideFile:
+                return HttpResponse("no file to choose")
+                # messages.error(request,"no file to choose")
+            save_path = "/home/mcy/upload/files"
+            destination = open(os.path.join(save_path,guideFile.name),'wb+')
+            for chunk in guideFile.chunks():
+                destination.write(chunk)
+            destination.close()
+            #get input data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            images_idList = rf.cleaned_data['images_idList']#this id is ImageCart id
+            networks_idList = rf.cleaned_data['networks_idList']#this id is NetworkCart id
+            vm_count = rf.cleaned_data['vm_count']
 
-        exp_guide_path = save_path+'/'+guideFile.name
-        e = Experiment(exp_name=name,exp_description=desc,exp_owner=t,exp_image_count=len(imageList),
-                       exp_guide=guide,exp_result=refer_result,exp_guide_path=exp_guide_path,VM_count=0)
-        e.save()
-        for item in imageList:
-            e.exp_images.add(item)
-        for item in networkList:
-            e.exp_network.add(item)
+            #get images
+            imageList=[]
+            for i in images_idList:
+                image_in_cart = ImageCart.objects.get(id=i)
+                imageList.append(VMImage.objects.get(id=image_in_cart.image.id))
 
-        #refresh the exp list
-        return HttpResponseRedirect('/exp_home/')
+            # get networks
+            networkList=[]
+            for i in networks_idList:
+                network_in_cart = NetworkCart.objects.get(id=i)
+                networkList.append(Network.objects.get(id=network_in_cart.network.id))
+
+
+            exp_guide_path = save_path+'/'+guideFile.name
+            e = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=len(imageList),
+                           exp_guide_path=exp_guide_path,VM_count=vm_count)
+            e.save()
+            for item in imageList:
+                e.exp_images.add(item)
+            for item in networkList:
+                e.exp_network.add(item)
+            #refresh the exp list
+            return HttpResponseRedirect('/exp_home/')
     else:
         rf = AddExpForm()
     return render_to_response("exp_create.html",{'rf':rf})
+
 
 #only role=teacher
 def exp_create_VM(request,exp_id):
@@ -2439,7 +2437,7 @@ def exp_create_VM(request,exp_id):
             #get experiment
             e = Experiment.objects.get(id=exp_id)
             #insert into VM
-            vm = VM(name=name,desc=desc,owner=t,exp=e,image=image,network=net,flavor=flavor,keypair=keypair,security_group=security_group)
+            vm = VM(name=name,desc=desc,owner_name=username,exp=e,image=image,network=net,flavor=flavor,keypair=keypair,security_group=security_group)
             vm.save()
             #update the VM_count of Experiment
             re = Experiment.objects.filter(id=exp_id).update(VM_count=e.VM_count+1)
@@ -2452,7 +2450,7 @@ def exp_delete_VM(request,exp_id):
     username = request.session['username']
     t = User.objects.get(username=username)
     e = Experiment.objects.get(id=exp_id)
-    vm_list = VM.objects.filter(exp=e,owner=t)
+    vm_list = VM.objects.filter(exp=e,owner_name=username)
     vm_id_list = []
     for item in vm_list:
         vm_id_list.append(item.id)
@@ -2491,62 +2489,69 @@ def exp_edit(request,exp_id):
         raise Http404
     imageList = e.exp_images.all()
     networkList = e.exp_network.all()
-    images_idList=[]
-    networks_idList=[]
+    images_idList=[]#should be ImageCart id
+    networks_idList=[]#should be NetworkCart id
     for item in imageList:
-        images_idList.append(item.id)
+        image_in_cart = ImageCart.objects.get(image=item)
+        images_idList.append(image_in_cart.id)
     for item in networkList:
-        networks_idList.append(item.id)
+        network_in_cart = NetworkCart.objects.get(network=item)
+        networks_idList.append(network_in_cart.id)
 
     #edit and update the exp
     if request.method == 'POST':
         rf = EditExpForm(request.POST)
-        #get input data from form
-        update_name = rf.data['name']
-        update_desc = rf.data['desc']
-        update_images_idList = rf.data['images_idList']
-        update_networks_idList = rf.data['networks_idList']
-        # update_guide = rf.data['guide']
-        # update_refer_result = rf.data['refer_result']
+        if rf.is_valid():
+            #get input data from form
+            update_name = rf.cleaned_data['name']
+            update_desc = rf.cleaned_data['desc']
+            update_images_idList = rf.cleaned_data['images_idList']#this id is ImageCart id
+            update_networks_idList = rf.cleaned_data['networks_idList']#this id is NetworkCart id
+            update_vm_count = rf.cleaned_data['vm_count']
+            # update_guide = rf.data['guide']
+            # update_refer_result = rf.data['refer_result']
+            print "after update"
+            print update_images_idList
+            update_imageList =[]
+            update_networkList=[]
+            for i in update_images_idList:
+                image_in_cart = ImageCart.objects.get(id=i)
+                update_imageList.append(VMImage.objects.get(id=image_in_cart.image.id))
+            for i in update_networks_idList:
+                network_in_cart = NetworkCart.objects.get(id=i)
+                update_networkList.append(Network.objects.get(id=network_in_cart.network.id))
 
-        update_imageList =[]
-        update_networkList=[]
-        for i in update_images_idList:
-            update_imageList.append(VMImage.objects.get(id=i))
-        for i in update_networks_idList:
-            update_networkList.append(Network.objects.get(id=i))
+            #update basic info for exp
+            re = Experiment.objects.filter(id=exp_id).update(exp_name=update_name,exp_description=update_desc,
+                                                             exp_image_count=len(update_imageList),
+                                                             exp_updatetime=datetime.datetime.now(),
+                                                             VM_count=update_vm_count)
+            update_e = Experiment.objects.get(id=exp_id)
+            #update image list and network list for exp
+            for i in range(0,len(update_imageList)):
+                if update_imageList[i] not in imageList:
+                    update_e.exp_images.add(update_imageList[i])
+            for j in range(0,len(imageList)):
+                if imageList[j] not in update_imageList:
+                    update_e.exp_images.remove(imageList[j])
 
-        #update basic info for exp
-        re = Experiment.objects.filter(id=exp_id).update(exp_name=update_name,exp_description=update_desc,
-                                                         exp_image_count=len(update_imageList),
-                                                         # exp_guide=update_guide,exp_result=update_refer_result,
-                                                         exp_updatetime=datetime.datetime.now())
-        update_e = Experiment.objects.get(id=exp_id)
-        #update image list and network list for exp
-        for i in range(0,len(update_imageList)):
-            if update_imageList[i] not in imageList:
-                update_e.exp_images.add(update_imageList[i])
-        for j in range(0,len(imageList)):
-            if imageList[j] not in update_imageList:
-                update_e.exp_images.remove(imageList[j])
-
-        for item in update_networkList:
-            if item not in networkList:
-                update_e.exp_network.add(item)
-        for item in networkList:
-            if item not in update_networkList:
-                update_e.exp_network.remove(item)
-        #refersh the exp list
-        return HttpResponseRedirect('/exp_home/')
+            for item in update_networkList:
+                if item not in networkList:
+                    update_e.exp_network.add(item)
+            for item in networkList:
+                if item not in update_networkList:
+                    update_e.exp_network.remove(item)
+            #refersh the exp list
+            return HttpResponseRedirect('/exp_home/')
     else:
         # initial the form
         attrs = {}
         attrs['name'] = e.exp_name
         attrs['desc'] = e.exp_description
         attrs['images_idList'] = images_idList
+        print images_idList
         attrs['networks_idList'] = networks_idList
-        # attrs['guide'] = e.exp_guide
-        # attrs['refer_result'] = e.exp_result
+        attrs['vm_count'] = e.VM_count
         gf = EditExpForm(initial=attrs)
     return render_to_response("exp_edit.html",{'rf':gf})
 
@@ -2573,13 +2578,6 @@ def exp_delivery(request,exp_id):
     except Experiment.DoesNotExist:
         raise Http404
     teacher = User.objects.get(username=username)
-    # clear the TempGroup
-    TempGroup.objects.all().delete()
-    # insert into TempGroup
-    GList = Group.objects.filter(teacher=teacher)
-    for item in GList:
-        new = TempGroup(name=item.name, owner=teacher)
-        new.save()
 
     if request.method == 'POST':
         rf = ExpDeliveryForm(request.POST)
@@ -2587,16 +2585,16 @@ def exp_delivery(request,exp_id):
             # get data from the form
             name = rf.cleaned_data['name']
             desc = rf.cleaned_data['desc']
-            group_idList = rf.cleaned_data['group']
+            group_idList = rf.cleaned_data['groups_idList']#this is MyTempGroup id
             startDateTime = rf.cleaned_data['startDateTime']
             endDateTime = rf.cleaned_data['endDateTime']
             # prepare other required data
 
             delivery_time = datetime.datetime.now()
-
             glist = []
-            for i in range(0, len(group_idList)):
-                g = Group.objects.get(id=group_idList[i])
+            for i in group_idList:
+                temp_group = MyTempGroup.objects.get(id =i)
+                g = Group.objects.get(id=temp_group.group.id)
                 glist.append(g)
             # insert into db:delivery
             for j in range(0, len(glist)):
@@ -2613,15 +2611,22 @@ def exp_delivery(request,exp_id):
                 message = "Hello, "+ username +" has deliveried an experiment:"+e.exp_name+"to you."
                 send_mail(email_subject, message, 'machenyi2011@163.com', stu_emailList,fail_silently=False)
 
-            # insert into db:score
-            d_List = Delivery.objects.filter(name=name, teacher=teacher)
-            for i in range(0, len(d_List)):
-                stulist = d_List[i].group.student.all()
-                for j in range(0, len(stulist)):  # insert a record into score db for every stu
-                    new_score = Score(exp=d_List[i].exp, stu=stulist[j], scorer=teacher, delivery_id=d_List[i].id)
-                    new_score.save()
-        return HttpResponseRedirect('/exp_home/')
+                # insert into db:score
+                d_List = Delivery.objects.filter(name=name, teacher=teacher)
+                for i in range(0, len(d_List)):
+                    stulist = d_List[i].group.student.all()
+                    for j in range(0, len(stulist)):  # insert a record into score db for every stu
+                        new_score = Score(exp=d_List[i].exp, stu=stulist[j], scorer=teacher, delivery_id=d_List[i].id)
+                        new_score.save()
+            return HttpResponseRedirect('/exp_home/')
     else:
+        # clear the MyTempGroup
+        MyTempGroup.objects.all().delete()
+        # insert into MyTempGroup
+        GList = Group.objects.filter(teacher=teacher)
+        for item in GList:
+            new = MyTempGroup(teacher=teacher, group=item)
+            new.save()
         attrs = {}
         attrs['name'] = "delivery_" + e.exp_name + "_" + time.strftime('%Y-%m-%d %X', time.localtime())
         gf = ExpDeliveryForm(initial=attrs)
@@ -2649,13 +2654,39 @@ def exp_detail(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
-    #get exp detail info from db
-    E_Detail_Dict = experiment_operation.view_experiment_detail(exp_id)
 
+    username = request.session['username']
+    role = request.session['role']
+    #get exp detail info from db
+    edict = {}
+    ##edict={}.fromkeys('id','name','owner','imageCount','imagelist','network','is_shared','description')
+    edict['id']=e.id
+    edict['exp_name'] = e.exp_name
+    edict['exp_owner_name'] = e.exp_owner_name
+    edict['exp_createtime'] = e.exp_createtime
+    edict['exp_updatetime'] = e.exp_updatetime
+    edict['exp_image_count'] = e.exp_image_count
+    imagelist = e.exp_images.all()
+    edict['exp_images'] = imagelist
+    network = e.exp_network.all()
+    edict['exp_network'] = network
+    edict['is_shared'] = e.is_shared
+    edict['shared_time'] = e.shared_time
+    edict['exp_description'] = e.exp_description
+    edict['exp_guide_path'] = e.exp_guide_path
+    edict['VM_count'] = e.VM_count
+    VMList = VM.objects.filter(exp=e).order_by('-created_at')
+    edict['VMList'] = VMList
+
+    if role == 'teacher':
+        teacher = User.objects.get(username=username)
+        deliverys = Delivery.objects.filter(exp=e, teacher=teacher).order_by('-delivery_time')
+        edict['delivery_history'] = deliverys
     # output the group detail-----------------------------UI--------------------------
     c = {}
-    c['username']=request.session['username']
-    c['E_Detail_Dict'] = E_Detail_Dict
+    c['username']=username
+    c['role']=role
+    c['E_Detail_Dict'] = edict
     images = e.exp_images.all()
     vms = VM.objects.filter(exp=e)
     networks = e.exp_network.all()
@@ -2760,7 +2791,8 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
         print "here is vms &&&&&&&&&"
         print vm_instance['id']
         new_vmInstance = VMInstance(name=item.name, owner_name=username, vm=item, belong_exp_instance_id=new_expInstance.id,
-                                    server_id=vm_instance['id'], status=vm_instance['status'])
+                                    server_id=vm_instance['id'], status=vm_instance['status'],createtime=datetime.datetime.now(),
+                                    updatetime=datetime.datetime.now())
         new_vmInstance.save()
     print "--------VM create complete-------"
 
@@ -2910,13 +2942,9 @@ def exp_score_launch(request,score_id):
 
 def exp_score_unlaunch(request,score_id):
     #delete VM
-
     #delete interface
-
     #delete network
-
     #delete gateway
-
     #delete router
     pass
 
@@ -2963,8 +2991,6 @@ def vm_instance_list(request):
     return render(request,'vm_instance_list.html',context)
 
 
-
-
 def vm_instance_goto(request,v_id):
     pass
 
@@ -2988,8 +3014,14 @@ def net_instance_list(request):
     return render(request, 'net_instance_list.html', context)
 
 def net_instance_detail(request,n_id):
+    try:
+        ni = NetworkInstance.objects.get(id=n_id)
+    except NetworkInstance.DoesNotExist:
+        raise Http404
+    c= {}
+    c['DetailDict']= ni
+    return render(request,'net_instance_detail.html',c)
 
-    pass
 
 def net_instance_edit(request,n_id):
     pass
@@ -3021,8 +3053,6 @@ def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info det
     niList = NetworkInstance.objects.filter(belong_exp_instance_id=exp_i_id)
     #get all vm instance of the exp instance
     viList = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
-    print viList
-
     ei_dict['net_instances'] = niList
     ei_dict['vm_instances'] = viList
 
@@ -3038,9 +3068,10 @@ def vm_instance_detail(request,v_id):
         vi = VMInstance.objects.get(id=v_id)
     except VMInstance.DoesNotExist:
         raise Http404
-    vi_dict={}
-    
-    pass
+    c= {}
+    c['DetailDict']=vi
+    return render(request,"vm_instance_detail.html",c)
+
 
 
 def exp_instance_goto(request,exp_i_id):#make user login the operate server

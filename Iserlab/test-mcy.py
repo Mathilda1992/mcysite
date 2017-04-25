@@ -29,3 +29,46 @@ def interface_delete_from_router(request):
     router_dict = network_resource_operation.remove_interface_from_router(conn, r, subnet_id)
     print router_dict
     return HttpResponse('remove interface from Router')
+
+
+
+class AddExpForm(forms.Form):
+    name = forms.CharField(label='Exp Name',max_length=150)
+    desc = forms.CharField(label='Description',max_length=500,
+                           widget=forms.Textarea(),
+                           required =False)
+
+    images_idList = forms.MultipleChoiceField(label='Include Images',
+                                       widget=forms.CheckboxSelectMultiple,
+                                       )
+    networks_idList = forms.MultipleChoiceField(label='Use Networks',
+                                         widget=forms.CheckboxSelectMultiple,
+                                         )
+    vm_count = forms.IntegerField(label="VM Count")
+    # vm_idList = forms.MultipleChoiceField(label='Include VMs',)
+
+    guide_file = forms.FileField(label='Upload Guide File', required=True)
+
+
+    def __init__(self,*args,**kwargs):
+        super(AddExpForm,self).__init__(*args,**kwargs)
+        self.fields['images_idList'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
+        self.fields['networks_idList'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
+
+
+class AddGroupForm(forms.Form):
+    gname = forms.CharField(label='Gname',max_length=50,
+                            error_messages={'required': 'The username can not be null!','max_length':'The group name is too long'},validators=[validate_gname])
+    desc = forms.CharField(label='Gdesc',max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
+                           initial="Replace with your feedbace",
+                           error_messages={'max_length':'The description is too long'})
+    stulist = forms.MultipleChoiceField(label='Stulist',required=False,
+                                        widget=forms.CheckboxSelectMultiple,
+                                        # choices=STU_CHECKBOX_CHOICES,
+                                        )
+    def __init__(self, *args, **kwargs):
+        super(AddGroupForm, self).__init__(*args, **kwargs)
+        # t= self.get_currentuser(request)
+        self.fields['stulist'].choices = [(i.pk, str(i)) for i in Student.objects.all()]

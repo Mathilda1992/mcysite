@@ -107,7 +107,7 @@ class Group(models.Model):
     name = models.CharField(max_length = 50)
     desc = models.TextField(max_length= 100,null=True,blank=True)
     teacher = models.ForeignKey(User)
-    stuCount = models.IntegerField()
+    stuCount = models.IntegerField(null=True,blank=True)
     student = models.ManyToManyField(Student)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
@@ -124,7 +124,7 @@ class Group(models.Model):
 class VMImage(models.Model):
     image_id = models.CharField(max_length = 36,null=True,blank=True)
     name = models.CharField(max_length = 255)
-    owner = models.ForeignKey(User)
+    # owner = models.ForeignKey(User)
     owner_name = models.CharField(max_length=50,null=True,blank=True)
     own_project = models.CharField(max_length= 32,null=True)
     is_public = models.CharField(max_length = 10,default = 'YES')
@@ -143,7 +143,7 @@ class VMImage(models.Model):
     disk_format=models.CharField(max_length=20,default="QCOW2")
 
     def __unicode__(self):
-        return u'name=%s,creater=%s' % (self.name,self.owner)
+        return u'name=%s,creater=%s' % (self.name,self.owner_name)
 
     class Meta:
         ordering = ['-created_at']
@@ -174,7 +174,7 @@ class Network(models.Model):
     gateway_ip = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
-    owner = models.ForeignKey(User,null=True)#
+    # owner = models.ForeignKey(User,null=True)#
     owner_name = models.CharField(max_length=50, null=True, blank=True)
     is_shared = models.BooleanField(default=False)#unused
     shared_time = models.DateTimeField(auto_now=True, null=True, editable=True)#unused
@@ -186,7 +186,7 @@ class Network(models.Model):
 
 
     def __unicode__(self):
-        return u'name=%s,creator=%s,is_shared=%s' % (self.network_name,self.owner,self.is_shared)
+        return u'name=%s,creator=%s,is_shared=%s' % (self.network_name,self.owner_name,self.is_shared)
 
     class Meta:
         ordering = ['-created_at']
@@ -194,29 +194,25 @@ class Network(models.Model):
 
 
 
-
 # #The db used to store exp template
 class Experiment(models.Model):
-    #basic info
     exp_name = models.CharField(max_length = 150)
     exp_description = models.TextField(blank = True,max_length=500)
     exp_createtime = models.DateTimeField(auto_now_add = True,editable = True)
     exp_updatetime = models.DateTimeField(auto_now = True,blank = True)#the default value is equal to created_time
-    exp_owner = models.ForeignKey(User,null=True)
-    owner_name = models.CharField(max_length=50, null=True, blank=True)
-    exp_images = models.ManyToManyField(VMImage)#???
+    # exp_owner = models.ForeignKey(User,null=True)
+    exp_owner_name = models.CharField(max_length=50, null=True, blank=True)
+    exp_images = models.ManyToManyField(VMImage)
     exp_image_count = models.IntegerField(null=True,blank=True)
     exp_network = models.ManyToManyField(Network)
-    # exp_guide = models.TextField(null=True,blank = True)#delete
     exp_guide_path = models.CharField(max_length=300,null=True,blank=True)
-    # exp_result = models.CharField(max_length = 500,null=True,blank = True)
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(null=True,blank=True,editable=True)
     VM_count = models.IntegerField(default=0,null=True)
 
 
     def __unicode__(self):
-        return u'id=%s,name=%s,creater=%s,is_shared=%s' % (self.id,self.exp_name,self.exp_owner,self.is_shared)
+        return u'id=%s,name=%s,creater=%s,is_shared=%s' % (self.id,self.exp_name,self.exp_owner_name,self.is_shared)
 
     class Meta:
         ordering = ['-exp_createtime']
@@ -230,7 +226,7 @@ class ImageCart(models.Model):
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return u'%s' % (self.image.name)
+        return u'%s,%s' % (self.id,self.image.name)
 
     class Meta:
         ordering = ['-createtime']
@@ -244,7 +240,7 @@ class NetworkCart(models.Model):
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return u'%s' % (self.network.network_name)
+        return u'%s,%s' % (self.id,self.network.network_name)
 
     class Meta:
         ordering = ['-createtime']
@@ -270,7 +266,7 @@ class NetworkCart(models.Model):
 class VM(models.Model):
     name = models.CharField(max_length=100)
     desc = models.TextField(max_length=500,null=True,blank=True)
-    owner = models.ForeignKey(User,null=True)
+    # owner = models.ForeignKey(User,null=True)
     owner_name = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True,blank=True,editable=True)
     updated_at = models.DateTimeField(auto_now=True, null=True,blank=True,editable=True)
@@ -445,50 +441,69 @@ class PortInstance(models.Model):
 
 
 #
-class TempExp(models.Model):
-    # basic info
-    exp_name = models.CharField(max_length=150)
-    exp_description = models.TextField(blank=True, max_length=500)
-    exp_createtime = models.DateTimeField(auto_now_add=True, editable=True)
-    exp_updatetime = models.DateTimeField(auto_now=True, blank=True)  # the default value is equal to created_time
-    exp_owner = models.ForeignKey(User)
-    # exp template
-    exp_images = models.ManyToManyField(VMImage)  # ???
-    exp_image_count = models.IntegerField(null=True, blank=True)
-    exp_network = models.ManyToManyField(Network)
-    exp_guide = models.TextField(null=True, blank=True)
-    exp_guide_path = models.CharField(max_length=300, null=True, blank=True)
-    exp_result = models.CharField(max_length=500, null=True, blank=True)
-    exp_reportDIR = models.CharField(max_length=150, null=True, blank=True)  # ??
-    is_shared = models.BooleanField(default=False)
-    shared_time = models.DateTimeField(null=True, blank=True, editable=True)
-    VM_count = models.IntegerField(default=0, null=True)
+# class TempExp(models.Model):
+#     # basic info
+#     exp_name = models.CharField(max_length=150)
+#     exp_description = models.TextField(blank=True, max_length=500)
+#     exp_createtime = models.DateTimeField(auto_now_add=True, editable=True)
+#     exp_updatetime = models.DateTimeField(auto_now=True, blank=True)  # the default value is equal to created_time
+#     # exp_owner = models.ForeignKey(User)
+#     exp_owner_name = models.CharField(max_length=50, null=True, blank=True)
+#     # exp template
+#     exp_images = models.ManyToManyField(VMImage)  # ???
+#     exp_image_count = models.IntegerField(null=True, blank=True)
+#     exp_network = models.ManyToManyField(Network)
+#     exp_guide = models.TextField(null=True, blank=True)
+#     exp_guide_path = models.CharField(max_length=300, null=True, blank=True)
+#     exp_result = models.CharField(max_length=500, null=True, blank=True)
+#     exp_reportDIR = models.CharField(max_length=150, null=True, blank=True)  # ??
+#     is_shared = models.BooleanField(default=False)
+#     shared_time = models.DateTimeField(null=True, blank=True, editable=True)
+#     VM_count = models.IntegerField(default=0, null=True)
+#
+#     def __unicode__(self):
+#         return u'id=%s,name=%s,creater=%s,is_shared=%s' % (self.id, self.exp_name, self.exp_owner_name, self.is_shared)
+#
+#     class Meta:
+#         ordering = ['-exp_createtime']
+
+class MyTempExp(models.Model):
+    teacher = models.ForeignKey(User)
+    exp = models.ForeignKey(Experiment)
+    createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return u'id=%s,name=%s,creater=%s,is_shared=%s' % (self.id, self.exp_name, self.exp_owner, self.is_shared)
+        return u'%s,%s,%s' % (self.id, self.exp.exp_name,self.exp.exp_owner_name)
 
     class Meta:
-        ordering = ['-exp_createtime']
+        ordering = ['-createtime']
 
-    # name = models.CharField(max_length=150)
-    # owner = models.ForeignKey(User)
-    #
-    # def __unicode__(self):
-    #     return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)
+# class TempGroup(models.Model):
+#     name = models.CharField(max_length = 50)
+#     desc = models.TextField(max_length= 100,null=True,blank=True)
+#     teacher = models.ForeignKey(User)
+#     stuCount = models.IntegerField(null=True,blank=True)
+#     student = models.ManyToManyField(Student)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#
+#
+#     def __unicode__(self):
+#         return u'id=%s,%s,%s' % (self.id,self.name,self.teacher)
+#     # name = models.CharField(max_length=150)
+#     # owner = models.ForeignKey(User)
+#     #
+#     # def __unicode__(self):
+#     #     return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)
 
-class TempGroup(models.Model):
-    name = models.CharField(max_length = 50)
-    desc = models.TextField(max_length= 100,null=True,blank=True)
+class MyTempGroup(models.Model):
     teacher = models.ForeignKey(User)
-    stuCount = models.IntegerField()
-    student = models.ManyToManyField(Student)
-    created_at = models.DateTimeField(auto_now_add=True)
+    group = models.ForeignKey(Group)
+    createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
 
     def __unicode__(self):
-        return u'%s,%s' % (self.name,self.teacher)
-    # name = models.CharField(max_length=150)
-    # owner = models.ForeignKey(User)
-    #
-    # def __unicode__(self):
-    #     return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)
+        return u'%s,%s,%s' % (self.id,self.group.name,self.group.teacher)
+
+    class Meta:
+        ordering = ['-createtime']
+
