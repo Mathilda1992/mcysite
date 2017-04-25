@@ -190,6 +190,7 @@ urlpatterns = [
     url(r'^repo_private_VM_list/$', repo_private_VM_list, name='repo_private_VM_list'),
     url(r'^repo_create_image/$',repo_create_image,name='repo_create_image'),
     url(r'^repo_create_network/$', repo_create_network, name='repo_create_network'),
+    url(r'^repo_create_vm/$', repo_create_vm, name='repo_create_vm'),
 
 
 
@@ -206,6 +207,7 @@ urlpatterns = [
     url(r'^repo_VM_detail/(\d+)$', repo_VM_detail, name='repo_VM_detail'),
     url(r'^repo_VM_edit/(\d+)$', repo_VM_edit, name='repo_VM_edit'),
     url(r'^repo_VM_delete/(\d+)$', repo_VM_delete, name='repo_VM_delete'),
+    url(r'^vm_launch/(\d+)$', vm_launch, name='vm_launch'),
 
 
     url(r'^repo_ImageCart_list/$',repo_ImageCart_list,name='repo_ImageCart_list'),

@@ -2,18 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>VM Edit</title>
+    <title>编辑主机</title>
 </head>
 <body>
-
     <h1>编辑主机</h1>
-    <form method = 'post' enctype = "multipart/form-data" >
+    <form method = 'post' enctype = "multipart/form-data">
 
         {{ rf.as_p }}
 
-        <input type="submit" value = "完成">
-        <a href="javascript:window.opener=null;window.open('','_self');window.close()" >取消</a>
+        <input type="submit" value = "保存">
+        <a href="javascript:window.opener=null;window.open('','_self');window.close()">取消</a>
     </form>
-
 </body>
 </html>

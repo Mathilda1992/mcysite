@@ -102,3 +102,111 @@ def group_create(request):
     else:
         rf = AddGroupForm()
     return render_to_response("group_create.html", {'rf': rf})
+
+
+def exp_create_VM(request,exp_id):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    if request.method == 'POST':
+        rf = AddVMForm(request.POST)
+        if rf.is_valid():
+            #get data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            image_id = rf.cleaned_data['image_id']
+            network_id = rf.cleaned_data['network_id']
+            flavor = rf.cleaned_data['flavor']
+            keypair = rf.cleaned_data['keypair']
+            security_group = rf.cleaned_data['security_group']
+
+            #get image
+            image = VMImage.objects.get(id = image_id)
+            #get networks
+            net = Network.objects.get(id = network_id)
+            #get experiment
+            e = Experiment.objects.get(id=exp_id)
+            #insert into VM
+            vm = VM(name=name,desc=desc,owner_name=username,exp=e,image=image,network=net,flavor=flavor,keypair=keypair,security_group=security_group)
+            vm.save()
+            #update the VM_count of Experiment
+            re = Experiment.objects.filter(id=exp_id).update(VM_count=e.VM_count+1)
+            return HttpResponseRedirect('/exp_home/')
+    else:
+        rf = AddVMForm()
+    return render_to_response("exp_create_VM.html",{'rf':rf})
+
+
+
+
+#only role = teacher has this function
+def exp_edit(request,exp_id):
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+    imageList = e.exp_images.all()
+    networkList = e.exp_network.all()
+    images_idList=[]#should be ImageCart id
+    networks_idList=[]#should be NetworkCart id
+    for item in imageList:
+        image_in_cart = ImageCart.objects.get(image=item)
+        images_idList.append(image_in_cart.id)
+    for item in networkList:
+        network_in_cart = NetworkCart.objects.get(network=item)
+        networks_idList.append(network_in_cart.id)
+
+    #edit and update the exp
+    if request.method == 'POST':
+        rf = EditExpForm(request.POST)
+        if rf.is_valid():
+            #get input data from form
+            update_name = rf.cleaned_data['name']
+            update_desc = rf.cleaned_data['desc']
+            update_images_idList = rf.cleaned_data['images_idList']#this id is ImageCart id
+            update_networks_idList = rf.cleaned_data['networks_idList']#this id is NetworkCart id
+            update_vm_count = rf.cleaned_data['vm_count']
+            # update_guide = rf.data['guide']
+            # update_refer_result = rf.data['refer_result']
+            print "after update"
+            print update_images_idList
+            update_imageList =[]
+            update_networkList=[]
+            for i in update_images_idList:
+                image_in_cart = ImageCart.objects.get(id=i)
+                update_imageList.append(VMImage.objects.get(id=image_in_cart.image.id))
+            for i in update_networks_idList:
+                network_in_cart = NetworkCart.objects.get(id=i)
+                update_networkList.append(Network.objects.get(id=network_in_cart.network.id))
+
+            #update basic info for exp
+            re = Experiment.objects.filter(id=exp_id).update(exp_name=update_name,exp_description=update_desc,
+                                                             exp_image_count=len(update_imageList),
+                                                             exp_updatetime=datetime.datetime.now(),
+                                                             VM_count=update_vm_count)
+            update_e = Experiment.objects.get(id=exp_id)
+            #update image list and network list for exp
+            for i in range(0,len(update_imageList)):
+                if update_imageList[i] not in imageList:
+                    update_e.exp_images.add(update_imageList[i])
+            for j in range(0,len(imageList)):
+                if imageList[j] not in update_imageList:
+                    update_e.exp_images.remove(imageList[j])
+
+            for item in update_networkList:
+                if item not in networkList:
+                    update_e.exp_network.add(item)
+            for item in networkList:
+                if item not in update_networkList:
+                    update_e.exp_network.remove(item)
+            #refersh the exp list
+            return HttpResponseRedirect('/exp_home/')
+    else:
+        # initial the form
+        attrs = {}
+        attrs['name'] = e.exp_name
+        attrs['desc'] = e.exp_description
+        attrs['images_idList'] = images_idList
+        attrs['networks_idList'] = networks_idList
+        attrs['vm_count'] = e.VM_count
+        gf = EditExpForm(initial=attrs)
+    return render_to_response("exp_edit.html",{'rf':gf})

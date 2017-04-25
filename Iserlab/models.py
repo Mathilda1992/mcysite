@@ -270,7 +270,7 @@ class VM(models.Model):
     owner_name = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True,blank=True,editable=True)
     updated_at = models.DateTimeField(auto_now=True, null=True,blank=True,editable=True)
-    exp = models.ForeignKey(Experiment)
+    exp = models.ForeignKey(Experiment,null=True)
     image = models.ForeignKey(VMImage)
     network = models.ForeignKey(Network)
     flavor = models.CharField(max_length= 10,null = True,blank = True,default='m1.tiny')
@@ -361,7 +361,7 @@ class NetworkInstance(models.Model):
     network_instance_id = models.CharField(max_length=50, null=True, blank=True)#not required,because user can just launch a network
     subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
     tenant_id = models.CharField(max_length=50, null=True, blank=True)
-    status = models.CharField(max_length=20, null=True, blank=True)
+    status = models.CharField(max_length=20, null=True, blank=True)#ACTIVE,DELETE
     allocation_pools_start = models.CharField(max_length=20, null=True, blank=True)
     allocation_pools_end = models.CharField(max_length=20, null=True, blank=True)
 
@@ -383,7 +383,7 @@ class VMInstance(models.Model):
     # exp_instance = models.ForeignKey(Score)
     # after finishing creation, fill below fields
     server_id = models.CharField(max_length = 100)
-    status = models.CharField(max_length = 20)#ERROR, ACTIVE,Shutoff,Suspended,Paused
+    status = models.CharField(max_length = 20)#ERROR, ACTIVE,Shutoff,Suspended,Paused,DELETED
     ip = models.CharField(max_length = 20,null=True,blank = True)
     vncurl = models.URLField(max_length=200,null=True,blank=True)
     result_image = models.IntegerField(max_length=100,null=True,blank=True)

@@ -1147,31 +1147,40 @@ def repo_VM_edit(request,vm_id):
         raise Http404
 
     if request.method == 'POST':
+        print "POST"
         rf = EditVMForm(request.POST)
-        if rf.is_valid():
-            #get data from form
-            name = rf.cleaned_data['name']
-            desc = rf.cleaned_data['desc']
-            image_id = rf.cleaned_data['image_id']
-            network_id = rf.cleaned_data['network_id']
-            flavor = rf.cleaned_data['flavor']
-            keypair = rf.cleaned_data['keypair']
-            security_group = rf.cleaned_data['security_group']
+        print "rf"
+        # if rf.is_valid():
+        print "########"
+        #get data from form
+        update_name = rf.data['name']
+        update_desc = rf.data['desc']
+        update_image_id = rf.data['image_id']#this id is imagecart id
+        update_network_id = rf.data['network_id']#this id is netcart id
+        flavor = rf.data['flavor']
+        keypair = rf.data['keypair']
+        security_group = rf.data['security_group']
 
-            image = VMImage.objects.get(id = image_id)
-            net = Network.objects.get(id=network_id)
-            re = Experiment.objects.filter(id=vm_id).update(name=name,desc=desc,image=image,network=net,flavor=flavor,keypair=keypair,security_group=security_group)
-
+        image_in_cart = ImageCart.objects.get(id=update_image_id)
+        image = VMImage.objects.get(id = image_in_cart.image.id)
+        net_in_cart = NetworkCart.objects.get(id=update_network_id)
+        net = Network.objects.get(id=net_in_cart.network.id)
+        re = VM.objects.filter(id=vm_id).update(name=update_name,desc=update_desc,image=image,network=net,
+                                                        flavor=flavor,keypair=keypair,security_group=security_group
+                                                        )
+        return HttpResponseRedirect('/repo_private_VM_list/')
     else:
+        image_in_cart=ImageCart.objects.get(image=vm.image)
+        net_in_cart=NetworkCart.objects.get(network=vm.network)
         attrs = {}
         attrs['name']=vm.name
         attrs['desc']=vm.desc
         attrs['exp']=vm.exp
-        attrs['image_id']= vm.image_id
-        attrs['network_id'] = vm.network_id
+        attrs['image_id']= image_in_cart.id#this should be imagecart id
+        attrs['network_id'] = net_in_cart.id#this thoudl be netcart id
         attrs['flavor'] = vm.flavor
         attrs['keypair'] = vm.keypair
-        attrs['security_group']=vm.security_group
+        attrs['security_group']="default"
         gf = EditVMForm(initial=attrs)
     return render_to_response("repo_VM_edit.html",{'rf':gf})
 
@@ -1322,6 +1331,39 @@ def repo_create_network(request):
         rf = AddNetworkForm()
     return render(request,'repo_create_network.html',{'rf':rf})
 
+
+
+def repo_create_vm(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    if request.method == 'POST':
+        rf = AddVMForm(request.POST)
+        if rf.is_valid():
+            # get data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            image_id = rf.cleaned_data['image_id']#this is imagecart id
+            network_id = rf.cleaned_data['network_id']#this is netcart id
+            flavor = rf.cleaned_data['flavor']
+            keypair = rf.cleaned_data['keypair']
+            security_group = rf.cleaned_data['security_group']
+
+            # get image
+            image_in_cart = ImageCart.objects.get(id=image_id)
+            image = VMImage.objects.get(id=image_in_cart.image.id)
+            # get networks
+            net_in_cart = NetworkCart.objects.get(id=network_id)
+            net = Network.objects.get(id=net_in_cart.network.id)
+
+            # insert into VM
+            vm = VM(name=name, desc=desc, owner_name=username, image=image, network=net, flavor=flavor,
+                    keypair=keypair, security_group=security_group)
+            vm.save()
+
+            return HttpResponseRedirect('/repo_private_VM_list/')
+    else:
+        rf = AddVMForm()
+    return render_to_response("repo_create_vm.html", {'rf': rf})
 
 
 # 2017-03-28 qinli update
@@ -2454,16 +2496,19 @@ def exp_create_VM(request,exp_id):
             #get data from form
             name = rf.cleaned_data['name']
             desc = rf.cleaned_data['desc']
-            image_id = rf.cleaned_data['image_id']
-            network_id = rf.cleaned_data['network_id']
+            image_id = rf.cleaned_data['image_id']#this is imagecart id
+            network_id = rf.cleaned_data['network_id']#this is netcart id
             flavor = rf.cleaned_data['flavor']
             keypair = rf.cleaned_data['keypair']
             security_group = rf.cleaned_data['security_group']
 
-            #get image
-            image = VMImage.objects.get(id = image_id)
-            #get networks
-            net = Network.objects.get(id = network_id)
+            # get image
+            image_in_cart = ImageCart.objects.get(id=image_id)
+            image = VMImage.objects.get(id=image_in_cart.image.id)
+            # get networks
+            net_in_cart = NetworkCart.objects.get(id=network_id)
+            net = Network.objects.get(id=net_in_cart.network.id)
+
             #get experiment
             e = Experiment.objects.get(id=exp_id)
             #insert into VM
@@ -2578,9 +2623,8 @@ def exp_edit(request,exp_id):
         attrs = {}
         attrs['name'] = e.exp_name
         attrs['desc'] = e.exp_description
-        attrs['images_idList'] = images_idList
-        print images_idList
-        attrs['networks_idList'] = networks_idList
+        attrs['images_idList'] = images_idList#this should be imagecart id
+        attrs['networks_idList'] = networks_idList#this should be netcart id
         attrs['vm_count'] = e.VM_count
         gf = EditExpForm(initial=attrs)
     return render_to_response("exp_edit.html",{'rf':gf})
@@ -2809,19 +2853,28 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
 
     # launch VM , insert into VMInstance
     vms = e.vm_set.all()  # 需要用foreignkey功能的话需要在VM的model中加入related_name
-    for item in vms:
-        server_name = item.name
-        image_name = item.image.name
-        flavor_name = 'm1.tiny'
-        network_name = item.network.network_name# should find the net instance
-        private_keypair_name = 'mykey'
-        vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,network_name, private_keypair_name)
-        print "here is vms &&&&&&&&&"
-        print vm_instance['id']
-        new_vmInstance = VMInstance(name=item.name, owner_name=username, vm=item, belong_exp_instance_id=new_expInstance.id,
-                                    server_id=vm_instance['id'], status=vm_instance['status'],createtime=datetime.datetime.now(),
-                                    updatetime=datetime.datetime.now())
-        new_vmInstance.save()
+    for vm in vms:
+        # launch VM ,
+        server_name = vm.name
+        image_name = vm.image.name
+        flavor_name = vm.flavor
+        network_name = vm.network.network_name  # should find the net instance
+        private_keypair_name = vm.keypair
+
+        # first check if the needed netInstance exist in NetworkInstance db?
+        ni = NetworkInstance.objects.filter(owner_name=username, network=vm.network, status="ACTIVE")
+        if len(ni) > 0:  # the Network Instance exist
+            netInstance = NetworkInstance.objects.get(owner_name=username, network=vm.network, status="ACTIVE")
+            vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,
+                                                                    network_name, private_keypair_name)
+            # insert into VMInstance db
+            new_vmInstance = VMInstance(name=vm.name, owner_name=username, vm=vm,
+                                        # belong_exp_instance_id=new_expInstance.id,
+                                        server_id=vm_instance['id'], status=vm_instance['status'],
+                                        createtime=datetime.datetime.now(),
+                                        updatetime=datetime.datetime.now(),
+                                        connect_net=netInstance)
+            new_vmInstance.save()
     print "--------VM create complete-------"
 
     #if both network and VMs create successfully, should update the status of ExpInstance
@@ -3038,6 +3091,7 @@ def vm_instance_snapshot(request,v_id):
         vi = VMInstance.objects.get(id=v_id)
     except VMInstance.DoesNotExist:
         raise Http404
+
     username = request.session['username']
     role = request.session['role']
     if role == 'teacher':
@@ -3093,12 +3147,32 @@ def vm_instance_save(request,v_id):#save as a VM template
     # step2:insert a new record into VM
     pass
 
-def vm_instance_delete(request,v_id):
+def vm_instance_delete(request,vi_id):
     try:
-        vi = VMInstance.objects.get(id=v_id)
+        vi = VMInstance.objects.get(id=vi_id)
     except VMInstance.DoesNotExist:
         raise Http404
-    pass
+
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+
+    # conn to openstack API
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                     authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
+    #delete in openstack
+    compute_resource_operation.delete_server(conn,vi.server_id)
+
+    #update the "status" field in VMInstance db
+    VMInstance.objects.filter(id=vi_id).update(status="DELETED")
+
+    return HttpResponse("Delete VM Instance Success!")
 
 def net_instance_list(request):
     context = {}
@@ -3142,8 +3216,29 @@ def net_instance_delete(request,ni_id):
     for vi in vis:
         if vi.status == "DELETED":
             deleted_vi_count=deleted_vi_count+1
-    if deleted_vi_count ==len(vis):
-        #all vi on ni deleted,so can delete the ni
+    if deleted_vi_count ==len(vis):#all vi on ni deleted,so can delete the ni
+
+        username = request.session['username']
+        role = request.session['role']
+        if role == 'teacher':
+            u = User.objects.get(username=username)
+            authDict = get_auth_info(u.username, u.password)
+        else:
+            u = Student.objects.get(stu_username=username)
+            authDict = get_auth_info(u.stu_username, u.stu_password)
+
+        # conn to openstack API
+        conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                         authDict['project_name'],
+                                                         authDict['auth_username'], authDict['auth_password'])
+        # delete in openstack
+        #delete the connect with router
+        please delete the interface from router
+        network_resource_operation.delete_network(conn,ni.network_instance_id)
+
+
+        #update the "status" field of NetworkInstance db
+        NetworkInstance.objects.filter(id=ni_id).update(status="DELETED")
         return HttpResponse("Delete NetworkInstance Success")
     else:
         return HttpResponse("There are VM(s) still connecting to the NetworkInstance! Please delete them first!")
@@ -3204,7 +3299,6 @@ def vm_launch(request,v_id):
     conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
                                                      authDict['project_name'],
                                                      authDict['auth_username'], authDict['auth_password'])
-
     # launch VM ,
     server_name = vm.name
     image_name = vm.image.name
@@ -3213,23 +3307,21 @@ def vm_launch(request,v_id):
     private_keypair_name = vm.keypair
 
     # first check if the needed netInstance exist in NetworkInstance db?
-    
-
-
-
-
-    vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,
-                                                            network_name, private_keypair_name)
-    print "here is vms &&&&&&&&&"
-    print vm_instance['id']
-    #insert into VMInstance db
-    new_vmInstance = VMInstance(name=vm.name, owner_name=username, vm=vm,
-                                # belong_exp_instance_id=new_expInstance.id,
-                                server_id=vm_instance['id'], status=vm_instance['status'],
-                                createtime=datetime.datetime.now(),
-                                updatetime=datetime.datetime.now())
-    new_vmInstance.save()
-    print "--------VM create complete-------"
+    ni = NetworkInstance.objects.filter(owner_name=username,network=vm.network,status="ACTIVE")
+    if len(ni)>0:#the Network Instance exist
+        netInstance = NetworkInstance.objects.get(owner_name=username,network=vm.network,status="ACTIVE")
+        vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,
+                                                                network_name, private_keypair_name)
+        # insert into VMInstance db
+        new_vmInstance = VMInstance(name=vm.name, owner_name=username, vm=vm,
+                                    # belong_exp_instance_id=new_expInstance.id,
+                                    server_id=vm_instance['id'], status=vm_instance['status'],
+                                    createtime=datetime.datetime.now(),
+                                    updatetime=datetime.datetime.now(),
+                                    connect_net=netInstance)
+        new_vmInstance.save()
+    else:
+        return HttpResponse("The Network Instance does not exist, please launch it first!")
     return HttpResponseRedirect('/vm_instance_list/')
 
 #---------------------------------------function to repeat use---------------------------------------

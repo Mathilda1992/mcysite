@@ -55,6 +55,7 @@ class AddVMForm(forms.Form):
     name = forms.CharField(label='VM name',max_length=150)
     desc = forms.CharField(label='Description',max_length=500,
                            widget=forms.Textarea(),
+                           initial="Replace with your description for the VM",
                            required =False)
     image_id = forms.ChoiceField(label='Include Images',)
     network_id = forms.ChoiceField(label='Use Networks',)
@@ -64,19 +65,15 @@ class AddVMForm(forms.Form):
     keypair = forms.ChoiceField(label='Keypair',
                                 widget=forms.RadioSelect(),
                                 choices=KEYPAIR_CHOICE_BOX,)
-    security_group = forms.MultipleChoiceField(label='Security Groups',
-                                               widget=forms.CheckboxSelectMultiple,
-                                               choices=SECURITY_GROUP_CHOICE_BOX,)
+    security_group = forms.ChoiceField(label='Security Groups',
+                                widget=forms.RadioSelect(),
+                                choices=SECURITY_GROUP_CHOICE_BOX, )
 
     def __init__(self,*args,**kwargs):
         super(AddVMForm,self).__init__(*args,**kwargs)
         self.fields['image_id'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
         self.fields['network_id'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
 
-    def get_currentuser(self,request):
-        username = request.session['username']
-        t = User.objects.get(username=username)
-        return t
 
 
 class DeleteVMForm(forms.Form):
@@ -103,17 +100,27 @@ class EditVMForm(forms.Form):
                            required=False)
     exp = forms.CharField(label='Belong to Exp',max_length=10,
                              widget=forms.TextInput(attrs={'readonly': 'readonly'}),)
-    image_id = forms.ChoiceField(label='Include Images',choices=IMAGES_CHECKBOX_CHOICES )
-    network_id = forms.ChoiceField(label='Use Networks',choices=NETWORKS_CHECKBOX_CHOICES )
+    image_id = forms.ChoiceField(label='Include Images',)
+    network_id = forms.ChoiceField(label='Use Networks',)
+
     flavor = forms.ChoiceField(label='Flavor',
                                widget=forms.RadioSelect(),
                                choices=FLAVOR_CHOICE_BOX, )
     keypair = forms.ChoiceField(label='Keypair',
                                 widget=forms.RadioSelect(),
                                 choices=KEYPAIR_CHOICE_BOX, )
-    security_group = forms.MultipleChoiceField(label='Security Groups',
-                                               widget=forms.CheckboxSelectMultiple,
-                                               choices=SECURITY_GROUP_CHOICE_BOX, )
+    # security_group = forms.MultipleChoiceField(label='Security Groups',
+    #                                            widget=forms.CheckboxSelectMultiple,
+    #                                            choices=SECURITY_GROUP_CHOICE_BOX, )
+    security_group = forms.ChoiceField(label='Security Groups',
+                                widget=forms.RadioSelect(),
+                                choices=SECURITY_GROUP_CHOICE_BOX, )
+    def __init__(self,*args,**kwargs):
+        super(EditVMForm,self).__init__(*args,**kwargs)
+        self.fields['image_id'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
+        self.fields['network_id'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
+
+
 
 
 class AddExpForm(forms.Form):
