@@ -743,8 +743,6 @@ def create_network(conn, network_name, subnet_name, ip_version, cidr, gateway_ip
         cidr=cidr,
         gateway_ip=gateway_ip)
     # print(new_subnet)
-
-
     #analyse the network object data into a dict!!!!!!!
     list=extract_network(new_network,new_subnet)
     return list
@@ -925,7 +923,6 @@ def add_interface_to_router(conn,router_id,subnet_id,port_id=None):
     print 'Add the subnet to router'
     router1 = conn.network.get_router(router_id)
     router = conn.network.add_interface_to_router(router1,subnet_id)
-    print router
     # router_dict = extract_router(router)
     # return extract_router2(router)
     return router

@@ -127,16 +127,16 @@ class VMImage(models.Model):
     # owner = models.ForeignKey(User)
     owner_name = models.CharField(max_length=50,null=True,blank=True)
     own_project = models.CharField(max_length= 32,null=True)
-    is_public = models.CharField(max_length = 10,default = 'YES')
+    is_public = models.CharField(max_length = 10,default = 'private')#public or private in openstack
     description = models.TextField(max_length=500,blank=True)
     status = models.CharField(max_length = 30,default = 'active')
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True,null=True,blank = True)
-    size = models.BigIntegerField(null=True)
-    min_disk = models.IntegerField(default = 0)
-    min_ram = models.IntegerField(default = 0)
+    size = models.BigIntegerField(null=True,blank=True)
+    min_disk = models.IntegerField(default = 0,null=True,blank=True)
+    min_ram = models.IntegerField(default = 0,null=True,blank=True)
     tags = models.ManyToManyField('Tag')
-    is_shared = models.BooleanField(default=False)
+    is_shared = models.BooleanField(default=False)#control public or private in IserLab
     shared_time = models.DateTimeField(auto_now=True, null=True,editable=True)
     path=models.CharField(max_length=300,null=True,blank=True)
     os = models.CharField(max_length=30,null=True,blank=True)
@@ -358,7 +358,7 @@ class NetworkInstance(models.Model):
     belong_exp_instance_id = models.IntegerField(null=True, blank=True)
     # exp_instance = models.ForeignKey(Score)
 
-    network_instance_id = models.CharField(max_length=50, null=True, blank=True)
+    network_instance_id = models.CharField(max_length=50, null=True, blank=True)#not required,because user can just launch a network
     subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
     tenant_id = models.CharField(max_length=50, null=True, blank=True)
     status = models.CharField(max_length=20, null=True, blank=True)
@@ -379,7 +379,7 @@ class VMInstance(models.Model):
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     vm = models.ForeignKey(VM)
-    belong_exp_instance_id = models.IntegerField(null=True,blank=True)
+    belong_exp_instance_id = models.IntegerField(null=True,blank=True)#not required, because user can just launch a vminstance
     # exp_instance = models.ForeignKey(Score)
     # after finishing creation, fill below fields
     server_id = models.CharField(max_length = 100)

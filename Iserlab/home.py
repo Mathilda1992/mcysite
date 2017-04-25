@@ -1503,11 +1503,9 @@ def repo_search(request):
 
 
 
-
-
         #处理Experiment部分
             # 根据当前用户信息得到的其可见的Experiment
-            private_elist = list(Experiment.objects.filter(exp_owner_id=user_id))
+            private_elist = list(Experiment.objects.filter(exp_owner_name=username))
             shared_elist = list(Experiment.objects.filter(is_shared='True'))
             # 可见的Image为公有和私有的并集
             own_elist = list(set(private_elist) | set(shared_elist))
@@ -1522,10 +1520,6 @@ def repo_search(request):
             if owner:
                 owner_elist = list(Experiment.objects.filter(exp_owner__username=owner))
                 own_elist = list(set(own_elist) & set(owner_elist))
-
-
-
-
 
             own_list = []
             own_list.append(own_ilist)
@@ -1707,7 +1701,6 @@ def group_create(request):
             g.save()
             for stu in stulist:
                 g.student.add(stu)
-
             #refresh the group list
             return HttpResponseRedirect('/stu_home/')
     else:
@@ -1956,8 +1949,45 @@ def server_list(request):
     # define sth used to deliver to html
     ServerList = []
     ServerList = compute_resource_operation.list_servers(conn)
-
     return render(request, 'image_list.html', {'ServerList': ServerList})
+
+def server_stop(request):
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+
+    # conn to openstack API
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                     authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
+    server_id="7b36737a-eecc-445c-8deb-6b07bc8a67fe"
+    compute_resource_operation.start_server(conn,server_id)
+    return HttpResponse("stop a server")
+
+
+def server_snapshot(request):
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+
+    # conn to openstack API
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                     authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
+    server_id="17bb442b-3eec-4f5d-8871-e8bc4cd59c0b"
+    name="111-snapshot-1"
+    compute_resource_operation.create_server_image(conn,server_id,name)
+    return HttpResponse("snapshot a server")
 
 
 #list all image----we use this function
@@ -2774,8 +2804,6 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
         new_net.save()
 
         #create interface to attach network to router
-        print router.name
-        print router.routerIntance_id
         r = network_resource_operation.add_interface_to_router(conn,router.routerIntance_id,new_net.subnet_instance_id)
     print "--------net create complete-------"
 
@@ -2800,8 +2828,6 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
     re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE")
 
     return HttpResponseRedirect('/exp_instance_list/')
-
-
 
 
 
@@ -2876,7 +2902,7 @@ def exp_score_launch1(request,score_id):
     return render(request,'exp_score_launch.html',c)
 
 
-# 2017-03-28 qinli update
+# 2017-03-28 qinli update---can not work successfully
 def exp_score_launch(request,score_id):
     try:
         score = Score.objects.get(id=score_id)
@@ -2991,13 +3017,87 @@ def vm_instance_list(request):
     return render(request,'vm_instance_list.html',context)
 
 
+def vm_instance_detail(request,v_id):
+    try:
+        vi = VMInstance.objects.get(id=v_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
+    c= {}
+    c['DetailDict']=vi
+    return render(request,"vm_instance_detail.html",c)
+
 def vm_instance_goto(request,v_id):
+    try:
+        vi = VMInstance.objects.get(id=v_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
     pass
 
-def vm_instance_save(request,v_id):
+def vm_instance_snapshot(request,v_id):
+    try:
+        vi = VMInstance.objects.get(id=v_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+
+    if request.method == 'POST':
+        rf = CreateVMSnapshot(request.POST)
+        if rf.is_valid():
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+
+            # conn to openstack API
+            conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                             authDict['project_name'],
+                                                             authDict['auth_username'], authDict['auth_password'])
+            # # step1:stop the vm----------can success because the APi is not work
+            # compute_resource_operation.stop_server(conn,vi.server_id)
+
+            print vi.server_id
+            # step2:make snapshot for the vm
+            compute_resource_operation.create_server_image(conn,vi.server_id,name)
+            snapshot = image_resource_operation.find_image(conn,name)
+            print "image in openstack----"
+            print snapshot['id']
+
+            # step3:insert into VMImage
+            print "Step3----here is insert into ExpInstance db"
+            new_image = VMImage(image_id=snapshot['id'],name=name, description=desc, owner_name=username,is_shared=False)
+            new_image.save()
+            print new_image.id
+
+            # step4: update the "result_image" field in VMInstance
+            VMInstance.objects.filter(id=v_id).update(result_image=new_image.id)
+            return HttpResponseRedirect('/repo_private_image_list/')
+
+    else:
+        rf = CreateVMSnapshot()
+    return render(request,"vm_instance_snapshot.html",{'rf':rf})
+
+
+def vm_instance_save(request,v_id):#save as a VM template
+    try:
+        vi = VMInstance.objects.get(id=v_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
+    # step1:get necessary data from VMInstance
+
+
+    # step2:insert a new record into VM
     pass
 
 def vm_instance_delete(request,v_id):
+    try:
+        vi = VMInstance.objects.get(id=v_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
     pass
 
 def net_instance_list(request):
@@ -3023,14 +3123,124 @@ def net_instance_detail(request,n_id):
     return render(request,'net_instance_detail.html',c)
 
 
-def net_instance_edit(request,n_id):
+# def net_instance_edit(request,n_id):
+#     pass
+#
+# def net_instance_save(request,n_id):#insert into Network db
+#     pass
+
+def net_instance_delete(request,ni_id):
+    try:
+        ni = NetworkInstance.objects.get(id=ni_id)
+    except NetworkInstance.DoesNotExist:
+        raise Http404
+    #make sure all VMs on the net instance are DELETED
+    vis = ni.vminstance_set.all()
+    print vis
+    print len(vis)
+    deleted_vi_count =0
+    for vi in vis:
+        if vi.status == "DELETED":
+            deleted_vi_count=deleted_vi_count+1
+    if deleted_vi_count ==len(vis):
+        #all vi on ni deleted,so can delete the ni
+        return HttpResponse("Delete NetworkInstance Success")
+    else:
+        return HttpResponse("There are VM(s) still connecting to the NetworkInstance! Please delete them first!")
+
+def net_instance_create(request):
     pass
 
-def net_instance_save(request,n_id):
+def network_launch(request,n_id):
+    try:
+        n = Network.objects.get(id=n_id)
+    except Network.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username,u.password)
+    else:
+        u = Student.objects.get(stu_username = username)
+        authDict = get_auth_info(u.stu_username,u.stu_password)
+
+    # conn to openstack API
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                     authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
+    #launch network, insert into networkInstance
+    router = RouterInstance.objects.get(owner_username=username)#admin already create a router for this user when register it
+    new_net_instance = network_resource_operation.create_network(conn, n.network_name, n.subnet_name,
+                                                                 n.ip_version, n.cidr, n.gateway_ip)
+    new_net = NetworkInstance(name=n.network_name, owner_name=username, network=n,
+                              network_instance_id=new_net_instance['id'], subnet_instance_id=new_net_instance['sub_id'],
+                              tenant_id=new_net_instance['tenant_id'], status=new_net_instance['status'],
+                              allocation_pools_start=new_net_instance['sub_allocation_pools'][0]['start'],
+                              allocation_pools_end=new_net_instance['sub_allocation_pools'][0]['end'])
+    new_net.save()
+
+    # create interface to attach network to router
+    r = network_resource_operation.add_interface_to_router(conn, router.routerIntance_id, new_net.subnet_instance_id)
+    return HttpResponseRedirect('/net_instance_list/')
+
+
+def vm_launch(request,v_id):
+    try:
+        vm = VM.objects.get(id=v_id)
+    except VM.DoesNotExist:
+        raise Http404
+
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+
+    # conn to openstack API
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                     authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
+
+    # launch VM ,
+    server_name = vm.name
+    image_name = vm.image.name
+    flavor_name = vm.flavor
+    network_name = vm.network.network_name  # should find the net instance
+    private_keypair_name = vm.keypair
+
+    # first check if the needed netInstance exist in NetworkInstance db?
+    
+
+
+
+
+    vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,
+                                                            network_name, private_keypair_name)
+    print "here is vms &&&&&&&&&"
+    print vm_instance['id']
+    #insert into VMInstance db
+    new_vmInstance = VMInstance(name=vm.name, owner_name=username, vm=vm,
+                                # belong_exp_instance_id=new_expInstance.id,
+                                server_id=vm_instance['id'], status=vm_instance['status'],
+                                createtime=datetime.datetime.now(),
+                                updatetime=datetime.datetime.now())
+    new_vmInstance.save()
+    print "--------VM create complete-------"
+    return HttpResponseRedirect('/vm_instance_list/')
+
+#---------------------------------------function to repeat use---------------------------------------
+def createNetInstance(conn,n):#input is netTemplate,output is netInstance
     pass
 
-def net_instance_delete(request,n_id):
+
+def createVMInstance(conn,vm):#input is vmTemplate,output is vmInstance
     pass
+#---------------------------------------function to repeat use---------------------------------------
+
 
 
 #teacher and student diff
@@ -3063,21 +3273,14 @@ def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info det
     return render(request,'exp_instance_detail.html',c)
 
 
-def vm_instance_detail(request,v_id):
-    try:
-        vi = VMInstance.objects.get(id=v_id)
-    except VMInstance.DoesNotExist:
-        raise Http404
-    c= {}
-    c['DetailDict']=vi
-    return render(request,"vm_instance_detail.html",c)
-
 
 
 def exp_instance_goto(request,exp_i_id):#make user login the operate server
     pass
 
-def exp_instance_save(request,exp_i_id):#save the instance as a template
+
+def exp_instance_save(request,exp_i_id):#save the instance as a template:
+
     pass
 
 

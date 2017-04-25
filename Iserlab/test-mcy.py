@@ -72,3 +72,33 @@ class AddGroupForm(forms.Form):
         super(AddGroupForm, self).__init__(*args, **kwargs)
         # t= self.get_currentuser(request)
         self.fields['stulist'].choices = [(i.pk, str(i)) for i in Student.objects.all()]
+
+
+def group_create(request):
+    #get input from UI-----------------------UI---------------------------------
+    username = request.session['username']
+    if request.method == 'POST':
+        rf = AddGroupForm(request.POST)
+        if rf.is_valid():
+            #get data from form
+            gname = rf.cleaned_data['gname']
+            desc = rf.cleaned_data['desc']
+            stu_idlist = rf.cleaned_data['stulist']
+            print stu_idlist
+            #insert into db
+            gteacher = User.objects.get(username=username)
+            stulist = []
+            for i in range(0,len(stu_idlist)):
+                stu = Student.objects.get(id=stu_idlist[i])
+                stulist.append(stu)
+            gcount = len(stu_idlist)
+
+            g = Group(name=gname, desc=desc, teacher=gteacher, stuCount=gcount)
+            g.save()
+            for stu in stulist:
+                g.student.add(stu)
+            #refresh the group list
+            return HttpResponseRedirect('/stu_home/')
+    else:
+        rf = AddGroupForm()
+    return render_to_response("group_create.html", {'rf': rf})

@@ -424,7 +424,7 @@ class EditDeliveryForm(forms.Form):
 class ExpDeliveryForm(forms.Form):
     name = forms.CharField(label='Delivery Name',
                            max_length=50,
-                           error_messages={'required': 'The delivery can not be null!',
+                           error_messages={'required': 'The delivery name can not be null!',
                                            'max_length': 'The delivery name is too long'})
     desc = forms.CharField(label='Description', max_length=500,
                            widget=forms.Textarea(),
@@ -441,11 +441,9 @@ class ExpDeliveryForm(forms.Form):
     #                                        error_messages={'required': 'At least choose one'},
     #                                        )
     startDateTime = forms.DateField(label='Starttime',
-                                    widget=forms.SelectDateWidget,
-                                    )
+                                    widget=forms.SelectDateWidget,)
     endDateTime = forms.DateField(label='Endtime',
-                                  widget=forms.SelectDateWidget,
-                                  )
+                                  widget=forms.SelectDateWidget,)
 
     def __init__(self,*args,**kwargs):
         super(ExpDeliveryForm,self).__init__(*args,**kwargs)
@@ -463,3 +461,34 @@ class search_form(forms.Form):
     name = forms.CharField(max_length=50, required=False)
     owner = forms.CharField(max_length=50, required=False)
     # end 2017-03-28 qinli update
+
+
+class SaveVMasTemplate(forms.Form):
+    name = forms.CharField(label='VM Template Name',max_length=50,
+                           error_messages={'required': 'The VM template name can not be null!',
+                                           'max_length': 'The VM template name is too long'})
+    desc = forms.CharField(label='Description', max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
+                           initial="Replace with your description for the VM",
+                           error_messages={'max_length': 'The description is too long'})
+
+class CreateVMSnapshot(forms.Form):
+    name = forms.CharField(label='VM Snapshot(VMImage) Name', max_length=50,
+                           error_messages={'required': 'The VM snapshot name can not be null!',
+                                           'max_length': 'The VM snapshot name is too long'})
+    desc = forms.CharField(label='Description', max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
+                           initial="Replace with your description for the snapshot",
+                           error_messages={'max_length': 'The description is too long'})
+
+class SaveExpasTemplate(forms.Form):
+    name = forms.CharField(label='Experiment Template Name', max_length=50,
+                           error_messages={'required': 'The Experiment name can not be null!',
+                                           'max_length': 'The Experiment name is too long'})
+    desc = forms.CharField(label='Description', max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
+                           initial="Replace with your description for the Experiment",
+                           error_messages={'max_length': 'The description is too long'})

@@ -11,8 +11,8 @@
             <div class="title">
                 <h2><a href="{% url 'exp_instance_detail' item.id %}" target="_blank">{{ item.id }}</a>：<a href="{% url 'exp_instance_detail' item.id %}" target="_blank">{{ item.name }}</a></h2>
                 <a href="{% url 'net_instance_detail' item.id %}" target="_blank">查看详情</a>|
-                <a href="{% url 'net_instance_edit' item.id %}" target="_blank">编辑网络实例</a>|
-                <a href="{% url 'net_instance_save' item.id %}" target="_blank">保存为模板</a>|
+{#                <a href="{% url 'net_instance_edit' item.id %}" target="_blank">编辑网络实例</a>|#}
+{#                <a href="{% url 'net_instance_save' item.id %}" target="_blank">保存为模板</a>|#}
                 <a href="{% url 'net_instance_delete' item.id %}" target="_blank">删除实例</a>
             </div>
         <div class="info">

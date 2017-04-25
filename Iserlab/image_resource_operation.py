@@ -92,8 +92,9 @@ def extract_image(item):
     dict.setdefault("vm_mode",item.vm_mode)
     dict.setdefault("vmware_adaptertype",item.vmware_adaptertype)
     dict.setdefault("vmware_ostype",item.vmware_ostype)
-    print item.size
-    print
+    print item.name
+    print item.visibility
+    print "--------"
     return dict
 
     # -----------result of dir(image): all attrs of Image object-----------------------------
@@ -180,10 +181,24 @@ def upload_image(conn,image_name, image_data):
         'visibility': 'private', # which was public
     }
     ret_image = conn.image.upload_image(**image_attrs)
-    return ret_image
+    return extract_image(ret_image)
 
 
 def delete_image(conn,image_ID):
     print("Delete Image:")
     example_image = conn.image.find_image(image_ID)
     conn.image.delete_image(example_image, ignore_missing=False)
+
+def find_image(conn,image_name):
+    print("Find Image:")
+    image = conn.image.find_image(image_name,ignore_missing=True)
+    return extract_image(image)
+
+def update_image(conn,image_ID,image_name,visibility):
+    print("Update Image:")
+    image_attrs = {
+        'name':image_name,
+        'visibility':visibility,
+    }
+    updated_image = conn.image.update_image(image_ID,**image_attrs)
+    return extract_image(updated_image)

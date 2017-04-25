@@ -52,6 +52,8 @@ urlpatterns = [
     url(r'^server_list/$',server_list,name='server_list'),
     url(r'^server_create/$', server_create, name='server_create'),
     url(r'^server_delete/$', server_delete, name='server_delete'),
+    url(r'^server_stop/$', server_stop, name='server_stop'),
+    url(r'^server_snapshot/$', server_snapshot, name='server_snapshot'),
     url(r'^flavor_list/$', flavor_list, name='flavor_list'),
 
     url(r'^network_subnet_list/$', network_subnet_list, name='network_subnet_list'),
@@ -164,14 +166,15 @@ urlpatterns = [
     url(r'^vm_instance_list/$',vm_instance_list,name='vm_instance_list'),
     url(r'^vm_instance_detail/(\d+)/$', vm_instance_detail, name='vm_instance_detail'),
     url(r'^vm_instance_goto/(\d+)/$', vm_instance_goto, name='vm_instance_goto'),
+    url(r'^vm_instance_snapshot/(\d+)/$', vm_instance_snapshot, name='vm_instance_snapshot'),
     url(r'^vm_instance_save/(\d+)/$', vm_instance_save, name='vm_instance_save'),
     url(r'^vm_instance_delete/(\d+)/$', vm_instance_delete, name='vm_instance_delete'),
 
     #net instance operate
     url(r'^net_instance_list/$', net_instance_list, name='net_instance_list'),
     url(r'^net_instance_detail/(\d+)/$', net_instance_detail, name='net_instance_detail'),
-    url(r'^net_instance_edit/(\d+)/$', net_instance_edit, name='net_instance_edit'),
-    url(r'^net_instance_save/(\d+)/$', net_instance_save, name='net_instance_save'),
+    # url(r'^net_instance_edit/(\d+)/$', net_instance_edit, name='net_instance_edit'),
+    # url(r'^net_instance_save/(\d+)/$', net_instance_save, name='net_instance_save'),
     url(r'^net_instance_delete/(\d+)/$', net_instance_delete, name='net_instance_delete'),
 
 
@@ -189,6 +192,7 @@ urlpatterns = [
     url(r'^repo_create_network/$', repo_create_network, name='repo_create_network'),
 
 
+
     url(r'^repo_public_exp_delete/(\d+)$',repo_public_exp_delete,name='repo_public_exp_delete'),
     url(r'^repo_public_image_delete/(\d+)$',repo_public_image_delete,name='repo_public_image_delete'),
     url(r'^repo_image_detail/(\d+)$',repo_image_detail,name='repo_image_detail'),
@@ -198,6 +202,7 @@ urlpatterns = [
     url(r'^repo_network_detail/(\d+)$', repo_network_detail, name='repo_network_detail'),
     url(r'^repo_network_edit/(\d+)$', repo_network_edit, name='repo_network_edit'),
     url(r'^repo_network_delete/(\d+)$', repo_network_delete, name='repo_network_delete'),
+    url(r'^network_launch/(\d+)$', network_launch, name='network_launch'),
     url(r'^repo_VM_detail/(\d+)$', repo_VM_detail, name='repo_VM_detail'),
     url(r'^repo_VM_edit/(\d+)$', repo_VM_edit, name='repo_VM_edit'),
     url(r'^repo_VM_delete/(\d+)$', repo_VM_delete, name='repo_VM_delete'),

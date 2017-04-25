@@ -69,12 +69,17 @@ class RouterInstanceAdmin(admin.ModelAdmin):
 class PortInstanceAdmin(admin.ModelAdmin):
     list_display = ('id','owner_username','status','device_owner','network_id','ip_address','portInstance_id')
 
-# class TempExpAdmin(admin.ModelAdmin):
-#     list_display = ('id', 'exp_name', 'exp_owner_name', 'is_shared', 'exp_image_count', 'exp_createtime', 'exp_updatetime')
-#
-# class TempGroupAdmin(admin.ModelAdmin):
-#     list_display = ('id', 'name', 'teacher', 'stuCount', 'created_at',)
-#
+class ImageCartAdmin(admin.ModelAdmin):
+    list_display = ('id','user','image','createtime')
+
+class NetworkCartAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'network', 'createtime')
+
+class MyTempExpAdmin(admin.ModelAdmin):
+    list_display = ('id','teacher','exp','createtime')
+
+class MyTempGroupAdmin(admin.ModelAdmin):
+    list_display = ('id', 'teacher','group', 'createtime')
 
 admin.site.register(User,UserAdmin)
 admin.site.register(Student,StudentAdmin)
@@ -87,8 +92,8 @@ admin.site.register(VMInstance,VMInstanceAdmin)
 admin.site.register(VM,VMAdmin)
 admin.site.register(Delivery,DeliveryAdmin)
 admin.site.register(Score,SocreAdmin)
-admin.site.register(ImageCart)
-admin.site.register(NetworkCart)
+admin.site.register(ImageCart,ImageCartAdmin)
+admin.site.register(NetworkCart,NetworkCartAdmin)
 admin.site.register(NetworkInstance,NetworkInstanceAdmin)
 admin.site.register(RouterInstance,RouterInstanceAdmin)
 admin.site.register(PortInstance,PortInstanceAdmin)
@@ -97,6 +102,6 @@ admin.site.register(ExpInstance,ExpInstanceAdmin)
 # admin.site.register(TempExp,TempExpAdmin)
 # admin.site.register(TempGroup,TempGroupAdmin)
 
-admin.site.register(MyTempExp)
-admin.site.register(MyTempGroup)
+admin.site.register(MyTempExp,MyTempExpAdmin)
+admin.site.register(MyTempGroup,MyTempGroupAdmin)
 

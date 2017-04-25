@@ -12,6 +12,7 @@
                 <h2><a href="{% url 'exp_instance_detail' item.id %}" target="_blank">{{ item.id }}</a>：<a href="{% url 'exp_instance_detail' item.id %}" target="_blank">{{ item.name }}</a></h2>
                 <a href="{% url 'vm_instance_detail' item.id %}" target="_blank">查看详情</a>|
                 <a href="{% url 'vm_instance_goto' item.id %}" target="_blank">进入实例</a>|
+                <a href="{% url 'vm_instance_snapshot' item.id %}" target="_blank">创建快照</a>|
                 <a href="{% url 'vm_instance_save' item.id %}" target="_blank">保存为模板</a>|
                 <a href="{% url 'vm_instance_delete' item.id %}" target="_blank">删除实例</a>|
                 <a href="{% url 'exp_instance_start' item.id %}" >Start</a>|

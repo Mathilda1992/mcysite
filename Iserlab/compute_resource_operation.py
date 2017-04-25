@@ -205,13 +205,13 @@ def list_keypair(conn):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Find resource~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def find_image(conn,image_id):
     image = conn.compute.find_image(image_id)
-    return image.to_dict
+    return image
 
 
 
 def find_flavor(conn,flavor_id):
     flavor = conn.compute.find_flavor(flavor_id)
-    return flavor.to_dict
+    return flavor
 
 
 
@@ -340,7 +340,7 @@ def create_server_image(conn,server_id,image_name,metadata=None):
 
 
 
-def start_server(conn,server_id):
+def start_server(conn,server_id):#AttributeError: 'Proxy' object has no attribute 'stop_server'
     conn.compute.start_server(server_id)
 
 
@@ -367,3 +367,4 @@ def unpause_server(conn,server_id):
 
 def stop_server(conn,server_id):
     conn.compute.stop_server(server_id)
+#__________________------
