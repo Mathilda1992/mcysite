@@ -490,7 +490,10 @@ class CreateVMSnapshot(forms.Form):
                            initial="Replace with your description for the snapshot",
                            error_messages={'max_length': 'The description is too long'})
 
-# class EditVMInstance(forms.Form):
+class EditVMInstance(forms.Form):#according to openstack, it just allowed to edit "name" and "security_group"
+    name = forms.CharField(label='VMInstance Name', max_length=50,
+                           error_messages={'required': 'The VMInstance name can not be null!',
+                                           'max_length': 'The VMInstance name is too long'})
 
 
 
@@ -515,3 +518,7 @@ class SaveNetasTemplate(forms.Form):
                            initial="Replace with your description for the Network",
                            error_messages={'max_length': 'The description is too long'})
 
+class EditNetInstance(forms.Form):#according to openstack, it just allowed to edit "name"
+    name = forms.CharField(label='NetInstance Name', max_length=50,
+                           error_messages={'required': 'The NetInstance name can not be null!',
+                                           'max_length': 'The NetInstance name is too long'})

@@ -2770,14 +2770,14 @@ def exp_detail(request,exp_id):
     topo_info = '{"nodes":['
     for vm in vms:
         count = count + 1
-        topo_info = topo_info + '{"name":"' + vm.name + '","id":' + str(count) + '},'
+        topo_info = topo_info + '{"name":"' + vm.name + '","id":' + str(count) + ',"image":"Q-node"},'
         topo_ndict[vm.name] = count
     for network in networks:
         count = count + 1
-        topo_info = topo_info + '{"name":"' + network.network_name + '","id":' + str(count) + '},'
+        topo_info = topo_info + '{"name":"' + network.network_name + '","id":' + str(count) + ',"image":"Q-cloud"},'
         topo_ndict[network.network_name] = count
     count = count + 1
-    topo_info = topo_info + '{"name":"Router","id":' + str(count) + ',"x":-100,"y":-50}], "edges": ['
+    topo_info = topo_info + '{"id":' + str(count) + ',"x":-100,"y":-50}], "edges": ['
     topo_ndict['router'] = count
 
     count = 0
@@ -2785,14 +2785,9 @@ def exp_detail(request,exp_id):
         count = count + 1
         if count != 1:
             topo_info = topo_info + ','
-        topo_info = topo_info + '{"name":"edge' + str(count) + '","from":' + str(topo_ndict[vm.name]) + ',"to":' + str(
+        topo_info = topo_info + '{"name":"","from":' + str(topo_ndict[vm.name]) + ',"to":' + str(
             topo_ndict[vm.network.network_name]) + '}'
-    for network in networks:
-        count = count + 1
-        if count != 1:
-            topo_info = topo_info + ','
-        topo_info = topo_info + '{"name":"edge' + str(count) + '","from":' + str(
-            topo_ndict[network.network_name]) + ',"to":' + str(topo_ndict['router']) + '}'
+
 
     topo_info = topo_info + ']}'
     Topo = []
@@ -3173,6 +3168,22 @@ def vm_instance_save(request,vi_id):#save as a VM template
         return HttpResponse("please first make a snapshot for the VM Instance.")
 
 
+def vm_instance_save_function(vi,username,new_vm_name,new_vm_desc):
+    if vi.result_image:
+        try:
+            snapshot_image = VMImage.objects.get(id=vi.result_image)
+        except VMImage.DoesNotExist:
+            raise Http404
+        # step2:insert a new record into VM
+        new_vm = VM(name=new_vm_name, desc=new_vm_desc, owner_name=username, image=snapshot_image, network=vi.vm.network, flavor=vi.vm.flavor,
+                    keypair=vi.vm.keypair, security_group=vi.vm.security_group)
+        new_vm.save()
+    else:
+        print "please first make a snapshot for the VM Instance."
+
+
+
+
 def vm_instance_delete(request,vi_id):
     try:
         vi = VMInstance.objects.get(id=vi_id)
@@ -3228,11 +3239,50 @@ def net_instance_detail(request,n_id):
     return render(request,'net_instance_detail.html',c)
 
 
-def net_instance_edit(request,n_id):
+def net_instance_edit(request,ni_id):#according to openstack, it just allowed to edit "name"
     pass
 
-def net_instance_save(request,n_id):#insert into Network db
-    pass
+def net_instance_save(request,ni_id):#insert into Network db
+    try:
+        ni = NetworkInstance.objects.get(id=ni_id)
+    except NetworkInstance.DoesNotExist:
+        raise Http404
+
+    username = request.session['username']
+    role = request.session['role']
+
+    if request.method == 'POST':
+        rf = SaveNetasTemplate(request.POST)
+        if rf.is_valid():
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            # step1:get necessary data
+            subnet_name = name+'_subnet'
+            # step2:insert a new record into VM
+            new_net = Network(network_name=name,network_description=desc,owner_name=username,subnet_name=subnet_name,
+                              ip_version=ni.network.ip_version,cidr=ni.network.cidr,gateway_ip=ni.network.gateway_ip,
+                              enable_dhcp=ni.network.enable_dhcp,dns=ni.network.dns,
+                              allocation_pools_start=ni.network.allocation_pools_start,
+                              allocation_pools_end=ni.network.allocation_pools_end)
+            new_net.save()
+            return HttpResponseRedirect('/repo_private_network_list/')
+    else:
+        rf = SaveNetasTemplate()
+    return render(request,"net_instance_save.html",{'rf':rf})
+
+
+def net_instance_save_function(ni,username,new_net_name,new_net_desc):
+    # step1:get necessary data
+    subnet_name = new_net_name + '_subnet'
+    # step2:insert a new record into VM
+    new_net = Network(network_name=new_net_name, network_description=new_net_desc, owner_name=username, subnet_name=subnet_name,
+                      ip_version=ni.network.ip_version, cidr=ni.network.cidr, gateway_ip=ni.network.gateway_ip,
+                      enable_dhcp=ni.network.enable_dhcp, dns=ni.network.dns,
+                      allocation_pools_start=ni.network.allocation_pools_start,
+                      allocation_pools_end=ni.network.allocation_pools_end)
+    new_net.save()
+
+
 
 def net_instance_delete(request,ni_id):
     try:
@@ -3405,7 +3455,9 @@ def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info det
 
 
 def exp_instance_goto(request,exp_i_id):#make user login the operate server
-    pass
+    c={}
+    c['baiduurl']="http://www.baidu.com"
+    return render(request,"exp_instance_goto.html",c)
 
 
 def exp_instance_save(request,exp_i_id):#save the instance as a template:
@@ -3423,10 +3475,12 @@ def exp_instance_save(request,exp_i_id):#save the instance as a template:
             desc = rf.cleaned_data['desc']
             # step1:get the Experiment needed data from ExpInstance
             #-----get included VM
+            include_vi = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id,)
 
             #-----get included image
 
             #-----get included network
+            included_ni = NetworkInstance.objects.filter(belong_exp_instance_id=exp_i_id)
 
             #----get other data
             exp_image_count=0

@@ -168,14 +168,14 @@ class Tag(models.Model):
 class Network(models.Model):
     network_name = models.CharField(max_length=100)
     network_description = models.TextField(blank=True)
+    # owner = models.ForeignKey(User,null=True)#
+    owner_name = models.CharField(max_length=50, null=True, blank=True)
     subnet_name = models.CharField(max_length=50, null=True)
     ip_version = models.CharField(max_length=2, null=True,default='4')
     cidr = models.CharField(max_length=40, null=True)
     gateway_ip = models.CharField(max_length=50)
     created_at = models.DateTimeField(auto_now_add=True,blank=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True)
-    # owner = models.ForeignKey(User,null=True)#
-    owner_name = models.CharField(max_length=50, null=True, blank=True)
     is_shared = models.BooleanField(default=False)#unused
     shared_time = models.DateTimeField(auto_now=True, null=True, editable=True)#unused
     enable_dhcp = models.BooleanField(default=True)
