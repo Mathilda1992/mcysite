@@ -3449,7 +3449,43 @@ def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info det
     c['username']=request.session['username']
     c['role']=request.session['role']
     c['E_I_Detail_Dict'] = ei_dict
-    return render(request,'exp_instance_detail.html',c)
+
+
+
+    topo_ndict = {}
+    count = 0
+    topo_info = '{"nodes":['
+    for vm in viList:
+        count = count + 1
+        topo_info = topo_info + '{"name":"' + vm.name + '","id":' + str(count) + ',"image":"Q-node"},'
+        topo_ndict[vm.name] = count
+    for network in niList:
+        count = count + 1
+        topo_info = topo_info + '{"name":"' + network.name + '","id":' + str(count) + ',"image":"Q-cloud"},'
+        topo_ndict[network.name] = count
+    count = count + 1
+    topo_info = topo_info + '{"id":' + str(count) + ',"x":-100,"y":-50}], "edges": ['
+    topo_ndict['router'] = count
+
+    count = 0
+    for vm in viList:
+        count = count + 1
+        if count != 1:
+            topo_info = topo_info + ','
+        topo_info = topo_info + '{"name":"","from":' + str(topo_ndict[vm.name]) + ',"to":' + str(
+            topo_ndict[vm.connect_net.name]) + '}'
+
+
+    topo_info = topo_info + ']}'
+    Topo = []
+    Topo.append(topo_info)
+
+    #  Topo=['{"nodes":[{"name": "C", "id": 3},{"name": "A", "x": -100, "y": -50, "id": 1}, {"name": "B", "id": 2}], "edges": [{"name": "Edge", "from":1, "to":2}]}']
+
+    # ly topo 2017/4/6    return render(request, 'exp_detail.html',{'Topo':json.dumps(Topo),'c':c})
+    return render(request, 'exp_instance_detail.html', {'Topo': json.dumps(Topo), 'c': c})
+
+
 
 
 

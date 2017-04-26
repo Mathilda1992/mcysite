@@ -3,13 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>进入实验</title>
+      <style>
+        .document{
+            float: left;
+            width:40%;
+            height:600px;
+            border: solid #6AC5AC 3px;
+        }
+        .info {
+            border: solid #6AC5AC 3px;
+        }
+        .vm{
+            margin-left: 43%;
+            width:56%;
+            height: 600px;
+            border: solid #6AC5AC 3px;
+        }
+        </style>
 </head>
 <body>
-    <div>
+    <div class="info">
         <h1>进入实验</h1>
+        <p>这里可以显示其他实验信息</p>
+        <p>这里可以显示其他实验信息</p>
     </div>
-    <div>
-        <iframe src={{ baiduurl }}></iframe>
+    <div class="document">
+        <p>这是实验说明的显示区域！</p>
+        <embed width="100%" height="88%" src="http://127.0.0.1:8000/static/files/testpdf.pdf"></embed>
+    </div>
+    <div class="vm">
+        <p>这是实验区域！</p>
+        <iframe width="99%" height="88%" src={{ baiduurl }}></iframe>
     </div>
 
 </body>

@@ -186,7 +186,7 @@ a.disabled, a.disabled:hover{cursor:default;pointer-events:none;}
 .quick_toggle i.kfzx{width:15px;height:16px;top:11px;left:12px;background-position:0 -175px;}
 .quick_toggle a:hover i.kfzx{background-position:-33px -175px;}
 /* quick_links_pop */
-.quick_links_pop{position:absolute;top:0;right:0;display:none;box-shadow:0 0 5px #999; border-radius:5px 0 0 5px;border:1px solid #999;behavior:url(js/htc.htc);}
+.quick_links_pop{margin-top:50px;position:absolute;top:0;right:0;display:none;box-shadow:0 0 5px #999; border-radius:5px 0 0 5px;border:1px solid #999;behavior:url(js/htc.htc);}
 .quick_links_pop .arrow, .quick_links_pop .arrow i{display:none;border-color:transparent #ddd;border-style:dashed solid;border-width:12px 0 12px 12px;font-size:0;height:0;width:0;position:absolute;left:100%;top:12px;}
 .quick_links_pop .arrow i{border-color:transparent #f9fafc;margin:-12px 0 0 -13px;left:0;top:0;}
 .quick_links_pop .fix_bg{display:none;border-top-width:0;border-radius:0 0 3px 3px;margin:0 0 -4px -250px;height:2px;width:500px;overflow:hidden;position:absolute;bottom:0;left:50%;}
