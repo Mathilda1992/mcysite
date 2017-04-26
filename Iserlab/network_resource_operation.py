@@ -32,7 +32,7 @@ def extract_router(router):
     # dict.setdefault("_reset_dirty",router._reset_dirty)
     # dict.setdefault("_update_attrs_from_response",router._update_attrs_from_response)
 
-    dict.setdefault("admin_state_up",router.admin_state_up)
+    # dict.setdefault("admin_state_up",router.admin_state_up)
     dict.setdefault("allow_create",router.allow_create)
     dict.setdefault("allow_delete",router.allow_delete)#
     dict.setdefault("allow_head",router.allow_head)
@@ -929,11 +929,13 @@ def add_interface_to_router(conn,router_id,subnet_id,port_id=None):
 
 
 
-def remove_interface_from_router(conn,router,subnet_id,port_id=None):
-    print 'Remove the subnet to router'
-    router = conn.network.remove_interface_to_router(router,subnet_id)
+def remove_interface_from_router(conn,router_id,subnet_id,port_id=None):
+    print 'Remove the subnet from router'
+    router1 = conn.network.get_router(router_id)
+    router = conn.network.remove_interface_from_router(router1,subnet_id)
+    return router
     # router_dict = extract_router(router)
-    return extract_router(router)
+    # return extract_router(router)
 
 
 #***********************Auto Allocated Topology Operations******************/

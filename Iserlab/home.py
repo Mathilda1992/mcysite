@@ -3086,9 +3086,9 @@ def vm_instance_goto(request,v_id):
         raise Http404
     pass
 
-def vm_instance_snapshot(request,v_id):
+def vm_instance_snapshot(request,vi_id):
     try:
-        vi = VMInstance.objects.get(id=v_id)
+        vi = VMInstance.objects.get(id=vi_id)
     except VMInstance.DoesNotExist:
         raise Http404
 
@@ -3128,7 +3128,7 @@ def vm_instance_snapshot(request,v_id):
             print new_image.id
 
             # step4: update the "result_image" field in VMInstance
-            VMInstance.objects.filter(id=v_id).update(result_image=new_image.id)
+            VMInstance.objects.filter(id=vi_id).update(result_image=new_image.id)
             return HttpResponseRedirect('/repo_private_image_list/')
 
     else:
@@ -3136,16 +3136,42 @@ def vm_instance_snapshot(request,v_id):
     return render(request,"vm_instance_snapshot.html",{'rf':rf})
 
 
-def vm_instance_save(request,v_id):#save as a VM template
+def vm_instance_save(request,vi_id):#save as a VM template
     try:
-        vi = VMInstance.objects.get(id=v_id)
+        vi = VMInstance.objects.get(id=vi_id)
     except VMInstance.DoesNotExist:
         raise Http404
-    # step1:get necessary data from VMInstance
+    #first check if the VMInstance slready has a snapshot by check the "result_image" field
+    if vi.result_image:
+        try:
+            snapshot_image = VMImage.objects.get(id=vi.result_image)
+        except VMImage.DoesNotExist:
+            raise Http404
+        username = request.session['username']
+        role = request.session['role']
 
+        if request.method == 'POST':
+            rf = SaveVMasTemplate(request.POST)
+            if rf.is_valid():
+                name = rf.cleaned_data['name']
+                desc = rf.cleaned_data['desc']
 
-    # step2:insert a new record into VM
-    pass
+                # step1:get necessary data from VMInstance
+                network = vi.connect_net.network
+                flavor = vi.vm.flavor
+                keypair = vi.vm.keypair
+                security_group = vi.vm.security_group
+
+                # step2:insert a new record into VM
+                new_vm = VM(name=name,desc=desc,owner_name=username,image=snapshot_image,network=network,flavor=flavor,keypair=keypair,security_group=security_group)
+                new_vm.save()
+                return HttpResponseRedirect('/repo_private_VM_list/')
+        else:
+            rf = SaveVMasTemplate()
+        return render(request, "vm_instance_save.html", {'rf': rf})
+    else:
+        return HttpResponse("please first make a snapshot for the VM Instance.")
+
 
 def vm_instance_delete(request,vi_id):
     try:
@@ -3171,8 +3197,13 @@ def vm_instance_delete(request,vi_id):
 
     #update the "status" field in VMInstance db
     VMInstance.objects.filter(id=vi_id).update(status="DELETED")
-
     return HttpResponse("Delete VM Instance Success!")
+
+
+def vm_instance_edit(request,vi_id):
+    pass
+
+
 
 def net_instance_list(request):
     context = {}
@@ -3197,11 +3228,11 @@ def net_instance_detail(request,n_id):
     return render(request,'net_instance_detail.html',c)
 
 
-# def net_instance_edit(request,n_id):
-#     pass
-#
-# def net_instance_save(request,n_id):#insert into Network db
-#     pass
+def net_instance_edit(request,n_id):
+    pass
+
+def net_instance_save(request,n_id):#insert into Network db
+    pass
 
 def net_instance_delete(request,ni_id):
     try:
@@ -3232,8 +3263,13 @@ def net_instance_delete(request,ni_id):
                                                          authDict['project_name'],
                                                          authDict['auth_username'], authDict['auth_password'])
         # delete in openstack
-        #delete the connect with router
-        please delete the interface from router
+        #------delete the connect with router by deleting the interface from router
+        router = RouterInstance.objects.get(owner_username=username)  # admin already create a router for this user when register it,every user has one router
+        print router
+        print "----now , delete connection with router"
+        network_resource_operation.remove_interface_from_router(conn,router.routerIntance_id,ni.subnet_instance_id)
+        #------
+        print "----now start to delete net instance "
         network_resource_operation.delete_network(conn,ni.network_instance_id)
 
 
@@ -3242,6 +3278,7 @@ def net_instance_delete(request,ni_id):
         return HttpResponse("Delete NetworkInstance Success")
     else:
         return HttpResponse("There are VM(s) still connecting to the NetworkInstance! Please delete them first!")
+
 
 def net_instance_create(request):
     pass
@@ -3372,20 +3409,53 @@ def exp_instance_goto(request,exp_i_id):#make user login the operate server
 
 
 def exp_instance_save(request,exp_i_id):#save the instance as a template:
+    try:
+        ei = ExpInstance.objects.get(id=exp_i_id)
+    except ExpInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
 
-    pass
+    if request.method == 'POST':
+        rf = SaveExpasTemplate(request.POST)
+        if rf.is_valid():
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            # step1:get the Experiment needed data from ExpInstance
+            #-----get included VM
+
+            #-----get included image
+
+            #-----get included network
+
+            #----get other data
+            exp_image_count=0
+            exp_guide_path=ei.exp.exp_guide_path#Actually, it should copy and rename the guide
+            is_shared = False#by default we set it private
+            VM_count=0
+            # step2:insert a new record into Experiment
+            new_exp = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=exp_image_count,
+                                 # exp_images=,exp_network=,
+                                 exp_guide_path=exp_guide_path,is_shared=is_shared,VM_count=VM_count)
+            new_exp.save()
+
+            return HttpResponseRedirect('/repo_private_exp)list/')
+
+    else:
+        rf = SaveExpasTemplate()
+    return render(request,"exp_instance_save.html",)
 
 
 def exp_instance_delete(request,exp_i_id):#delete the exp instance
-    #delete VM
+    #delete VMInstance
 
     #delete interface
 
-    #delete network
+    #delete networkInstance
 
-    #delete gateway
+    #update the "instance_status" field of ExpInstance db
+    ExpInstance.objects.filter(id=exp_i_id).update(instance_status="DELETED",updatetime=datetime.datetime.now())
 
-    #delete router
     pass
 
 def exp_instance_start(request,exp_i_id):
@@ -3577,31 +3647,9 @@ def upload_imageFile():
 #
 
 
-
-
 #***********************************************************************#
 #                  Teacher custom create an Experiment instance         #
 #***********************************************************************#
-
-
-
-#Prepare Images
-#insert into VMImage
-
-
-
-
-#Create exp template
-#insert into Network
-#insert into Experiment
-
-#launch exp instance
-
-
-#save exp
-
-
-
 
 
 

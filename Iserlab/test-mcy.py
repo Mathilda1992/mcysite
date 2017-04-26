@@ -210,3 +210,40 @@ def exp_edit(request,exp_id):
         attrs['vm_count'] = e.VM_count
         gf = EditExpForm(initial=attrs)
     return render_to_response("exp_edit.html",{'rf':gf})
+
+
+def vm_instance_save(request,vi_id):#save as a VM template
+    try:
+        vi = VMInstance.objects.get(id=vi_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
+    #first check if the VMInstance slready has a snapshot by check the "result_image" field
+    if vi.result_image:
+        try:
+            snapshot_image = VMImage.objects.get(id=vi.result_image)
+        except VMImage.DoesNotExist:
+            raise Http404
+        username = request.session['username']
+        role = request.session['role']
+
+        if request.method == 'POST':
+            rf = SaveVMasTemplate(request.POST)
+            if rf.is_valid():
+                name = rf.cleaned_data['name']
+                desc = rf.cleaned_data['desc']
+
+                # step1:get necessary data from VMInstance
+                network = vi.connect_net.network
+                flavor = vi.vm.flavor
+                keypair = vi.vm.keypair
+                security_group = vi.vm.security_group
+
+                # step2:insert a new record into VM
+                new_vm = VM(name=name,desc=desc,owner_name=username,image=snapshot_image,network=network,flavor=flavor,keypair=keypair,security_group=security_group)
+                new_vm.save()
+                return HttpResponseRedirect('/repo_private_VM_list/')
+        else:
+            rf = SaveVMasTemplate()
+        return render(request, "vm_instance_save.html", {'rf': rf})
+    else:
+        return HttpResponse("please first make a snapshot for the VM Instance.")

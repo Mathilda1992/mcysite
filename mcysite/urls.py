@@ -169,12 +169,13 @@ urlpatterns = [
     url(r'^vm_instance_snapshot/(\d+)/$', vm_instance_snapshot, name='vm_instance_snapshot'),
     url(r'^vm_instance_save/(\d+)/$', vm_instance_save, name='vm_instance_save'),
     url(r'^vm_instance_delete/(\d+)/$', vm_instance_delete, name='vm_instance_delete'),
+    url(r'^vm_instance_edit/(\d+)/$', vm_instance_edit, name='vm_instance_edit'),
 
     #net instance operate
     url(r'^net_instance_list/$', net_instance_list, name='net_instance_list'),
     url(r'^net_instance_detail/(\d+)/$', net_instance_detail, name='net_instance_detail'),
-    # url(r'^net_instance_edit/(\d+)/$', net_instance_edit, name='net_instance_edit'),
-    # url(r'^net_instance_save/(\d+)/$', net_instance_save, name='net_instance_save'),
+    url(r'^net_instance_edit/(\d+)/$', net_instance_edit, name='net_instance_edit'),
+    url(r'^net_instance_save/(\d+)/$', net_instance_save, name='net_instance_save'),
     url(r'^net_instance_delete/(\d+)/$', net_instance_delete, name='net_instance_delete'),
 
 

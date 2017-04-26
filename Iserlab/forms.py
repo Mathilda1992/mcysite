@@ -490,6 +490,11 @@ class CreateVMSnapshot(forms.Form):
                            initial="Replace with your description for the snapshot",
                            error_messages={'max_length': 'The description is too long'})
 
+# class EditVMInstance(forms.Form):
+
+
+
+
 class SaveExpasTemplate(forms.Form):
     name = forms.CharField(label='Experiment Template Name', max_length=50,
                            error_messages={'required': 'The Experiment name can not be null!',
@@ -499,3 +504,14 @@ class SaveExpasTemplate(forms.Form):
                            required=False,
                            initial="Replace with your description for the Experiment",
                            error_messages={'max_length': 'The description is too long'})
+
+class SaveNetasTemplate(forms.Form):
+    name = forms.CharField(label='Network Template Name', max_length=50,
+                           error_messages={'required': 'The Net name can not be null!',
+                                           'max_length': 'The Net name is too long'})
+    desc = forms.CharField(label='Description', max_length=500,
+                           widget=forms.Textarea(),
+                           required=False,
+                           initial="Replace with your description for the Network",
+                           error_messages={'max_length': 'The description is too long'})
+

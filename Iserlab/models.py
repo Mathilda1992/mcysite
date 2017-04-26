@@ -270,7 +270,7 @@ class VM(models.Model):
     owner_name = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True,blank=True,editable=True)
     updated_at = models.DateTimeField(auto_now=True, null=True,blank=True,editable=True)
-    exp = models.ForeignKey(Experiment,null=True)
+    exp = models.ForeignKey(Experiment,null=True,blank=True)#not necessary,because user can just create VM
     image = models.ForeignKey(VMImage)
     network = models.ForeignKey(Network)
     flavor = models.CharField(max_length= 10,null = True,blank = True,default='m1.tiny')
@@ -316,7 +316,7 @@ class ExpInstance(models.Model):
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     instance_status = models.CharField(max_length=20, null=True, blank=True, default='UNCHEDED')
-    # ACTIVE,SHUTOFF,PAUSED,SUSPENDED
+    # UNLAUNCHED,ACTIVE,SHUTOFF,PAUSED,SUSPENDED,DELETED
     score_id = models.IntegerField(null=True,blank=True)#if the user is a student, please fill this field
 
     def __unicode__(self):
