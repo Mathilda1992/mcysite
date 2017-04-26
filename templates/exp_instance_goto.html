@@ -23,13 +23,18 @@
 </head>
 <body>
     <div class="info">
-        <h1>进入实验</h1>
-        <p>这里可以显示其他实验信息</p>
-        <p>这里可以显示其他实验信息</p>
+         <h1>进入实验实例：{{ E_I_Detail_Dict.name }}</h1>
+        [<a href="">暂停实验</a>][<a href="">继续实验</a>][<a href="">保存实验</a>][<a href="">关闭实验</a>]
+         <table cellpadding="5">
+             <tr><td>编号</td><td>{{ E_I_Detail_Dict.id }}</td></tr>
+             <tr><td>创建者</td><td>{{ E_I_Detail_Dict.owner_name }}</td></tr>
+             <tr><td>状态</td><td>{{ E_I_Detail_Dict.instance_status }}</td></tr>
+             <tr><td>描述</td><td>{{ E_I_Detail_Dict.exp.exp_description }}</td></tr>
+         </table>
     </div>
     <div class="document">
-        <p>这是实验说明的显示区域！</p>
-        <embed width="100%" height="88%" src="http://127.0.0.1:8000/static/files/testpdf.pdf"></embed>
+        <p>这是实验指导书的显示区域！</p>
+        <embed width="100%" height="88%" src="http://127.0.0.1:8000/static/files/experiment_guide_3.pdf"></embed>
     </div>
     <div class="vm">
         <p>这是实验区域！</p>

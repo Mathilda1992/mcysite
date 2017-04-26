@@ -26,7 +26,7 @@
                     <span class="created" style="color: #6aa84e;">分发时间：{{ item.createTime |date:"Y-m-d H:i"}}</span>
                     <span class="created" style="color: #6aa84e;">实验状态：{{ item.situation }}</span>
                     [<a href="{% url 'exp_detail' item.exp.id %}" target="_blank">查看</a>]
-                    [<a href="{% url 'exp_launch' item.exp.id %}">启动</a>]
+                    [<a href="{% url 'exp_student_launch' item.id %}">启动</a>]
                 </div>
 
             </div>

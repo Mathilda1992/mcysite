@@ -133,6 +133,7 @@ urlpatterns = [
     url(r'^exp_delivery/(\d+)/$', exp_delivery, name='exp_delivery'),
     url(r'^exp_share/(\d+)/$', exp_share, name='exp_share'),
     url(r'^exp_launch/(\d+)/$', exp_launch, name='exp_launch'),
+    url(r'^exp_student_launch/(\d+)/$', exp_student_launch, name='exp_student_launch'),
     url(r'^exp_submit/(\d+)/$', exp_submit, name='exp_submit'),
     url(r'^exp_guide_download/(\d+)/$', exp_guide_download, name='exp_guide_download'),
     url(r'^score_report_download/(\d+)/$', score_report_download, name='score_report_download'),

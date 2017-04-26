@@ -2951,7 +2951,7 @@ def exp_student_launch(request,s_id):# in fact, it create an ExpInstance
 
     #also shold update the Score db
 
-    Score.objects.filter(id=s_id).update(situation='doing',exp_instance_id=new_expInstance.id,times=s.times+1)
+    Score.objects.filter(id=s_id).update(situation='doing',exp_instance_id=new_expInstance.id,times=s.times+1,startTime=datetime.datetime.now())
 
     return HttpResponseRedirect('/exp_instance_list/')
 
@@ -3595,8 +3595,18 @@ def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info det
 
 
 def exp_instance_goto(request,exp_i_id):#make user login the operate server
+    try:
+        ei = ExpInstance.objects.get(id=exp_i_id)
+    except ExpInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+
+
+
     c={}
-    c['baiduurl']="http://www.baidu.com"
+    c['E_I_Detail_Dict']=ei
+    c['baiduurl']=" http://202.112.113.220:6080/vnc_auto.html?token=a0dff238-0199-442c-be38-a74a4dfd11c8"
     return render(request,"exp_instance_goto.html",c)
 
 

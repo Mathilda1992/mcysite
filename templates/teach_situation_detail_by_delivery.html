@@ -23,7 +23,7 @@
                     <a href="">发邮件提醒学生尽快开始实验</a>
                 {% else %}
                     {% ifequal item.situation 'doing' %}
-                        <a href="{% url 'teach_situation_detail_by_scoreID' item.id %}" >观看学生实验操作过程</a>
+{#                        <a href="{% url 'teach_situation_detail_by_scoreID' item.id %}" >观看学生实验操作过程</a>#}
                         {% else %}
                             {% ifequal item.situation 'done' %}
                                     <a href="{% url 'exp_score_launch' item.id%}" target="_blank">查看实验结果</a>

@@ -26,7 +26,10 @@
                     <span class="created" style="color: #6aa84e;">分发时间：{{ item.createTime |date:"Y-m-d H:i" }}</span>
                     <span class="created" style="color: #6aa84e;">实验状态：{{ item.situation }}</span>
                     <span class="catagory" style="color: #ff9900;">实例ID：{{ item.exp_instance_id }}</span>
-                    [<a href="{% url 'exp_instance_detail' item.exp_instance_id %}" target="_blank">查看实例</a>]
+                    [<a href="{% url 'exp_instance_detail' item.exp_instance_id %}" target="_blank">查看实例</a>]|
+                    [<a href="{% url 'exp_instance_detail' item.exp_instance_id %}" target="_blank">初始化实验</a>]
+                    [<a href="{% url 'exp_instance_detail' item.exp_instance_id %}" target="_blank">提交实验</a>]
+
 {#                    [<a href="{% url 'exp_score_delete' item.id %}">删除</a>]#}
 {#                    [<a href="">开始</a>]#}
 {#                    [<a href="">挂起</a>]#}

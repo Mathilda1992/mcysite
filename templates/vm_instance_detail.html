@@ -22,8 +22,8 @@
             <tr><td>名称</td><td>{{ DetailDict.name }}</td></tr>
             <tr><td>编号</td><td>{{ DetailDict.id }}</td></tr>
             <tr><td>创建者</td><td>{{ DetailDict.owner_name }}</td></tr>
-            <tr><td>创建时间</td><td>{{ DetailDict.created_at|date:"Y-m-d H:i" }}</td></tr>
-            <tr><td>更新时间</td><td>{{ DetailDict.updated_at|date:"Y-m-d H:i" }}</td></tr>
+            <tr><td>创建时间</td><td>{{ DetailDict.createtime|date:"Y-m-d H:i" }}</td></tr>
+            <tr><td>更新时间</td><td>{{ DetailDict.updatetime|date:"Y-m-d H:i" }}</td></tr>
             <tr><td>所属实验</td><td>{{ DetailDict.belong_exp_instance_id }}</td></tr>
             <tr><td>状态</td><td>{{ DetailDict.status}}</td></tr>
             <tr><td>主机描述</td><td>{{ DetailDict.vm.desc }}</td></tr>
