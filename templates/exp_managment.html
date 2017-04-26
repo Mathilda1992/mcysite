@@ -3,8 +3,6 @@
 {% block content %}
     {% ifequal role 'teacher' %}
 
-
-
         <div class="header">
             <h1 align="center">实验列表</h1>
         </div>
@@ -23,7 +21,7 @@
                         |<a href="{% url 'exp_share' item.id %}" >共享实验</a>
                     {% endifequal %}
                     |<a href="{% url 'exp_create_VM' item.id %}" target="_blank">添加主机</a>
-                    |<a href="{% url 'exp_delete_VM' item.id %}" target="_blank">删除主机</a>
+                    |<a href="{% url 'exp_delete_VM' item.id %}" target="_blank">移除主机</a>
                 </div>
 
                 <div class="info">
@@ -44,7 +42,7 @@
 
 
         <div class="header">
-            <h1 align="center">All Experiments delivered to me</h1>
+            <h1 align="center">所有实验任务</h1>
             <p align="center" >
                 <a href="/exp_home/">All Exp</a>|
                 <a href="/exp_list_undo/">Undo Exp</a>|
@@ -68,7 +66,27 @@
                 </div>
             </div>
         {% endfor %}
-
+{#        <div align="center">#}
+{#            <table cellpadding="10">#}
+{#                <tr>#}
+{#                    <th>ID</th>#}
+{#                    <th>实验名称</th>#}
+{#                    <th>分发者</th>#}
+{#                    <th>所属分发</th>#}
+{#                    <th>分发时间</th>#}
+{#                    <th>实验状态</th>#}
+{#                </tr>#}
+{#                {% for item in ScoreList %}#}
+{#                <tr>#}
+{#                    <td>{{ item.exp.exp_name }}</td>#}
+{#                    <td>{{ item.scorer  }}</td>#}
+{#                    <td>{{ item.delivery_id  }}</td>#}
+{#                    <td>{{ item.createTime |date:"Y-m-d H:i"}}</td>#}
+{#                    <td>{{ item.situation }}</td>#}
+{#                </tr>#}
+{#                {% endfor %}#}
+{#            </table>#}
+{#        </div>#}
     {% endifequal %}
 
 

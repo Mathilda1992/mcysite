@@ -74,20 +74,22 @@
         				</li>
 						<li role="presentation" class="divider"></li>
         				<li role="presentation" class="dropdown-header">网络</li>
+                        <li role="presentation">
+            				<a role="menuitem" tabindex="-1" href="/repo_private_network_list/">网络列表</a>
+        				</li>
         				<li role="presentation">
             				<a role="menuitem" tabindex="-1" href="/net_instance_list/">网络实例列表</a>
         				</li>
-                        <li role="presentation">
-            				<a role="menuitem" tabindex="-1" href="/repo_private_network_list/">我的网络资源</a>
-        				</li>
+
 						<li role="presentation" class="divider"></li>
         				<li role="presentation" class="dropdown-header">主机系统</li>
+                        <li role="presentation">
+            				<a role="menuitem" tabindex="-1" href="/repo_private_VM_list/">主机系统</a>
+        				</li>
         				<li role="presentation">
             				<a role="menuitem" tabindex="-1" href="/vm_instance_list/">主机实例列表</a>
         				</li>
-                        <li role="presentation">
-            				<a role="menuitem" tabindex="-1" href="/repo_private_VM_list/">我的主机资源</a>
-        				</li>
+
     				</ul>
     			</li>
 				<li class="dropdown">
@@ -128,11 +130,8 @@
         				<li role="presentation">
             				<a role="menuitem" tabindex="-1" href="/stu_home/">群组列表</a>
         				</li>
-        				<li role="presentation">
-            				<a role="menuitem" tabindex="-1" href="/group_create/" target="_blank">新建群组</a>
-        				</li>
                         <li role="presentation">
-            				<a role="menuitem" tabindex="-1" href="/exp_instance_list/">实验实例列表</a>
+            				<a role="menuitem" tabindex="-1" href="/group_create/" target="_blank">新建群组</a>
         				</li>
 						<li role="presentation" class="divider"></li>
         				<li role="presentation" class="dropdown-header">分发管理</li>
@@ -159,34 +158,61 @@
 
     			</li>
                 <li class="dropdown">
-					<a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user">购物车</span><span class="caret"></span>
+					<a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user">我的工具箱</span><span class="caret"></span>
 					</a>
       				<ul class="dropdown-menu">
-       					<li><a href="/repo_ImageCart_list/">镜像购物车</a></li>
-						<li><a href="/repo_NetworkCart_list/">网络购物车</a></li>
+       					<li><a href="/repo_ImageCart_list/">镜像工具箱</a></li>
+						<li><a href="/repo_NetworkCart_list/">网络工具箱</a></li>
       				</ul>
     			</li>
 
     			</li>
 
-
-
 {#				<li><a href="/download_file/"><span class="glyphicon glyphicon-save">下载</span></a></li>#}
-                <li><a href="/openstack_API_home"><span class="glyphicon glyphicon-cloud">测试OpenStackAPI连接</span></a></li>
-				<li><a href="/login/"><span class="glyphicon glyphicon-log-out">退出</span></a></li>
+{#                <li><a href="/openstack_API_home"><span class="glyphicon glyphicon-cloud">测试OpenStackAPI连接</span></a></li>#}
+				<li><a href="/login/"><span class="glyphicon glyphicon-log-out">退出平台</span></a></li>
 
 			</ul>
 		</div><!-- /.nav-collapse -->
 	</div><!-- /.container -->
 </div>
 
-
+<div class="mui-mbar-tabs">
+	<div class="quick_link_mian">
+		<div class="quick_links_panel">
+			<div id="quick_links" class="quick_links">
+				<li>
+					<a href="#" class="my_qlinks"><i class="setting"></i></a>
+					<div class="ibar_login_box status_login">
+						<div class="avatar_box">
+							<ul class="user_info">
+								<li>用户名：{{username}}</li>
+								<li>用户身份：{{role}}</li>
+							</ul>
+						</div>
+						<div class="login_btnbox">
+							<a href="/login/" class="login_order">退出平台</a>
+						</div>
+						<i class="icon_arrow_white"></i>
+					</div>
+				</li>
+				<li id="shopCart">
+					<a href="#" class="message_list" ><i class="message"></i><div class="span">工具箱</div><span class="cart_num">0</span></a>
+				</li>
+			</div>
+			<div class="quick_toggle">
+				<li><a href="#top" class="return_top"><i class="top"></i></a></li>
+			</div>
+		</div>
+		<div id="quick_links_pop" class="quick_links_pop hide"></div>
+	</div>
+</div>
   <!--  <div>
         <ul>
             <li><a href="/stu_home/" >学员管理</a></li>
             <li><a href="/exp_home/" >实验管理</a></li>
             <li><a href="/repo_home/" >资源库</a></li>
-            <li><a href="/teach_home/" >教学统计中心</a></li>
+            <li><a href="/teach_home/" >教学统计</a></li>
             <li><a href="/download_file/">下载</a></li>
             <li><a href="/openstack_API_home/">测试OpenStack API连接</a></li>
         </ul>
@@ -210,18 +236,19 @@
         <div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav nav-tabs">
 				<li class="dropdown">
-					<a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list">实验管理</span><span class="caret"></span>
+					<a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list">实验任务</span><span class="caret"></span>
 					</a>
       				<ul class="dropdown-menu">
-       					<li><a href="/exp_home/">All Exp</a></li>
+       					<li><a href="/exp_home/">所有实验任务</a></li>
 						<li><a href="/exp_list_undo/">undo Exp</a></li>
                         <li><a href="/exp_list_doing/">Doing Exp</a></li>
                         <li><a href="/exp_list_done/">Done Exp</a></li>
                         <li><a href="/exp_list_scored/">Scored Exp</a></li>
+                        <li><a href="/exp_instance_list/">实验实例</a></li>
       				</ul>
     			</li>
                 <li class="dropdown">
-					<a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-stats">教学统计</span><span class="caret"></span>
+					<a class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-stats">成绩统计</span><span class="caret"></span>
 					</a>
       				<ul class="dropdown-menu">
        					<li><a href="/teach_home/">按实验查看</a></li>
@@ -229,7 +256,7 @@
       				</ul>
     			</li>
 
-				<li><a href="/login/"><span class="glyphicon glyphicon-log-out">退出</span></a></li>
+				<li><a href="/login/"><span class="glyphicon glyphicon-log-out">退出平台</span></a></li>
 			</ul>
 		</div>
 
@@ -272,36 +299,12 @@
 </div>
 {% endblock %}
 
-<div class="mui-mbar-tabs">
-	<div class="quick_link_mian">
-		<div class="quick_links_panel">
-			<div id="quick_links" class="quick_links">
-				<li>
-					<a href="#" class="my_qlinks"><i class="setting"></i></a>
-					<div class="ibar_login_box status_login">
-						<div class="avatar_box">
-							<ul class="user_info">
-								<li>用户名：{{username}}</li>
-								<li>用户身份：{{role}}</li>
-							</ul>
-						</div>
-						<div class="login_btnbox">
-							<a href="/login/" class="login_order">退出</a>
-						</div>
-						<i class="icon_arrow_white"></i>
-					</div>
-				</li>
-				<li id="shopCart">
-					<a href="#" class="message_list" ><i class="message"></i><div class="span">购物车</div><span class="cart_num">0</span></a>
-				</li>
-			</div>
-			<div class="quick_toggle">
-				<li><a href="#top" class="return_top"><i class="top"></i></a></li>
-			</div>
-		</div>
-		<div id="quick_links_pop" class="quick_links_pop hide"></div>
-	</div>
-</div>
+
+
+
+
+
+
 <!--[if lte IE 8]>
 <script src="js/ieBetter.js"></script>
 <![endif]-->

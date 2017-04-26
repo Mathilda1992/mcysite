@@ -226,7 +226,7 @@ class ImageCart(models.Model):
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return u'%s,%s' % (self.id,self.image.name)
+        return u'%s' % (self.image.name)
 
     class Meta:
         ordering = ['-createtime']
@@ -240,7 +240,7 @@ class NetworkCart(models.Model):
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return u'%s,%s' % (self.id,self.network.network_name)
+        return u'%s' % (self.network.network_name)
 
     class Meta:
         ordering = ['-createtime']
@@ -473,7 +473,7 @@ class MyTempExp(models.Model):
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
 
     def __unicode__(self):
-        return u'%s,%s,%s' % (self.id, self.exp.exp_name,self.exp.exp_owner_name)
+        return u'%s,%s' % (self.exp.exp_name,self.exp.exp_owner_name)
 
     class Meta:
         ordering = ['-createtime']
@@ -502,7 +502,7 @@ class MyTempGroup(models.Model):
 
 
     def __unicode__(self):
-        return u'%s,%s,%s' % (self.id,self.group.name,self.group.teacher)
+        return u'%s,%s' % (self.group.name,self.group.teacher)
 
     class Meta:
         ordering = ['-createtime']

@@ -10,16 +10,20 @@
         <div align="center" class="blog">
             <div class="title">
                 <h2><a href="{% url 'exp_instance_detail' item.id %}" target="_blank">{{ item.id }}</a>：<a href="{% url 'exp_instance_detail' item.id %}" target="_blank">{{ item.name }}</a></h2>
-                <a href="{% url 'exp_instance_detail' item.id %}" target="_blank">查看详情</a>|
+                <a href="{% url 'exp_instance_detail' item.id %}" target="_blank">详情</a>|
                 <a href="{% url 'exp_instance_goto' item.id %}" target="_blank">进入实验</a>|
-                <a href="{% url 'exp_instance_save' item.id %}" target="_blank">保存为模板</a>|
-                <a href="{% url 'exp_instance_delete' item.id %}" target="_blank">删除实例</a>|
-                <a href="{% url 'exp_instance_start' item.id %}" >Start</a>|
-                <a href="{% url 'exp_instance_stop' item.id %}" >Stop</a>|
-                <a href="{% url 'exp_instance_pause' item.id %}" >Pause</a>|
-                <a href="{% url 'exp_instance_unpause' item.id %}" >Unpause</a>|
-                <a href="{% url 'exp_instance_suspend' item.id %}" >Suspend</a>|
-                <a href="{% url 'exp_instance_resume' item.id %}" >Resume</a>
+                <a href="{% url 'exp_instance_save_it' item.id %}" target="_blank">保存实验</a>|
+                <a href="{% url 'exp_instance_recover_it' item.id %}" target="_blank">恢复实验</a>|
+                {% ifequal role 'teacher' %}
+                    <a href="{% url 'exp_instance_save' item.id %}" target="_blank">另存为模板</a>|
+                {% endifequal %}
+                <a href="{% url 'exp_instance_delete' item.id %}" target="_blank">删除</a>
+{#                <a href="{% url 'exp_instance_start' item.id %}" >Start</a>|#}
+{#                <a href="{% url 'exp_instance_stop' item.id %}" >Stop</a>|#}
+{#                <a href="{% url 'exp_instance_pause' item.id %}" >Pause</a>|#}
+{#                <a href="{% url 'exp_instance_unpause' item.id %}" >Unpause</a>|#}
+{#                <a href="{% url 'exp_instance_suspend' item.id %}" >Suspend</a>|#}
+{#                <a href="{% url 'exp_instance_resume' item.id %}" >Resume</a>#}
 
             </div>
         <div class="info">

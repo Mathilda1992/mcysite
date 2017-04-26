@@ -2817,8 +2817,8 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
         authDict = get_auth_info(u.stu_username,u.stu_password)
 
     # insert into ExpInstance db
-    print "here is inset into ExpInstance db"
-    name = e.exp_name+'_instance'
+
+    name = e.exp_name+'_instance'+username
     new_expInstance = ExpInstance(name= name,exp=e,owner_name=username,instance_status='Launching')
     new_expInstance.save()
     print new_expInstance.id
@@ -2864,16 +2864,94 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
                                                                     network_name, private_keypair_name)
             # insert into VMInstance db
             new_vmInstance = VMInstance(name=vm.name, owner_name=username, vm=vm,
-                                        # belong_exp_instance_id=new_expInstance.id,
+                                        belong_exp_instance_id=new_expInstance.id,
                                         server_id=vm_instance['id'], status=vm_instance['status'],
                                         createtime=datetime.datetime.now(),
                                         updatetime=datetime.datetime.now(),
                                         connect_net=netInstance)
             new_vmInstance.save()
     print "--------VM create complete-------"
-
     #if both network and VMs create successfully, should update the status of ExpInstance
     re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE")
+    return HttpResponseRedirect('/exp_instance_list/')
+
+
+# if student, should update Score db
+def exp_student_launch(request,s_id):# in fact, it create an ExpInstance
+    try:
+        s = Score.objects.get(id=s_id)
+    except Score.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username,u.password)
+    else:
+        u = Student.objects.get(stu_username = username)
+        authDict = get_auth_info(u.stu_username,u.stu_password)
+
+    # insert into ExpInstance db
+    e = s.exp
+    name = e.exp_name+'_instance'+username
+    new_expInstance = ExpInstance(name= name,exp=e,owner_name=username,instance_status='Launching')
+    new_expInstance.save()
+    print new_expInstance.id
+
+    # conn to openstack API
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                     authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
+    #launch network, insert into networkInstance
+    nets = e.exp_network.all()
+    router = RouterInstance.objects.get(owner_username=username)#admin already create a router for this user when register it
+    for item in nets:
+        new_net_instance = network_resource_operation.create_network(conn,item.network_name,item.subnet_name,
+                                                                     item.ip_version,item.cidr,item.gateway_ip)
+        print "here is network *******"
+        print new_net_instance['id']
+        new_net = NetworkInstance(name=item.network_name,owner_name=username,network=item,belong_exp_instance_id=new_expInstance.id,
+                              network_instance_id=new_net_instance['id'],subnet_instance_id=new_net_instance['sub_id'],
+                              tenant_id = new_net_instance['tenant_id'],status=new_net_instance['status'],
+                              allocation_pools_start=new_net_instance['sub_allocation_pools'][0]['start'],
+                              allocation_pools_end=new_net_instance['sub_allocation_pools'][0]['end'])
+        new_net.save()
+
+        #create interface to attach network to router
+        r = network_resource_operation.add_interface_to_router(conn,router.routerIntance_id,new_net.subnet_instance_id)
+    print "--------net create complete-------"
+
+    # launch VM , insert into VMInstance
+    vms = e.vm_set.all()  # 需要用foreignkey功能的话需要在VM的model中加入related_name
+    for vm in vms:
+        # launch VM ,
+        server_name = vm.name
+        image_name = vm.image.name
+        flavor_name = vm.flavor
+        network_name = vm.network.network_name  # should find the net instance
+        private_keypair_name = vm.keypair
+
+        # first check if the needed netInstance exist in NetworkInstance db?
+        ni = NetworkInstance.objects.filter(owner_name=username, network=vm.network, status="ACTIVE")
+        if len(ni) > 0:  # the Network Instance exist
+            netInstance = NetworkInstance.objects.get(owner_name=username, network=vm.network, status="ACTIVE")
+            vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,
+                                                                    network_name, private_keypair_name)
+            # insert into VMInstance db
+            new_vmInstance = VMInstance(name=vm.name, owner_name=username, vm=vm,
+                                        belong_exp_instance_id=new_expInstance.id,
+                                        server_id=vm_instance['id'], status=vm_instance['status'],
+                                        createtime=datetime.datetime.now(),
+                                        updatetime=datetime.datetime.now(),
+                                        connect_net=netInstance)
+            new_vmInstance.save()
+    print "--------VM create complete-------"
+    #if both network and VMs create successfully, should update the status of ExpInstance
+    re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE")
+
+    #also shold update the Score db
+
+    Score.objects.filter(id=s_id).update(situation='doing',exp_instance_id=new_expInstance.id,times=s.times+1)
 
     return HttpResponseRedirect('/exp_instance_list/')
 
@@ -3046,6 +3124,7 @@ def exp_instance_list(request):
 
     username = request.session['username']
     ExpInstanceList = ExpInstance.objects.filter(owner_name = username).order_by('-createtime')
+
     context['ExpInstanceList'] = ExpInstanceList
     return render(request,'exp_instance_list.html',context)
 
@@ -3061,6 +3140,7 @@ def vm_instance_list(request):
 
     username = request.session['username']
     VMInstanceList = VMInstance.objects.filter(owner_name = username).order_by('-createtime')
+    VMInstanceList = VMInstanceList.exclude(status="DELETED")#do not list DELETED instance
     context['VMInstanceList'] = VMInstanceList
     return render(request,'vm_instance_list.html',context)
 
@@ -3109,26 +3189,40 @@ def vm_instance_snapshot(request,vi_id):
             # # step1:stop the vm----------can success because the APi is not work
             # compute_resource_operation.stop_server(conn,vi.server_id)
 
-            print vi.server_id
+            # print vi.server_id
             # step2:make snapshot for the vm
             compute_resource_operation.create_server_image(conn,vi.server_id,name)
             snapshot = image_resource_operation.find_image(conn,name)
-            print "image in openstack----"
-            print snapshot['id']
+            # print "image in openstack----"
+            # print snapshot['id']
 
             # step3:insert into VMImage
-            print "Step3----here is insert into ExpInstance db"
+            # print "Step3----here is insert into ExpInstance db"
             new_image = VMImage(image_id=snapshot['id'],name=name, description=desc, owner_name=username,is_shared=False)
             new_image.save()
-            print new_image.id
+            # print new_image.id
 
             # step4: update the "result_image" field in VMInstance
             VMInstance.objects.filter(id=vi_id).update(result_image=new_image.id)
+
             return HttpResponseRedirect('/repo_private_image_list/')
 
     else:
         rf = CreateVMSnapshot()
     return render(request,"vm_instance_snapshot.html",{'rf':rf})
+
+def vm_instance_snapshot_function(conn,vi,username,new_sp_name,new_sp_desc):
+    #make sp in openstack
+    compute_resource_operation.create_server_image(conn, vi.server_id, new_sp_name)
+    snapshot = image_resource_operation.find_image(conn, new_sp_name)
+
+    #insert into db
+    new_image = VMImage(image_id=snapshot['id'], name=new_sp_name, description=new_sp_desc, owner_name=username, is_shared=False)
+    new_image.save()
+
+    #update the "result_image" field in VMInstance
+    VMInstance.objects.filter(id=vi.id).update(result_image=new_image.id)
+    return new_image.id
 
 
 def vm_instance_save(request,vi_id):#save as a VM template
@@ -3136,51 +3230,62 @@ def vm_instance_save(request,vi_id):#save as a VM template
         vi = VMInstance.objects.get(id=vi_id)
     except VMInstance.DoesNotExist:
         raise Http404
+
     #first check if the VMInstance slready has a snapshot by check the "result_image" field
-    if vi.result_image:
-        try:
-            snapshot_image = VMImage.objects.get(id=vi.result_image)
-        except VMImage.DoesNotExist:
-            raise Http404
-        username = request.session['username']
-        role = request.session['role']
-
-        if request.method == 'POST':
-            rf = SaveVMasTemplate(request.POST)
-            if rf.is_valid():
-                name = rf.cleaned_data['name']
-                desc = rf.cleaned_data['desc']
-
-                # step1:get necessary data from VMInstance
-                network = vi.connect_net.network
-                flavor = vi.vm.flavor
-                keypair = vi.vm.keypair
-                security_group = vi.vm.security_group
-
-                # step2:insert a new record into VM
-                new_vm = VM(name=name,desc=desc,owner_name=username,image=snapshot_image,network=network,flavor=flavor,keypair=keypair,security_group=security_group)
-                new_vm.save()
-                return HttpResponseRedirect('/repo_private_VM_list/')
-        else:
-            rf = SaveVMasTemplate()
-        return render(request, "vm_instance_save.html", {'rf': rf})
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
     else:
-        return HttpResponse("please first make a snapshot for the VM Instance.")
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
 
+    if request.method == 'POST':
+        rf = SaveVMasTemplate(request.POST)
+        if rf.is_valid():
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
 
-def vm_instance_save_function(vi,username,new_vm_name,new_vm_desc):
-    if vi.result_image:
-        try:
-            snapshot_image = VMImage.objects.get(id=vi.result_image)
-        except VMImage.DoesNotExist:
-            raise Http404
-        # step2:insert a new record into VM
-        new_vm = VM(name=new_vm_name, desc=new_vm_desc, owner_name=username, image=snapshot_image, network=vi.vm.network, flavor=vi.vm.flavor,
-                    keypair=vi.vm.keypair, security_group=vi.vm.security_group)
-        new_vm.save()
+            # conn to openstack API
+            conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                             authDict['project_name'],
+                                                             authDict['auth_username'], authDict['auth_password'])
+            vm_instance_save_function(conn, vi, username, name, desc)
+
+            return HttpResponseRedirect('/repo_private_VM_list/')
     else:
-        print "please first make a snapshot for the VM Instance."
+        rf = SaveVMasTemplate()
+    return render(request, "vm_instance_save.html", {'rf': rf})
 
+
+
+# def vm_instance_save_function(vi,username,new_vm_name,new_vm_desc):
+#     if vi.result_image:
+#         try:
+#             snapshot_image = VMImage.objects.get(id=vi.result_image)
+#         except VMImage.DoesNotExist:
+#             raise Http404
+#         # step2:insert a new record into VM
+#         new_vm = VM(name=new_vm_name, desc=new_vm_desc, owner_name=username, image=snapshot_image, network=vi.vm.network, flavor=vi.vm.flavor,
+#                     keypair=vi.vm.keypair, security_group=vi.vm.security_group)
+#         new_vm.save()
+#         return new_vm.id
+#     else:
+#         print "please first make a snapshot for the VM Instance."
+
+
+def vm_instance_save_function(conn,vi,username,new_vm_name,new_vm_desc):
+    # step1:make sp for the vm
+    new_sp_name = '_' + vi.name + '_sp' + time.strftime('%Y-%m-%d %X', time.localtime())
+    new_sp_desc = "Please input description for the sp."
+    sp_id = vm_instance_snapshot_function(conn, vi, username, new_sp_name, new_sp_desc)
+    snapshot_image = VMImage.objects.get(id=sp_id)
+    # step2:insert a new record into VM
+    new_vm = VM(name=new_vm_name, desc=new_vm_desc, owner_name=username, image=snapshot_image, network=vi.connect_net.network, flavor=vi.vm.flavor,
+                keypair=vi.vm.keypair, security_group=vi.vm.security_group)
+    new_vm.save()
+    return new_vm.id
 
 
 
@@ -3226,6 +3331,7 @@ def net_instance_list(request):
 
     username = request.session['username']
     NetworkInstanceList = NetworkInstance.objects.filter(owner_name=username).order_by('-createtime')
+    NetworkInstanceList = NetworkInstanceList.exclude(status = "DELETED")
     context['NetworkInstanceList'] = NetworkInstanceList
     return render(request, 'net_instance_list.html', context)
 
@@ -3281,7 +3387,7 @@ def net_instance_save_function(ni,username,new_net_name,new_net_desc):
                       allocation_pools_start=ni.network.allocation_pools_start,
                       allocation_pools_end=ni.network.allocation_pools_end)
     new_net.save()
-
+    return new_net.id
 
 
 def net_instance_delete(request,ni_id):
@@ -3450,8 +3556,6 @@ def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info det
     c['role']=request.session['role']
     c['E_I_Detail_Dict'] = ei_dict
 
-
-
     topo_ndict = {}
     count = 0
     topo_info = '{"nodes":['
@@ -3496,6 +3600,12 @@ def exp_instance_goto(request,exp_i_id):#make user login the operate server
     return render(request,"exp_instance_goto.html",c)
 
 
+def exp_instance_recover_it(request,exp_i_id):
+    pass
+
+def exp_instance_save_it(request,exp_i_id):
+    pass
+
 def exp_instance_save(request,exp_i_id):#save the instance as a template:
     try:
         ei = ExpInstance.objects.get(id=exp_i_id)
@@ -3510,30 +3620,60 @@ def exp_instance_save(request,exp_i_id):#save the instance as a template:
             name = rf.cleaned_data['name']
             desc = rf.cleaned_data['desc']
             # step1:get the Experiment needed data from ExpInstance
+            # ----get data
+            exp_image_count = 0
+            exp_guide_path = ei.exp.exp_guide_path  # Actually, it should copy and rename the guide
+            is_shared = False  # by default we set it private
+            VM_count = 0
+            # step2:insert a new record into Experiment
+            new_exp = Experiment(exp_name=name, exp_description=desc, exp_owner_name=username,
+                                 exp_image_count=exp_image_count,
+                                 exp_guide_path=exp_guide_path, is_shared=is_shared, VM_count=VM_count)
+            new_exp.save()
+
+            if role == 'teacher':
+                u = User.objects.get(username=username)
+                authDict = get_auth_info(u.username, u.password)
+            else:
+                u = Student.objects.get(stu_username=username)
+                authDict = get_auth_info(u.stu_username, u.stu_password)
+
+            # conn to openstack API
+            conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                             authDict['project_name'],
+                                                             authDict['auth_username'], authDict['auth_password'])
+
+            included_image_list =[]
             #-----get included VM
-            include_vi = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id,)
+            include_vi = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
+            include_vi = include_vi.exclude(status="DELETED")
+            for vi in include_vi:
+                #then save the vminstance
+                v_id = vm_instance_save_function(conn,vi,username,vi.vm.name,vi.vm.desc)
+                VM.objects.filter(id=v_id).update(exp=new_exp)
+
+                v = VM.objects.get(id=v_id)
+                if v.image not in included_image_list:
+                    included_image_list.append(v.image)
 
             #-----get included image
+            for i in included_image_list:
+                new_exp.exp_images.add(i)
 
             #-----get included network
             included_ni = NetworkInstance.objects.filter(belong_exp_instance_id=exp_i_id)
+            included_ni = included_ni.exclude(status="DELETED")
+            for ni in included_ni:
+                n_id = net_instance_save_function(ni,username,ni.network.network_name,ni.network.network_description)
+                n = Network.objects.get(id=n_id)
+                new_exp.exp_network.add(n)
 
-            #----get other data
-            exp_image_count=0
-            exp_guide_path=ei.exp.exp_guide_path#Actually, it should copy and rename the guide
-            is_shared = False#by default we set it private
-            VM_count=0
-            # step2:insert a new record into Experiment
-            new_exp = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=exp_image_count,
-                                 # exp_images=,exp_network=,
-                                 exp_guide_path=exp_guide_path,is_shared=is_shared,VM_count=VM_count)
-            new_exp.save()
+            Experiment.objects.filter(id=new_exp.id).update(exp_image_count=len(included_image_list),VM_count=len(include_vi))
 
-            return HttpResponseRedirect('/repo_private_exp)list/')
-
+            return HttpResponseRedirect('/repo_private_exp_list/')
     else:
         rf = SaveExpasTemplate()
-    return render(request,"exp_instance_save.html",)
+    return render(request,"exp_instance_save.html",{'rf':rf})
 
 
 def exp_instance_delete(request,exp_i_id):#delete the exp instance

@@ -155,12 +155,15 @@ urlpatterns = [
     url(r'^exp_instance_save/(\d+)/$', exp_instance_save, name='exp_instance_save'),
     url(r'^exp_instance_delete/(\d+)/$', exp_instance_delete, name='exp_instance_delete'),
 
-    url(r'^exp_instance_start/(\d+)/$', exp_instance_start, name='exp_instance_start'),
-    url(r'^exp_instance_stop/(\d+)/$', exp_instance_stop, name='exp_instance_stop'),
-    url(r'^exp_instance_pause/(\d+)/$', exp_instance_pause, name='exp_instance_pause'),
-    url(r'^exp_instance_unpause/(\d+)/$', exp_instance_unpause, name='exp_instance_unpause'),
-    url(r'^exp_instance_suspend/(\d+)/$', exp_instance_suspend, name='exp_instance_suspend'),
-    url(r'^exp_instance_resume/(\d+)/$', exp_instance_resume, name='exp_instance_resume'),
+    url(r'^exp_instance_recover_it/(\d+)/$', exp_instance_recover_it, name='exp_instance_recover_it'),
+    url(r'^exp_instance_save_it/(\d+)/$', exp_instance_save_it, name='exp_instance_save_it'),
+
+    # url(r'^exp_instance_start/(\d+)/$', exp_instance_start, name='exp_instance_start'),
+    # url(r'^exp_instance_stop/(\d+)/$', exp_instance_stop, name='exp_instance_stop'),
+    # url(r'^exp_instance_pause/(\d+)/$', exp_instance_pause, name='exp_instance_pause'),
+    # url(r'^exp_instance_unpause/(\d+)/$', exp_instance_unpause, name='exp_instance_unpause'),
+    # url(r'^exp_instance_suspend/(\d+)/$', exp_instance_suspend, name='exp_instance_suspend'),
+    # url(r'^exp_instance_resume/(\d+)/$', exp_instance_resume, name='exp_instance_resume'),
 
     #vm instance operate
     url(r'^vm_instance_list/$',vm_instance_list,name='vm_instance_list'),

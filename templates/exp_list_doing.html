@@ -2,7 +2,6 @@
 
 {% block content %}
 
-        <p>这是学生看到的实验管理页面</p>
 
         <div class="header">
             <h1 align="center">Doing Experiments</h1>
@@ -26,15 +25,16 @@
                     <span class="author" style="color: #4a86e8;">所属分发：{{ item.delivery_id  }}</span>
                     <span class="created" style="color: #6aa84e;">分发时间：{{ item.createTime |date:"Y-m-d H:i" }}</span>
                     <span class="created" style="color: #6aa84e;">实验状态：{{ item.situation }}</span>
-                    [<a href="{% url 'exp_detail' item.exp.id %}" target="_blank">查看</a>]
-                    [<a href="{% url 'exp_score_delete' item.id %}">删除</a>]
-                    [<a href="">开始</a>]
-                    [<a href="">挂起</a>]
-                    [<a href="">恢复</a>]
-                    [<a href="">暂停</a>]
-                    [<a href="">继续</a>]
-                    [<a href="">关闭</a>]
-                    [<a href="">保存</a>]
+                    <span class="catagory" style="color: #ff9900;">实例ID：{{ item.exp_instance_id }}</span>
+                    [<a href="{% url 'exp_instance_detail' item.exp_instance_id %}" target="_blank">查看实例</a>]
+{#                    [<a href="{% url 'exp_score_delete' item.id %}">删除</a>]#}
+{#                    [<a href="">开始</a>]#}
+{#                    [<a href="">挂起</a>]#}
+{#                    [<a href="">恢复</a>]#}
+{#                    [<a href="">暂停</a>]#}
+{#                    [<a href="">继续</a>]#}
+{#                    [<a href="">关闭</a>]#}
+{#                    [<a href="">保存</a>]#}
 
 
                 </div>

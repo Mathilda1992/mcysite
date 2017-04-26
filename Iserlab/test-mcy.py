@@ -247,3 +247,54 @@ def vm_instance_save(request,vi_id):#save as a VM template
         return render(request, "vm_instance_save.html", {'rf': rf})
     else:
         return HttpResponse("please first make a snapshot for the VM Instance.")
+
+
+
+def exp_create(request):
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    if request.method == 'POST':
+        rf = AddExpForm(request.POST)
+        if rf.is_valid():
+            guideFile = request.FILES.get("guide_file",None)
+            if not guideFile:
+                return HttpResponse("no file to choose")
+                # messages.error(request,"no file to choose")
+            save_path = "/home/mcy/upload/files"
+            destination = open(os.path.join(save_path,guideFile.name),'wb+')
+            for chunk in guideFile.chunks():
+                destination.write(chunk)
+            destination.close()
+            #get input data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            images_idList = rf.cleaned_data['images_idList']#this id is ImageCart id
+            networks_idList = rf.cleaned_data['networks_idList']#this id is NetworkCart id
+            vm_count = rf.cleaned_data['vm_count']
+
+            #get images
+            imageList=[]
+            for i in images_idList:
+                image_in_cart = ImageCart.objects.get(id=i)
+                imageList.append(VMImage.objects.get(id=image_in_cart.image.id))
+
+            # get networks
+            networkList=[]
+            for i in networks_idList:
+                network_in_cart = NetworkCart.objects.get(id=i)
+                networkList.append(Network.objects.get(id=network_in_cart.network.id))
+
+
+            exp_guide_path = save_path+'/'+guideFile.name
+            e = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=len(imageList),
+                           exp_guide_path=exp_guide_path,VM_count=vm_count)
+            e.save()
+            for item in imageList:
+                e.exp_images.add(item)
+            for item in networkList:
+                e.exp_network.add(item)
+            #refresh the exp list
+            return HttpResponseRedirect('/exp_home/')
+    else:
+        rf = AddExpForm()
+    return render_to_response("exp_create.html",{'rf':rf})
