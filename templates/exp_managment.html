@@ -4,7 +4,8 @@
     {% ifequal role 'teacher' %}
 
         <div class="header">
-            <h1 align="center">实验列表</h1>
+            <h1 align="center">实验列表  [<a href="/exp_create/" target="_blank">创建实验</a>]</h1>
+
         </div>
 
         {% for item in ExpList %}
@@ -19,9 +20,11 @@
                     |<a href="{% url 'exp_delivery' item.id %}" target="_blank">分发实验</a>
                     {% ifequal item.is_shared False %}
                         |<a href="{% url 'exp_share' item.id %}" >共享实验</a>
+                    {% else %}
+                        |<a href="{% url 'repo_public_exp_delete' item.id %}" >取消共享</a>
                     {% endifequal %}
-                    |<a href="{% url 'exp_create_VM' item.id %}" target="_blank">添加主机</a>
-                    |<a href="{% url 'exp_delete_VM' item.id %}" target="_blank">移除主机</a>
+{#                    |<a href="{% url 'exp_create_VM' item.id %}" target="_blank">添加主机</a>#}
+{#                    |<a href="{% url 'exp_delete_VM' item.id %}" target="_blank">移除主机</a>#}
                 </div>
 
                 <div class="info">

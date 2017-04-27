@@ -226,8 +226,8 @@ class AddNetworkForm(forms.Form):
     ip_version = forms.CharField(label='IP Version',max_length=2)
     cidr = forms.CharField(label='CIDR',max_length=40)
     gateway = forms.CharField(label='Gateway IP',max_length=50)
-    allocation_pools_start =forms.CharField(label='allocation_pools_start',max_length=30)
-    allocation_pools_end=forms.CharField(label='allocation_pools_end',max_length=30)
+    # allocation_pools_start =forms.CharField(label='allocation_pools_start',max_length=30)
+    # allocation_pools_end=forms.CharField(label='allocation_pools_end',max_length=30)
     enable_dhcp = forms.BooleanField(label='Enable DHCP',)
 
 

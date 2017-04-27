@@ -1008,7 +1008,7 @@ def repo_image_delete(request,i_id):
 
     img = VMImage.objects.get(id=i_id)
 
-    if img.owner_id == user_id:
+    if img.owner_name == username:
         image_id = img.image_id #image_id存的是openstack中的image_id
         conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
 
@@ -1081,6 +1081,7 @@ def repo_network_edit(request,n_id):
     if request.method == 'POST':
         rf = AddNetworkForm(request.POST)
         if rf.is_valid():
+            print "*******"
             # get data from form input
             name = rf.cleaned_data['name']
             subnet_name = rf.cleaned_data['subnet_name']
@@ -1088,14 +1089,15 @@ def repo_network_edit(request,n_id):
             ip_version = rf.cleaned_data['ip_version']
             cidr = rf.cleaned_data['cidr']
             gateway = rf.cleaned_data['gateway']
-            allocation_pools_start = rf.cleaned_data['allocation_pools_start']
-            allocation_pools_end = rf.cleaned_data['allocation_pools_end']
+            # allocation_pools_start = rf.cleaned_data['allocation_pools_start']
+            # allocation_pools_end = rf.cleaned_data['allocation_pools_end']
             enable_dhcp = rf.cleaned_data['enable_dhcp']
             #update the data in db
             re = Network.objects.filter(id=n_id).update(network_name=name,network_description=desc,subnet_name=subnet_name,
                                                         ip_version=ip_version,cidr=cidr,gateway_ip=gateway,
-                                                        allocation_pools_start=allocation_pools_start,
-                                                        allocation_pools_end=allocation_pools_end,enable_dhcp=enable_dhcp,
+                                                        # allocation_pools_start=allocation_pools_start,
+                                                        # allocation_pools_end=allocation_pools_end,
+                                                        enable_dhcp=enable_dhcp,
                                                         updated_at=datetime.datetime.now())
             #openstack API
 
@@ -1192,7 +1194,9 @@ def repo_VM_delete(request,vm_id):
         raise Http404
     # update the vm_count field in Experiment db
     vm = VM.objects.get(id=vm_id)
-    Experiment.objects.filter(id=vm.exp.id).update(VM_count=vm.exp.VM_count-1)
+    #first check whether the vm is belong to an Experiment
+    if vm.exp:
+        Experiment.objects.filter(id=vm.exp.id).update(VM_count=vm.exp.VM_count-1)
 
     re = VM.objects.filter(id=vm_id).delete()
     if re:
@@ -1235,8 +1239,6 @@ def repo_public_exp_delete(request,e_id):
         raise Http404
     #update is_shared field to False in Experiment db
     re = Experiment.objects.filter(id=e_id).update(is_shared = False)
-    if re:
-        print "repo_public_exp_delete success!"
     return HttpResponseRedirect('/repo_home/')
 
 

@@ -13,7 +13,7 @@
                 <a href="{% url 'exp_copy' item.id %}" target="_blank">复制</a>|
                 <a href="{% url 'exp_delivery' item.id %}" target="_blank">分发</a>|
                 <a href="{% url 'exp_launch' item.id %}" target="_blank">启动</a>
-                {% ifequal item.exp_owner.username username %}
+                {% ifequal item.exp_owner_name username %}
                     |<a href="{% url 'repo_public_exp_delete' item.id %}" >删除</a>
                 {% endifequal %}
             </div>

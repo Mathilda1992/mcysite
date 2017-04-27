@@ -16,9 +16,10 @@
                 <a href="{% url 'repo_network_delete' item.id %}" >删除</a>
                 |<a href="{% url 'network_launch' item.id %}" target="_blank">启动</a>
 
-                |<a href="{% url 'repo_NetworkCart_add' item.id %}" >加入购物车</a>
+                |<a href="{% url 'repo_NetworkCart_add' item.id %}" >加入工具箱</a>
             </div>
         <div class="info">
+            <span class="catagory" style="color: #ff9900;">ID：{{ item.id }}</span>
             <span class="catagory" style="color: #ff9900;">网络名称：{{ item.network_name }}</span>
             <span class="author" style="color: #4a86e8;">CIDR：{{ item.cidr }}</span>
             <span class="created" style="color: #6aa84e;">创建日期：{{ item.created_at |date:"Y-m-d H:i" }}</span>
