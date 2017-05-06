@@ -14,6 +14,8 @@ from django.core.mail import send_mail
 from django.core.mail import send_mass_mail
 
 import datetime,time
+import os
+import re
 
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
@@ -3270,8 +3272,21 @@ def vm_instance_save_it(request,vi_id):
         vi = VMInstance.objects.get(id=vi_id)
     except VMInstance.DoesNotExist:
         raise Http404
-
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
+    vm_instance_pause_function(vi, username, password)
+    #update the 'status' field of VMInstance db
+    VMInstance.objects.filter(id = vi_id).update(status='PAUSED')
     return HttpResponse("Already save it")
+
+
 
 def vm_instance_recover_it(request,vi_id):
     try:
@@ -3279,7 +3294,22 @@ def vm_instance_recover_it(request,vi_id):
     except VMInstance.DoesNotExist:
         raise Http404
 
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
+
+    vm_instance_unpause_function(vi,username,password)
+    VMInstance.objects.filter(id=vi_id).update(status='ACTIVE')
+
     return HttpResponse("Alreday recover it")
+
+
 
 def vm_instance_goto(request,vi_id):
     try:
@@ -3306,13 +3336,10 @@ def vm_instance_goto(request,vi_id):
 
 
 #-----------------------------------------------------
-#Function : Get the vnc url for the vm instance
+#Function : Get the vnc url for the vm instance (use CLI)
 #Input : vm instance
 #Output : vnc url
 def vm_instance_goto_function(vi,username,password):
-    import os
-    import re
-
     os.environ['OS_PROJECT_DOMAIN_ID'] = 'default'
     os.environ['OS_USER_DOMAIN_ID'] = 'default'
     os.environ['OS_PROJECT_NAME'] = str(username)
@@ -3339,6 +3366,73 @@ def vm_instance_goto_function(vi,username,password):
             url = match.group()
     return url
 #-----------------------------------------------------
+
+def vm_instance_start_function(vi,username,password):
+    os.environ['OS_PROJECT_DOMAIN_ID'] = 'default'
+    os.environ['OS_USER_DOMAIN_ID'] = 'default'
+    os.environ['OS_PROJECT_NAME'] = str(username)
+    os.environ['OS_TENANT_NAME'] = str(username)
+    os.environ['OS_USERNAME'] = str(username)
+    os.environ['OS_PASSWORD'] = str(password)
+    os.environ['OS_AUTH_URL'] = 'http://controller:5000/v3'
+    os.environ['OS_IDENTITY_API_VERSION'] = '3'
+    os.environ['OS_IMAGE_API_VERSION'] = '2'
+
+    b = str(vi.server_id)
+    c = 'nova start'+' '+b
+    os.system(c)
+
+
+
+def vm_instance_stop_function(vi,username,password):
+    os.environ['OS_PROJECT_DOMAIN_ID'] = 'default'
+    os.environ['OS_USER_DOMAIN_ID'] = 'default'
+    os.environ['OS_PROJECT_NAME'] = str(username)
+    os.environ['OS_TENANT_NAME'] = str(username)
+    os.environ['OS_USERNAME'] = str(username)
+    os.environ['OS_PASSWORD'] = str(password)
+    os.environ['OS_AUTH_URL'] = 'http://controller:5000/v3'
+    os.environ['OS_IDENTITY_API_VERSION'] = '3'
+    os.environ['OS_IMAGE_API_VERSION'] = '2'
+
+    b = str(vi.server_id)
+    c = 'nova stop'+' '+b
+    os.system(c)
+
+
+
+def vm_instance_pause_function(vi,username,password):
+    os.environ['OS_PROJECT_DOMAIN_ID'] = 'default'
+    os.environ['OS_USER_DOMAIN_ID'] = 'default'
+    os.environ['OS_PROJECT_NAME'] = str(username)
+    os.environ['OS_TENANT_NAME'] = str(username)
+    os.environ['OS_USERNAME'] = str(username)
+    os.environ['OS_PASSWORD'] = str(password)
+    os.environ['OS_AUTH_URL'] = 'http://controller:5000/v3'
+    os.environ['OS_IDENTITY_API_VERSION'] = '3'
+    os.environ['OS_IMAGE_API_VERSION'] = '2'
+
+    b = str(vi.server_id)
+    c = 'nova pause'+' '+b
+    os.system(c)
+
+
+
+def vm_instance_unpause_function(vi,username,password):
+    os.environ['OS_PROJECT_DOMAIN_ID'] = 'default'
+    os.environ['OS_USER_DOMAIN_ID'] = 'default'
+    os.environ['OS_PROJECT_NAME'] = str(username)
+    os.environ['OS_TENANT_NAME'] = str(username)
+    os.environ['OS_USERNAME'] = str(username)
+    os.environ['OS_PASSWORD'] = str(password)
+    os.environ['OS_AUTH_URL'] = 'http://controller:5000/v3'
+    os.environ['OS_IDENTITY_API_VERSION'] = '3'
+    os.environ['OS_IMAGE_API_VERSION'] = '2'
+
+    b = str(vi.server_id)
+    c = 'nova unpause'+' '+b
+    os.system(c)
+
 
 
 def vm_instance_snapshot(request,vi_id):
