@@ -3295,7 +3295,21 @@ def vm_instance_goto(request,vi_id):
     else:
         u = Student.objects.get(stu_username=username)
         authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
 
+    url = vm_instance_goto_function(vi,username,password)
+
+    c={}
+    c['E_I_Detail_Dict']=vi
+    c['baiduurl']=url
+    return render(request,"vm_instance_goto.html",c)
+
+
+#-----------------------------------------------------
+#Function : Get the vnc url for the vm instance
+#Input : vm instance
+#Output : vnc url
+def vm_instance_goto_function(vi,username,password):
     import os
     import re
 
@@ -3304,7 +3318,7 @@ def vm_instance_goto(request,vi_id):
     os.environ['OS_PROJECT_NAME'] = str(username)
     os.environ['OS_TENANT_NAME'] = str(username)
     os.environ['OS_USERNAME'] = str(username)
-    os.environ['OS_PASSWORD'] = str(u.password)
+    os.environ['OS_PASSWORD'] = str(password)
     os.environ['OS_AUTH_URL'] = 'http://controller:5000/v3'
     os.environ['OS_IDENTITY_API_VERSION'] = '3'
     os.environ['OS_IMAGE_API_VERSION'] = '2'
@@ -3323,13 +3337,8 @@ def vm_instance_goto(request,vi_id):
         match = pattern.search(line)
         if match:
             url = match.group()
-
-    c={}
-    c['E_I_Detail_Dict']=vi
-    c['baiduurl']=url
-    return render(request,"vm_instance_goto.html",c)
-
-
+    return url
+#-----------------------------------------------------
 
 
 def vm_instance_snapshot(request,vi_id):
