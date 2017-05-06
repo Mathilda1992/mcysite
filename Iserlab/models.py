@@ -341,7 +341,7 @@ class Score(models.Model):
     scoreTime = models.DateTimeField(null=True,blank=True,editable=True)
     comment = models.TextField(max_length=500,null=True,blank=True)
     times = models.IntegerField(default=0)#how many times stu do this exp
-    situation = models.CharField(max_length=10,default='undo')#['undo','doing','done','scored','paused']
+    situation = models.CharField(max_length=10,default='undo')#['undo','doing','done','scored']
     # result = models.CharField(max_length=500,null=True,blank=True)
     result_exp_id = models.CharField(max_length=10,null=True,blank=True)#put the saved exp result(as exp_template format)
     # reportUrl = models.URLField(null=True,blank=True)

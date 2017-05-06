@@ -522,3 +522,9 @@ class EditNetInstance(forms.Form):#according to openstack, it just allowed to ed
     name = forms.CharField(label='NetInstance Name', max_length=50,
                            error_messages={'required': 'The NetInstance name can not be null!',
                                            'max_length': 'The NetInstance name is too long'})
+
+class SubmitExpInstanceForm(forms.Form):#actually equal to update Score table
+    # name = forms.CharField(label="Exp Name",max_length=150,
+    #                        widget=forms.TextInput(attrs={'readonly': 'readonly'}))
+    report_name = forms.CharField(label='Report Name', max_length=255)
+    report_file = forms.FileField(label='Upload Report', required=True)

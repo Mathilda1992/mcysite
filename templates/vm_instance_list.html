@@ -15,7 +15,9 @@
                 <a href="{% url 'vm_instance_goto' item.id %}" target="_blank">进入实例</a>|
                 <a href="{% url 'vm_instance_snapshot' item.id %}" target="_blank">创建快照</a>|
                 <a href="{% url 'vm_instance_save' item.id %}" target="_blank">另存为模板</a>|
-                <a href="{% url 'vm_instance_delete' item.id %}" target="_blank">删除实例</a>
+                <a href="{% url 'vm_instance_delete' item.id %}" target="_blank">删除实例</a>|
+                <a href="{% url 'vm_instance_save_it' item.id %}" target="_blank">暂停实例</a>|
+                <a href="{% url 'vm_instance_recover_it' item.id %}" target="_blank">恢复实例</a>
 {#                <a href="{% url 'exp_instance_start' item.id %}" >Start</a>|#}
 {#                <a href="{% url 'exp_instance_stop' item.id %}" >Stop</a>|#}
 {#                <a href="{% url 'exp_instance_pause' item.id %}" >Pause</a>|#}

@@ -154,6 +154,7 @@ urlpatterns = [
     url(r'^exp_instance_detail/(\d+)/$', exp_instance_detail, name='exp_instance_detail'),
     url(r'^exp_instance_goto/(\d+)/$', exp_instance_goto, name='exp_instance_goto'),
     url(r'^exp_instance_save/(\d+)/$', exp_instance_save, name='exp_instance_save'),
+    url(r'^exp_instance_submit/(\d+)/$', exp_instance_submit, name='exp_instance_submit'),
     url(r'^exp_instance_delete/(\d+)/$', exp_instance_delete, name='exp_instance_delete'),
 
     url(r'^exp_instance_recover_it/(\d+)/$', exp_instance_recover_it, name='exp_instance_recover_it'),
@@ -174,6 +175,8 @@ urlpatterns = [
     url(r'^vm_instance_save/(\d+)/$', vm_instance_save, name='vm_instance_save'),
     url(r'^vm_instance_delete/(\d+)/$', vm_instance_delete, name='vm_instance_delete'),
     url(r'^vm_instance_edit/(\d+)/$', vm_instance_edit, name='vm_instance_edit'),
+    url(r'^vm_instance_save_it/(\d+)/$', vm_instance_save_it, name='vm_instance_save_it'),
+    url(r'^vm_instance_recover_it/(\d+)/$', vm_instance_recover_it, name='vm_instance_recover_it'),
 
     #net instance operate
     url(r'^net_instance_list/$', net_instance_list, name='net_instance_list'),

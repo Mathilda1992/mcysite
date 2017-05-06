@@ -260,7 +260,7 @@ def exp_create(request):
             if not guideFile:
                 return HttpResponse("no file to choose")
                 # messages.error(request,"no file to choose")
-            save_path = "/home/mcy/upload/files"
+            save_path = "/home/mcy/upload/files/guide"
             destination = open(os.path.join(save_path,guideFile.name),'wb+')
             for chunk in guideFile.chunks():
                 destination.write(chunk)
@@ -298,3 +298,51 @@ def exp_create(request):
     else:
         rf = AddExpForm()
     return render_to_response("exp_create.html",{'rf':rf})
+
+
+
+#only role=stu has this operation
+def exp_submit(request,d_id):#??
+    username = request.session['username']
+    role = request.session['role']
+    if role=="teacher":
+        return HttpResponse("Teacher do not have this function")
+    else:
+        s = Student.objects.get(stu_username=username)
+        if request.method == 'POST':
+            # get data from form
+            reportFile = request.FILES.get("reportFile",None)
+            if not reportFile:
+                return HttpResponse("no file to choose")
+            save_path = "/home/mcy/upload/files/report"
+            destination = open(os.path.join(save_path, reportFile.name), 'wb+')
+            for chunk in reportFile.chunks():
+                destination.write.chunks()
+            destination.close()
+            file_path=save_path+'/'+reportFile.name
+
+            rf = SubmitExpForm(request.POST)
+            result = rf.data['result']
+
+            #update Score db
+            re = Score.objects.filter(stu=s,delivery_id=d_id).update(report_path=file_path)
+            if re:
+                messages.success(request,"Submit Exp Result Success!")
+            return HttpResponseRedirect('/exp_home/')
+        else:
+            rf = SubmitExpForm()
+    return render(request,"exp_submit.html",{'rf':rf})
+
+
+
+def vm_instance_save_function(conn,vi,username,new_vm_name,new_vm_desc):
+    # step1:make sp for the vm
+    new_sp_name = '_' + vi.name + '_sp' + time.strftime('%Y-%m-%d %X', time.localtime())
+    new_sp_desc = "Please input description for the sp."
+    sp_id = vm_instance_snapshot_function(conn, vi, username, new_sp_name, new_sp_desc)
+    snapshot_image = VMImage.objects.get(id=sp_id)
+    # step2:insert a new record into VM
+    new_vm = VM(name=new_vm_name, desc=new_vm_desc, owner_name=username, image=snapshot_image, network=vi.connect_net.network, flavor=vi.vm.flavor,
+                keypair=vi.vm.keypair, security_group=vi.vm.security_group)
+    new_vm.save()
+    return new_vm.id

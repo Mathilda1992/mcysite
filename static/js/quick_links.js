@@ -17,8 +17,8 @@ jQuery(function($){
 	quickDataFns = {
 		//购物信息
 		message_list: {
-			title: '购物车',
-			content: '<div class="ibar_plugin_content"><div class="ibar_cart_group ibar_cart_product"><div class="ibar_cart_group_header"><a href="/repo_ImageCart_list/" class="imagecart" target="_blank">镜像购物车</a><a href="/repo_NetworkCart_list/" class="networkcart" target="_blank">网络购物车</a></div><ul><li class="cart_item"><div class="cart_item_desc"><a href="#" class="cart_item_name">商品名称</a><div class="cart_item_sku"><span>详细信息：XXXX</span></div></div></li></ul></div><div class="cart_handler"><div class="cart_handler_header"><span class="cart_handler_left">共<span class="cart_price">1</span>件商品</span></div></div></div>',
+			title: '工具箱',
+			content: '<div class="ibar_plugin_content"><div class="ibar_cart_group ibar_cart_product"><div class="ibar_cart_group_header"><a href="/repo_ImageCart_list/" class="imagecart" target="_blank">镜像工具箱</a><a href="/repo_NetworkCart_list/" class="networkcart" target="_blank">网络工具箱</a></div><ul><li class="cart_item"><div class="cart_item_desc"><a href="#" class="cart_item_name">组件名称</a><div class="cart_item_sku"><span>详细信息：XXXX</span></div></div></li></ul></div><div class="cart_handler"><div class="cart_handler_header"><span class="cart_handler_left">共<span class="cart_price">1</span>个组件</span></div></div></div>',
 			init:$.noop
 		}
 	};

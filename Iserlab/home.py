@@ -2444,11 +2444,12 @@ def exp_create(request):
     if request.method == 'POST':
         rf = AddExpForm(request.POST)
         if rf.is_valid():
+            print "enter---------"
             guideFile = request.FILES.get("guide_file",None)
             if not guideFile:
                 return HttpResponse("no file to choose")
                 # messages.error(request,"no file to choose")
-            save_path = "/home/mcy/upload/files"
+            save_path = "/home/mcy/upload/files/guide"
             destination = open(os.path.join(save_path,guideFile.name),'wb+')
             for chunk in guideFile.chunks():
                 destination.write(chunk)
@@ -2898,7 +2899,7 @@ def exp_student_launch(request,s_id):# in fact, it create an ExpInstance
     name = e.exp_name+'_instance'+username
     new_expInstance = ExpInstance(name= name,exp=e,owner_name=username,instance_status='Launching')
     new_expInstance.save()
-    print new_expInstance.id
+    # print new_expInstance.id
 
     # conn to openstack API
     conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
@@ -2949,10 +2950,9 @@ def exp_student_launch(request,s_id):# in fact, it create an ExpInstance
             new_vmInstance.save()
     print "--------VM create complete-------"
     #if both network and VMs create successfully, should update the status of ExpInstance
-    re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE")
+    re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE",score_id=s_id)
 
-    #also shold update the Score db
-
+    #also should update the Score db
     Score.objects.filter(id=s_id).update(situation='doing',exp_instance_id=new_expInstance.id,times=s.times+1,startTime=datetime.datetime.now())
 
     return HttpResponseRedirect('/exp_instance_list/')
@@ -3147,21 +3147,73 @@ def vm_instance_list(request):
     return render(request,'vm_instance_list.html',context)
 
 
-def vm_instance_detail(request,v_id):
+def vm_instance_detail(request,vi_id):
     try:
-        vi = VMInstance.objects.get(id=v_id)
+        vi = VMInstance.objects.get(id=vi_id)
     except VMInstance.DoesNotExist:
         raise Http404
     c= {}
     c['DetailDict']=vi
     return render(request,"vm_instance_detail.html",c)
 
-def vm_instance_goto(request,v_id):
+def vm_instance_save_it(request,vi_id):
     try:
-        vi = VMInstance.objects.get(id=v_id)
+        vi = VMInstance.objects.get(id=vi_id)
     except VMInstance.DoesNotExist:
         raise Http404
-    pass
+
+    return HttpResponse("Already save it")
+
+def vm_instance_recover_it(request,vi_id):
+    try:
+        vi = VMInstance.objects.get(id=vi_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
+
+    return HttpResponse("Alreday recover it")
+
+def vm_instance_goto(request,vi_id):
+    try:
+        vi = VMInstance.objects.get(id=vi_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
+
+    username = request.session['username']
+    role = request.session['role']
+
+    import os
+    import re
+    import webbrowser
+    a = 'source /home/mcy/111-openrc.sh'
+    b = '6a5f2ca7-c6a2-4f8e-be89-842d30261afa'
+    c = 'nova get-vnc-console' + ' ' + b + ' ' + 'novnc > /home/mcy/tmp'
+    from subprocess import check_output
+    # output = check_output('source 111-openrc.sh', shell=True, executable='/bin/bash')
+    # output = os.system('nova get-vnc-console 6a5f2ca7-c6a2-4f8e-be89-842d30261afa novnc > /root/tmp')
+    output = check_output(a, shell=True, executable='/bin/bash')
+    output = os.system(c)
+    pattern = re.compile(r'(http)\S+')
+    url = ''
+    file = open('/home/mcy/tmp')
+    while 1:
+        line = file.readline()
+        if not line:
+            break
+        match = pattern.search(line)
+        if match:
+            url = match.group()
+    print "this is vnc url from openstack"
+    print url
+    print "now open it in browser"
+    webbrowser.open(url)
+
+    c={}
+    c['E_I_Detail_Dict']=vi
+    c['baiduurl']="http://www.baidu.com"
+    return render(request,"vm_instance_goto.html",c)
+
+
+
 
 def vm_instance_snapshot(request,vi_id):
     try:
@@ -3605,7 +3657,6 @@ def exp_instance_goto(request,exp_i_id):#make user login the operate server
     role = request.session['role']
 
 
-
     c={}
     c['E_I_Detail_Dict']=ei
     c['baiduurl']=" http://202.112.113.220:6080/vnc_auto.html?token=a0dff238-0199-442c-be38-a74a4dfd11c8"
@@ -3681,11 +3732,113 @@ def exp_instance_save(request,exp_i_id):#save the instance as a template:
                 new_exp.exp_network.add(n)
 
             Experiment.objects.filter(id=new_exp.id).update(exp_image_count=len(included_image_list),VM_count=len(include_vi))
-
             return HttpResponseRedirect('/repo_private_exp_list/')
     else:
         rf = SaveExpasTemplate()
     return render(request,"exp_instance_save.html",{'rf':rf})
+
+
+#Function: save the instance as a template
+#Input: exp Instance
+#Output: exp Template
+def exp_instance_save_function(conn,ei,username,new_exp_name,new_exp_desc):
+    name = new_exp_name
+    desc = new_exp_desc
+    exp_image_count = 0
+    exp_guide_path = ei.exp.exp_guide_path  # Actually, it should copy and rename the guide
+    is_shared = False  # by default we set it private
+    VM_count = 0
+    new_exp = Experiment(exp_name=name, exp_description=desc, exp_owner_name=username,
+                         exp_image_count=exp_image_count,
+                         exp_guide_path=exp_guide_path, is_shared=is_shared, VM_count=VM_count)
+    new_exp.save()
+
+    included_image_list = []
+    # -----get included VM
+    include_vi = VMInstance.objects.filter(belong_exp_instance_id=ei.id)
+    include_vi = include_vi.exclude(status="DELETED")
+    for vi in include_vi:
+        # then save the vminstance
+        v_id = vm_instance_save_function(conn, vi, username, vi.vm.name, vi.vm.desc)
+        VM.objects.filter(id=v_id).update(exp=new_exp)
+
+        v = VM.objects.get(id=v_id)
+        if v.image not in included_image_list:
+            included_image_list.append(v.image)
+
+    # -----get included image
+    for i in included_image_list:
+        new_exp.exp_images.add(i)
+
+    # -----get included network
+    included_ni = NetworkInstance.objects.filter(belong_exp_instance_id=ei.id)
+    included_ni = included_ni.exclude(status="DELETED")
+    for ni in included_ni:
+        n_id = net_instance_save_function(ni, username, ni.network.network_name, ni.network.network_description)
+        n = Network.objects.get(id=n_id)
+        new_exp.exp_network.add(n)
+
+    Experiment.objects.filter(id=new_exp.id).update(exp_image_count=len(included_image_list), VM_count=len(include_vi))
+    return new_exp.id
+
+
+
+#define function to reuse
+def upload_report_file(report_file):
+    save_path = "/home/mcy/upload/files/reports"
+    destination = open(os.path.join(save_path, report_file.name), 'wb+')  # 打开特定的文件进行二进制的写操作
+    for chunk in report_file.chunks():  # 分块写入文件
+        destination.write(chunk)
+    destination.close()
+    file_path = save_path + '/' + report_file.name
+    return file_path
+
+def exp_instance_submit(request,exp_i_id):
+    try:
+        ei = ExpInstance.objects.get(id=exp_i_id)
+    except ExpInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    stu = Student.objects.get(stu_username__exact=username)
+    s = Score.objects.get(id = ei.score_id)
+    print s
+
+    if request.method == 'POST':
+        rf = SubmitExpInstanceForm(request.POST)
+        reportFile = request.FILES.get("report_file",None)
+        if not reportFile:
+            return HttpResponse("no file to choose")
+        save_path = "/home/mcy/upload/files/report"
+        destination = open(os.path.join(save_path,reportFile.name),'wb+')
+        for chunk in reportFile.chunks():
+            destination.write(chunk)
+        destination.close()
+        report_path = save_path + '/' + reportFile.name
+
+        report_name = rf.data['report_name']
+        print report_name
+
+        #-----create OpenStack Conn
+        authDict = get_auth_info(stu.stu_username, stu.stu_password)
+        conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                         authDict['project_name'],
+                                                         authDict['auth_username'], authDict['auth_password'])
+
+        #-----save the exp_instance as template
+        new_exp_name = username+'_submit_exp_by_Score_id_'+ str(s.id)
+        new_exp_desc = "This exp is a submit exp template"
+        result_exp_id = exp_instance_save_function(conn, ei, username, new_exp_name, new_exp_desc)
+
+
+        #-----update the Score db on "finishedTime', "situation", "result_exp_id" and "report_path" field
+        Score.objects.filter(id=ei.score_id).update(finishedTime = datetime.datetime.now(),situation="done",result_exp_id=result_exp_id,report_path=report_path)
+
+        return HttpResponseRedirect('/exp_list_done/')
+    else:
+        rf = SubmitExpInstanceForm()
+
+    return render(request,'exp_instance_submit.html',{'rf':rf})
 
 
 def exp_instance_delete(request,exp_i_id):#delete the exp instance
@@ -3724,7 +3877,7 @@ def exp_instance_resume(request,exp_i_id):
 
 
 #only role=stu has this operation
-def exp_submit(request,d_id):
+def exp_submit(request,d_id):#??
     username = request.session['username']
     role = request.session['role']
     if role=="teacher":
@@ -3747,7 +3900,7 @@ def exp_submit(request,d_id):
             result = rf.data['result']
 
             #update Score db
-            re = Score.objects.filter(stu=s,delivery_id=d_id).update(result=result,report_path=file_path)
+            re = Score.objects.filter(stu=s,delivery_id=d_id).update(report_path=file_path)
             if re:
                 messages.success(request,"Submit Exp Result Success!")
             return HttpResponseRedirect('/exp_home/')
