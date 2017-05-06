@@ -315,8 +315,8 @@ class ExpInstance(models.Model):
     owner_name = models.CharField(max_length=50)
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    instance_status = models.CharField(max_length=20, null=True, blank=True, default='UNCHEDED')
-    # UNLAUNCHED,ACTIVE,SHUTOFF,PAUSED,SUSPENDED,DELETED
+    instance_status = models.CharField(max_length=20, null=True, blank=True)
+    # ACTIVE,SHUTOFF,PAUSED,SUSPENDED,DELETED
     score_id = models.IntegerField(null=True,blank=True)#if the user is a student, please fill this field
 
     def __unicode__(self):
@@ -361,7 +361,7 @@ class NetworkInstance(models.Model):
     network_instance_id = models.CharField(max_length=50, null=True, blank=True)#not required,because user can just launch a network
     subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
     tenant_id = models.CharField(max_length=50, null=True, blank=True)
-    status = models.CharField(max_length=20, null=True, blank=True)#ACTIVE,DELETE
+    status = models.CharField(max_length=20, null=True, blank=True)#ACTIVE,DELETED
     allocation_pools_start = models.CharField(max_length=20, null=True, blank=True)
     allocation_pools_end = models.CharField(max_length=20, null=True, blank=True)
 
@@ -383,7 +383,7 @@ class VMInstance(models.Model):
     # exp_instance = models.ForeignKey(Score)
     # after finishing creation, fill below fields
     server_id = models.CharField(max_length = 100)
-    status = models.CharField(max_length = 20)#ERROR, ACTIVE,Shutoff,Suspended,Paused,DELETED
+    status = models.CharField(max_length = 20)#ERROR, ACTIVE,SHUTOFF,SUSPENDED,PAUSED,DELETED
     ip = models.CharField(max_length = 20,null=True,blank = True)
     vncurl = models.URLField(max_length=200,null=True,blank=True)
     result_image = models.IntegerField(max_length=100,null=True,blank=True)

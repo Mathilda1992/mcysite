@@ -346,3 +346,19 @@ def vm_instance_save_function(conn,vi,username,new_vm_name,new_vm_desc):
                 keypair=vi.vm.keypair, security_group=vi.vm.security_group)
     new_vm.save()
     return new_vm.id
+
+
+
+def teach_result_list(request):
+    context = {}
+    context['role'] = request.session['role']
+    context['username'] = request.session['username']
+    context['hello'] = 'welcome to our platfowm'
+    context['currentTime'] = showTime.formatTime2()
+    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+
+    username = request.session['username']
+    current_teacher = User.objects.get(username=username)
+    ResultList = Score.objects.filter(scorer=current_teacher,situation='Done').order_by('-finishedTime')
+    context['ResultList'] = ResultList
+    return render(request, 'teach_result_list.html', context)

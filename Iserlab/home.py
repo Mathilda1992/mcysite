@@ -2822,7 +2822,7 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
     # insert into ExpInstance db
 
     name = e.exp_name+'_instance'+username
-    new_expInstance = ExpInstance(name= name,exp=e,owner_name=username,instance_status='Launching')
+    new_expInstance = ExpInstance(name= name,exp=e,owner_name=username)
     new_expInstance.save()
     print new_expInstance.id
 
@@ -2873,7 +2873,6 @@ def exp_launch(request,exp_id):# in fact, it create ExpInstance
                                         updatetime=datetime.datetime.now(),
                                         connect_net=netInstance)
             new_vmInstance.save()
-    print "--------VM create complete-------"
     #if both network and VMs create successfully, should update the status of ExpInstance
     re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE")
     return HttpResponseRedirect('/exp_instance_list/')
@@ -2897,11 +2896,9 @@ def exp_student_launch(request,s_id):# in fact, it create an ExpInstance
     # insert into ExpInstance db
     e = s.exp
     name = e.exp_name+'_instance'+username
-    new_expInstance = ExpInstance(name= name,exp=e,owner_name=username,instance_status='Launching')
+    new_expInstance = ExpInstance(name= name,exp=e,owner_name=username)
     new_expInstance.save()
-    # print new_expInstance.id
 
-    # conn to openstack API
     conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
                                                      authDict['project_name'],
                                                      authDict['auth_username'], authDict['auth_password'])
@@ -2911,7 +2908,7 @@ def exp_student_launch(request,s_id):# in fact, it create an ExpInstance
     for item in nets:
         new_net_instance = network_resource_operation.create_network(conn,item.network_name,item.subnet_name,
                                                                      item.ip_version,item.cidr,item.gateway_ip)
-        print "here is network *******"
+
         print new_net_instance['id']
         new_net = NetworkInstance(name=item.network_name,owner_name=username,network=item,belong_exp_instance_id=new_expInstance.id,
                               network_instance_id=new_net_instance['id'],subnet_instance_id=new_net_instance['sub_id'],
@@ -2922,7 +2919,7 @@ def exp_student_launch(request,s_id):# in fact, it create an ExpInstance
 
         #create interface to attach network to router
         r = network_resource_operation.add_interface_to_router(conn,router.routerIntance_id,new_net.subnet_instance_id)
-    print "--------net create complete-------"
+
 
     # launch VM , insert into VMInstance
     vms = e.vm_set.all()  # 需要用foreignkey功能的话需要在VM的model中加入related_name
@@ -2948,18 +2945,130 @@ def exp_student_launch(request,s_id):# in fact, it create an ExpInstance
                                         updatetime=datetime.datetime.now(),
                                         connect_net=netInstance)
             new_vmInstance.save()
-    print "--------VM create complete-------"
+
     #if both network and VMs create successfully, should update the status of ExpInstance
     re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE",score_id=s_id)
 
     #also should update the Score db
     Score.objects.filter(id=s_id).update(situation='doing',exp_instance_id=new_expInstance.id,times=s.times+1,startTime=datetime.datetime.now())
-
     return HttpResponseRedirect('/exp_instance_list/')
 
 
+#function: launch an instance from a exp template
+#Input: exp template
+#Output: exp Instance
+def exp_launch_function(conn,e,username,role,s_id):
+    # insert into ExpInstance db
+    name = e.exp_name + '_instance' + username
+    new_expInstance = ExpInstance(name=name, exp=e, owner_name=username)
+    new_expInstance.save()
 
-#when stu launch and teacher check exp result, use this function
+    # launch network, insert into networkInstance
+    nets = e.exp_network.all()
+    router = RouterInstance.objects.get(owner_username=username)  # admin already create a router for this user when register it
+    for item in nets:
+        new_net_instance = network_resource_operation.create_network(conn, item.network_name, item.subnet_name,
+                                                                     item.ip_version, item.cidr, item.gateway_ip)
+
+        new_netInstance = NetworkInstance(name=item.network_name, owner_name=username, network=item,
+                                  belong_exp_instance_id=new_expInstance.id,
+                                  network_instance_id=new_net_instance['id'],
+                                  subnet_instance_id=new_net_instance['sub_id'],
+                                  tenant_id=new_net_instance['tenant_id'], status=new_net_instance['status'],
+                                  allocation_pools_start=new_net_instance['sub_allocation_pools'][0]['start'],
+                                  allocation_pools_end=new_net_instance['sub_allocation_pools'][0]['end'])
+        new_netInstance.save()
+
+        # create interface to attach network to router
+        r = network_resource_operation.add_interface_to_router(conn, router.routerIntance_id,new_netInstance.subnet_instance_id)
+
+    # launch VM , insert into VMInstance
+    vms = e.vm_set.all()  # 需要用foreignkey功能的话需要在VM的model中加入related_name
+    for vm in vms:
+        # launch VM ,
+        server_name = vm.name
+        image_name = vm.image.name
+        flavor_name = vm.flavor
+        network_name = vm.network.network_name  # should find the net instance
+        private_keypair_name = vm.keypair
+
+        # first check if the needed netInstance exist in NetworkInstance db?
+        ni = NetworkInstance.objects.filter(owner_name=username, network=vm.network, status="ACTIVE")
+        if len(ni) > 0:  # the Network Instance exist
+            netInstance = NetworkInstance.objects.get(owner_name=username, network=vm.network, status="ACTIVE")
+            vm_instance = compute_resource_operation.create_server2(conn, server_name, image_name, flavor_name,
+                                                                    network_name, private_keypair_name)
+            # insert into VMInstance db
+            new_vmInstance = VMInstance(name=vm.name, owner_name=username, vm=vm,
+                                        belong_exp_instance_id=new_expInstance.id,
+                                        server_id=vm_instance['id'], status=vm_instance['status'],
+                                        createtime=datetime.datetime.now(),
+                                        updatetime=datetime.datetime.now(),
+                                        connect_net=netInstance)
+            new_vmInstance.save()
+
+    # if both network and VMs create successfully, should update the status of ExpInstance
+    if role == "teacher":
+        re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE")
+    else:
+        re = ExpInstance.objects.filter(id=new_expInstance.id).update(instance_status="ACTIVE", score_id=s_id)
+    return new_expInstance.id
+
+
+#both teacher and student have this function
+#Function : Launch the result_exp template of Score to check the experiment result
+#Input: score_id
+#Output: result exp instance
+def exp_result_launch(request,s_id):
+    username = request.session['username']
+    role = request.session['role']
+    if if_exp_instance_exist_function(username):
+        return HttpResponse("There is already an exp Instance running, please save it as template first!")
+    else:
+        try:
+            s = Score.objects.get(id=s_id)
+        except Score.DoesNotExist:
+            raise Http404
+
+        if role == 'teacher':
+            u = User.objects.get(username=username)
+            authDict = get_auth_info(u.username,u.password)
+        else:
+            u = Student.objects.get(stu_username = username)
+            authDict = get_auth_info(u.stu_username,u.stu_password)
+        conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                         authDict['project_name'],
+                                                         authDict['auth_username'], authDict['auth_password'])
+
+        #get the result exp
+        try:
+            exp = Experiment.objects.get(id=s.result_exp_id)
+        except Experiment.DoesNotExist:
+            raise Http404
+        print "the result exp id is:"
+        print exp.id
+
+        # use function to launch the exp instance
+        new_ei_id = exp_launch_function(conn, exp, username, role, s_id)
+        print "the launch result exp instance is:"
+        print new_ei_id
+
+        return HttpResponseRedirect('/exp_instance_list/')
+
+
+
+def if_exp_instance_exist_function(username):
+    eiList = ExpInstance.objects.filter(owner_name = username)
+    eiList = eiList.exclude(instance_status="DELETED")
+    if eiList:
+        return True
+    else:
+        return False
+
+
+
+
+#when stu launch and teacher check exp result, use this function-----not finished
 def exp_score_launch1(request,score_id):
     try:
         score = Score.objects.get(id=score_id)
@@ -3180,17 +3289,29 @@ def vm_instance_goto(request,vi_id):
 
     username = request.session['username']
     role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
 
     import os
     import re
-    import webbrowser
-    a = 'source /home/mcy/111-openrc.sh'
-    b = '6a5f2ca7-c6a2-4f8e-be89-842d30261afa'
+
+    os.environ['OS_PROJECT_DOMAIN_ID'] = 'default'
+    os.environ['OS_USER_DOMAIN_ID'] = 'default'
+    os.environ['OS_PROJECT_NAME'] = str(username)
+    os.environ['OS_TENANT_NAME'] = str(username)
+    os.environ['OS_USERNAME'] = str(username)
+    os.environ['OS_PASSWORD'] = str(u.password)
+    os.environ['OS_AUTH_URL'] = 'http://controller:5000/v3'
+    os.environ['OS_IDENTITY_API_VERSION'] = '3'
+    os.environ['OS_IMAGE_API_VERSION'] = '2'
+
+    b = str(vi.server_id)
     c = 'nova get-vnc-console' + ' ' + b + ' ' + 'novnc > /home/mcy/tmp'
-    from subprocess import check_output
-    # output = check_output('source 111-openrc.sh', shell=True, executable='/bin/bash')
-    # output = os.system('nova get-vnc-console 6a5f2ca7-c6a2-4f8e-be89-842d30261afa novnc > /root/tmp')
-    output = check_output(a, shell=True, executable='/bin/bash')
+
     output = os.system(c)
     pattern = re.compile(r'(http)\S+')
     url = ''
@@ -3202,14 +3323,10 @@ def vm_instance_goto(request,vi_id):
         match = pattern.search(line)
         if match:
             url = match.group()
-    print "this is vnc url from openstack"
-    print url
-    print "now open it in browser"
-    webbrowser.open(url)
 
     c={}
     c['E_I_Detail_Dict']=vi
-    c['baiduurl']="http://www.baidu.com"
+    c['baiduurl']=url
     return render(request,"vm_instance_goto.html",c)
 
 
@@ -3265,6 +3382,11 @@ def vm_instance_snapshot(request,vi_id):
         rf = CreateVMSnapshot()
     return render(request,"vm_instance_snapshot.html",{'rf':rf})
 
+
+#-----------------------------------------------
+#Function: Create a snapshot for a vm instance
+#Input: vm instance
+#Output: snapshot image
 def vm_instance_snapshot_function(conn,vi,username,new_sp_name,new_sp_desc):
     #make sp in openstack
     compute_resource_operation.create_server_image(conn, vi.server_id, new_sp_name)
@@ -3277,6 +3399,8 @@ def vm_instance_snapshot_function(conn,vi,username,new_sp_name,new_sp_desc):
     #update the "result_image" field in VMInstance
     VMInstance.objects.filter(id=vi.id).update(result_image=new_image.id)
     return new_image.id
+#-----------------------------------------------
+
 
 
 def vm_instance_save(request,vi_id):#save as a VM template
@@ -3329,6 +3453,10 @@ def vm_instance_save(request,vi_id):#save as a VM template
 #         print "please first make a snapshot for the VM Instance."
 
 
+#-----------------------------------------------
+#Function: save the vm instance as vm template
+#Input: vm instance
+#Output: vm template
 def vm_instance_save_function(conn,vi,username,new_vm_name,new_vm_desc):
     # step1:make sp for the vm
     new_sp_name = '_' + vi.name + '_sp' + time.strftime('%Y-%m-%d %X', time.localtime())
@@ -3340,6 +3468,21 @@ def vm_instance_save_function(conn,vi,username,new_vm_name,new_vm_desc):
                 keypair=vi.vm.keypair, security_group=vi.vm.security_group)
     new_vm.save()
     return new_vm.id
+#-----------------------------------------------
+
+
+
+#-----------------------------------------------
+#Function : Delete a VM Instance
+#Input : VM Instance
+#Output : None
+def vm_instance_delete_function(conn,vi):
+    #delete in openstack
+    compute_resource_operation.delete_server(conn,vi.server_id)
+
+    #update the "status" field in VMInstance db
+    VMInstance.objects.filter(id=vi.id).update(status="DELETED")
+#-----------------------------------------------
 
 
 
@@ -3358,7 +3501,6 @@ def vm_instance_delete(request,vi_id):
         u = Student.objects.get(stu_username=username)
         authDict = get_auth_info(u.stu_username, u.stu_password)
 
-    # conn to openstack API
     conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
                                                      authDict['project_name'],
                                                      authDict['auth_username'], authDict['auth_password'])
@@ -3367,6 +3509,7 @@ def vm_instance_delete(request,vi_id):
 
     #update the "status" field in VMInstance db
     VMInstance.objects.filter(id=vi_id).update(status="DELETED")
+
     return HttpResponse("Delete VM Instance Success!")
 
 
@@ -3430,7 +3573,10 @@ def net_instance_save(request,ni_id):#insert into Network db
         rf = SaveNetasTemplate()
     return render(request,"net_instance_save.html",{'rf':rf})
 
-
+#-----------------------------------------------
+#Function : Save the net instance as a net template
+#Input : net instance
+#Output: net template
 def net_instance_save_function(ni,username,new_net_name,new_net_desc):
     # step1:get necessary data
     subnet_name = new_net_name + '_subnet'
@@ -3442,6 +3588,7 @@ def net_instance_save_function(ni,username,new_net_name,new_net_desc):
                       allocation_pools_end=ni.network.allocation_pools_end)
     new_net.save()
     return new_net.id
+#-----------------------------------------------
 
 
 def net_instance_delete(request,ni_id):
@@ -3451,13 +3598,12 @@ def net_instance_delete(request,ni_id):
         raise Http404
     #make sure all VMs on the net instance are DELETED
     vis = ni.vminstance_set.all()
-    print vis
-    print len(vis)
+
     deleted_vi_count =0
     for vi in vis:
         if vi.status == "DELETED":
             deleted_vi_count=deleted_vi_count+1
-    if deleted_vi_count ==len(vis):#all vi on ni deleted,so can delete the ni
+    if deleted_vi_count == len(vis):#all vi on ni deleted,so can delete the ni
 
         username = request.session['username']
         role = request.session['role']
@@ -3468,20 +3614,14 @@ def net_instance_delete(request,ni_id):
             u = Student.objects.get(stu_username=username)
             authDict = get_auth_info(u.stu_username, u.stu_password)
 
-        # conn to openstack API
         conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
                                                          authDict['project_name'],
                                                          authDict['auth_username'], authDict['auth_password'])
         # delete in openstack
         #------delete the connect with router by deleting the interface from router
         router = RouterInstance.objects.get(owner_username=username)  # admin already create a router for this user when register it,every user has one router
-        print router
-        print "----now , delete connection with router"
         network_resource_operation.remove_interface_from_router(conn,router.routerIntance_id,ni.subnet_instance_id)
-        #------
-        print "----now start to delete net instance "
         network_resource_operation.delete_network(conn,ni.network_instance_id)
-
 
         #update the "status" field of NetworkInstance db
         NetworkInstance.objects.filter(id=ni_id).update(status="DELETED")
@@ -3490,8 +3630,43 @@ def net_instance_delete(request,ni_id):
         return HttpResponse("There are VM(s) still connecting to the NetworkInstance! Please delete them first!")
 
 
-def net_instance_create(request):
-    pass
+
+# --------------------------------------------------------
+#Function : To make sure all VMs on the net instance are DELETED
+#Input : net instance
+#Output : True or False
+def if_vi_exist_on_ni(ni):
+    vis = ni.vminstance_set.all()
+
+    deleted_vi_count = 0
+    for vi in vis:
+        if vi.status == "DELETED":
+            deleted_vi_count = deleted_vi_count + 1
+    if deleted_vi_count == len(vis):  # all vi on ni deleted,so can delete the ni
+        return False
+    else:
+        return True
+
+#--------------------------------------------------------
+
+
+
+#--------------------------------------------------------
+#Function : Delete the net instance
+#Input : net instance
+#Output : None
+def net_instance_delete_function(conn,ni,username):
+    # delete in openstack
+    # ------delete the connect with router by deleting the interface from router
+    router = RouterInstance.objects.get(owner_username=username)  # admin already create a router for this user when register it,every user has one router
+    network_resource_operation.remove_interface_from_router(conn, router.routerIntance_id, ni.subnet_instance_id)
+    network_resource_operation.delete_network(conn, ni.network_instance_id)
+
+    # update the "status" field of NetworkInstance db
+    NetworkInstance.objects.filter(id=ni.id).update(status="DELETED")
+#--------------------------------------------------------
+
+
 
 def network_launch(request,n_id):
     try:
@@ -3666,6 +3841,9 @@ def exp_instance_goto(request,exp_i_id):#make user login the operate server
 def exp_instance_recover_it(request,exp_i_id):
     pass
 
+
+
+#Function :
 def exp_instance_save_it(request,exp_i_id):
     pass
 
@@ -3700,8 +3878,6 @@ def exp_instance_save(request,exp_i_id):#save the instance as a template:
             else:
                 u = Student.objects.get(stu_username=username)
                 authDict = get_auth_info(u.stu_username, u.stu_password)
-
-            # conn to openstack API
             conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
                                                              authDict['project_name'],
                                                              authDict['auth_username'], authDict['auth_password'])
@@ -3841,17 +4017,42 @@ def exp_instance_submit(request,exp_i_id):
     return render(request,'exp_instance_submit.html',{'rf':rf})
 
 
+#Both teacher and student
 def exp_instance_delete(request,exp_i_id):#delete the exp instance
-    #delete VMInstance
+    try:
+        ei = ExpInstance.objects.get(id=exp_i_id)
+    except ExpInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    conn = createconn_openstackSDK.create_connection(authDict['auth_url'], authDict['region_name'],
+                                                     authDict['project_name'],
+                                                     authDict['auth_username'], authDict['auth_password'])
 
-    #delete interface
+    #delete VMInstance
+    viList = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
+    for vi in viList:
+        vm_instance_delete_function(conn,vi)
 
     #delete networkInstance
+    niList = NetworkInstance.objects.filter(belong_exp_instance_id=exp_i_id)
+    for ni in niList:
+        if if_vi_exist_on_ni(ni):
+            return HttpResponse("There is still vm instance on the net instance! Please remove them first!")
+        else:
+            net_instance_delete_function(conn,ni,username)
 
     #update the "instance_status" field of ExpInstance db
     ExpInstance.objects.filter(id=exp_i_id).update(instance_status="DELETED",updatetime=datetime.datetime.now())
 
-    pass
+    return HttpResponse("The Exp Instance is deleted successfully!")
+
 
 def exp_instance_start(request,exp_i_id):
     pass

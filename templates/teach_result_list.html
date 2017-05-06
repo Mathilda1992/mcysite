@@ -14,7 +14,7 @@
                 <h2><a href="{% url 'exp_detail' item.exp.id %}" target="_blank">{{ item.exp.exp_name }}</a>~
                     {{ item.stu.stu_username }}</h2>
 
-                    <a href="{% url 'exp_score_launch' item.id%}" target="_blank">启动实验</a>|
+                    <a href="{% url 'exp_result_launch' item.id%}" target="_blank">启动实验</a>|
                     <a href="{% url 'teach_result_score' item.id %}" target="_blank">评分</a>
 
 
