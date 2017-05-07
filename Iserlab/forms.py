@@ -57,7 +57,7 @@ class AddVMForm(forms.Form):
                            widget=forms.Textarea(),
                            initial="Replace with your description for the VM",
                            required =False)
-    image_id = forms.ChoiceField(label='Include Images',)
+    image_id = forms.ChoiceField(label='Use Images',)
     network_id = forms.ChoiceField(label='Use Networks',)
     flavor = forms.ChoiceField(label='Flavor',
                                widget=forms.RadioSelect(),
@@ -100,7 +100,7 @@ class EditVMForm(forms.Form):
                            required=False)
     exp = forms.CharField(label='Belong to Exp',max_length=10,
                              widget=forms.TextInput(attrs={'readonly': 'readonly'}),)
-    image_id = forms.ChoiceField(label='Include Images',)
+    image_id = forms.ChoiceField(label='Use Images',)
     network_id = forms.ChoiceField(label='Use Networks',)
 
     flavor = forms.ChoiceField(label='Flavor',
@@ -117,8 +117,8 @@ class EditVMForm(forms.Form):
                                 choices=SECURITY_GROUP_CHOICE_BOX, )
     def __init__(self,*args,**kwargs):
         super(EditVMForm,self).__init__(*args,**kwargs)
-        self.fields['image_id'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
-        self.fields['network_id'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
+        self.fields['image_id'].choices = [(i.pk,str(i)) for i in MyTempImage.objects.all()]
+        self.fields['network_id'].choices = [(i.pk,str(i)) for i in MyTempNetwork.objects.all()]
 
 
 
@@ -169,8 +169,8 @@ class EditExpForm(forms.Form):# the same with AddExpForm
 
     def __init__(self,*args,**kwargs):
         super(EditExpForm,self).__init__(*args,**kwargs)
-        self.fields['images_idList'].choices = [(i.pk,str(i)) for i in ImageCart.objects.all()]
-        self.fields['networks_idList'].choices = [(i.pk,str(i)) for i in NetworkCart.objects.all()]
+        self.fields['images_idList'].choices = [(i.pk,str(i)) for i in MyTempImage.objects.all()]
+        self.fields['networks_idList'].choices = [(i.pk,str(i)) for i in MyTempNetwork.objects.all()]
         # self.fields['vm_idList'].choices = [(i.pk,str(i)) for i in VM.objects.all()]
 
 

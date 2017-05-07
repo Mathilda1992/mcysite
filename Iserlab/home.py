@@ -319,6 +319,7 @@ def delivery_create(request): # by mcy using MyTempExp and MyTempGroup 2017-4-25
     if request.method =='POST':
         rf = AddDeliveryForm(request.POST)
         if rf.is_valid():
+            print "**************************************************enter valid***********************************"
             #get data from the form
             name = rf.cleaned_data['name']
             desc = rf.cleaned_data['desc']
@@ -356,20 +357,22 @@ def delivery_create(request): # by mcy using MyTempExp and MyTempGroup 2017-4-25
                     new_score.save()
         return HttpResponseRedirect('/delivery_list/')
     else:
-        # clear the MyTempExp
-        MyTempExp.objects.all().delete()
+        # # clear the MyTempExp
+        # MyTempExp.objects.all().delete()
         # insert into MyTempExp
         EList = Experiment.objects.filter(exp_owner_name=username)
-        for item in EList:
-            new = MyTempExp(teacher=teacher, exp=item)
-            new.save()
-        # clear the MyTempGroup
-        MyTempGroup.objects.all().delete()
+        for item in EList:#first check if already exist, if not exist, insert into!
+            MyTempExp.objects.get_or_create(teacher=teacher, exp=item)
+            # new = MyTempExp(teacher=teacher, exp=item)
+            # new.save()
+        # # clear the MyTempGroup
+        # MyTempGroup.objects.all().delete()
         # insert into MyTempGroup
         GList = Group.objects.filter(teacher=teacher)
         for item in GList:
-            new = MyTempGroup(teacher=teacher, group=item)
-            new.save()
+            MyTempGroup.objects.get_or_create(teacher=teacher, group=item)
+            # new = MyTempGroup(teacher=teacher, group=item)
+            # new.save()
         rf = AddDeliveryForm()
     return render_to_response("delivery_create.html",{'rf':rf})
 
@@ -1150,6 +1153,9 @@ def repo_VM_edit(request,vm_id):
     except VM.DoesNotExist:
         raise Http404
 
+    username = request.session['username']
+    teacher = User.objects.get(username=username)
+
     if request.method == 'POST':
         print "POST"
         rf = EditVMForm(request.POST)
@@ -1159,8 +1165,8 @@ def repo_VM_edit(request,vm_id):
         #get data from form
         update_name = rf.data['name']
         update_desc = rf.data['desc']
-        update_image_id = rf.data['image_id']#this id is imagecart id
-        update_network_id = rf.data['network_id']#this id is netcart id
+        update_image_id = rf.data['image_id']#this id is MyTempImage id
+        update_network_id = rf.data['network_id']#this id is MyTempNetwork id
         flavor = rf.data['flavor']
         keypair = rf.data['keypair']
         security_group = rf.data['security_group']
@@ -1174,14 +1180,32 @@ def repo_VM_edit(request,vm_id):
                                                         )
         return HttpResponseRedirect('/repo_private_VM_list/')
     else:
-        image_in_cart=ImageCart.objects.get(image=vm.image)
-        net_in_cart=NetworkCart.objects.get(network=vm.network)
+        # prepare allimages that can be accessed by current user
+        imageList = VMImage.objects.filter(owner_name=username)
+        for item in imageList:
+            MyTempImage.objects.get_or_create(teacher=teacher,image=item)
+        imageList2 = VMImage.objects.filter(is_shared=True)
+        imageList2 = imageList2.exclude(owner_name=username)
+        for item in imageList2:
+            MyTempImage.objects.get_or_create(teacher=teacher,image=item)
+
+        netList = Network.objects.filter(owner_name=username)
+        for item in netList:
+            MyTempNetwork.objects.get_or_create(teacher=teacher,network=item)
+        netList2 = Network.objects.filter(is_shared=True)
+        netList2 = netList2.exclude(owner_name=username)
+        for item in netList2:
+            MyTempNetwork.objects.get_or_create(teacher=teacher,network=item)
+
+
+        image_in_temp=MyTempImage.objects.get(image=vm.image)
+        net_in_temp=MyTempNetwork.objects.get(network=vm.network)
         attrs = {}
         attrs['name']=vm.name
         attrs['desc']=vm.desc
         attrs['exp']=vm.exp
-        attrs['image_id']= image_in_cart.id#this should be imagecart id
-        attrs['network_id'] = net_in_cart.id#this thoudl be netcart id
+        attrs['image_id']= image_in_temp.id#this should be MyTempImage id
+        attrs['network_id'] = net_in_temp.id#this thoudl be MyTempNetwork id
         attrs['flavor'] = vm.flavor
         attrs['keypair'] = vm.keypair
         attrs['security_group']="default"
@@ -1241,6 +1265,7 @@ def repo_public_exp_delete(request,e_id):
         raise Http404
     #update is_shared field to False in Experiment db
     re = Experiment.objects.filter(id=e_id).update(is_shared = False)
+
     return HttpResponseRedirect('/repo_home/')
 
 
@@ -1939,6 +1964,7 @@ def subnet_list(request):
     return render(request,'image_list.html',{'SubnetList':SubnetList})
 
 
+#Function : Initialize the Router info in RouterInstance
 def router_list(request):
     conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
     routers = network_resource_operation.list_routers(conn)
@@ -2038,12 +2064,42 @@ def server_snapshot(request):
 
 #list all image----we use this function
 def image_list(request):
-    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)#use admin
     ImageList = image_resource_operation.list_images(conn)
 
-    # get usefull info from APi returned data
+    for item in ImageList:
+        project = identity_resource_operation.find_project(conn, item['owner_id'])
+        owner_name = project['name']
 
-    # insert into RouterIntance db
+        # if owner_name =='admin':
+        #get useful info from API returned data
+        image_id = item['id']
+        name = item['name']
+
+        own_project = item['owner_id']
+        is_public = item['visibility']
+        description = 'Please input description for the VMImage.'
+        status = item['status']
+        created_at = item['created_at']
+        updated_at = item['updated_at']
+        size = item['size']
+        min_disk = item['min_disk']
+        min_ram = item['min_ram']
+
+        if is_public == "public":
+            is_shared = True
+            shared_time = datetime.datetime.now()
+        else:
+            is_shared = False
+
+        disk_format = item['disk_format']
+
+        # insert into VMImage db first check if already exist
+        VMImage.objects.get_or_create(image_id = image_id,name=name,owner_name=owner_name,own_project=own_project,is_public=is_public,description=description,
+                                      status=status,size=size,min_disk=min_disk,min_ram=min_ram,is_shared=is_shared,disk_format=disk_format)
+        # else:
+        #     print "not admin upload images"
+
     context = {}
     context["ImageList"] = ImageList
     return render(request,'image_list.html',context)
@@ -2446,7 +2502,7 @@ def exp_create(request):
     if request.method == 'POST':
         rf = AddExpForm(request.POST)
         if rf.is_valid():
-            print "enter---------"
+
             guideFile = request.FILES.get("guide_file",None)
             if not guideFile:
                 return HttpResponse("no file to choose")
@@ -2567,16 +2623,37 @@ def exp_edit(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
-    imageList = e.exp_images.all()
-    networkList = e.exp_network.all()
-    images_idList=[]#should be ImageCart id
-    networks_idList=[]#should be NetworkCart id
+    username = request.session['username']
+    teacher = User.objects.get(username=username)
+
+    #Refresh the MyTempImage db-------prepare all images that can be accessed by current user
+    imageList = VMImage.objects.filter(owner_name=username)
     for item in imageList:
-        image_in_cart = ImageCart.objects.get(image=item)
-        images_idList.append(image_in_cart.id)
-    for item in networkList:
-        network_in_cart = NetworkCart.objects.get(network=item)
-        networks_idList.append(network_in_cart.id)
+        MyTempImage.objects.get_or_create(teacher=teacher, image=item)
+    imageList2 = VMImage.objects.filter(is_shared=True)
+    imageList2 = imageList2.exclude(owner_name=username)
+    for item in imageList2:
+        MyTempImage.objects.get_or_create(teacher=teacher, image=item)
+
+    #Refresh the MyTempNetwork db ------prepare all networks that can be accessed by current user
+    netList = Network.objects.filter(owner_name=username)
+    for item in netList:
+        MyTempNetwork.objects.get_or_create(teacher=teacher,network = item)
+    netList2 = Network.objects.filter(is_shared=True)
+    netList2 = netList2.exclude(owner_name=username)
+    for item in netList2:
+        MyTempNetwork.objects.get_or_create(teacher=teacher,network = item)
+
+    e_imageList = e.exp_images.all()
+    e_networkList = e.exp_network.all()
+    images_idList=[]#should be MyTempImage id
+    networks_idList=[]#should be NetworkCart id
+    for item in e_imageList:
+        image_in_temp = MyTempImage.objects.get(image=item)
+        images_idList.append(image_in_temp.id)
+    for item in e_networkList:
+        network_in_temp = MyTempNetwork.objects.get(network=item)
+        networks_idList.append(network_in_temp.id)
 
     #edit and update the exp
     if request.method == 'POST':
@@ -2585,8 +2662,8 @@ def exp_edit(request,exp_id):
             #get input data from form
             update_name = rf.cleaned_data['name']
             update_desc = rf.cleaned_data['desc']
-            update_images_idList = rf.cleaned_data['images_idList']#this id is ImageCart id
-            update_networks_idList = rf.cleaned_data['networks_idList']#this id is NetworkCart id
+            update_images_idList = rf.cleaned_data['images_idList']#this id is MyTempImage id
+            update_networks_idList = rf.cleaned_data['networks_idList']#this id is MyTempNetwork id
             update_vm_count = rf.cleaned_data['vm_count']
             # update_guide = rf.data['guide']
             # update_refer_result = rf.data['refer_result']
@@ -2595,11 +2672,11 @@ def exp_edit(request,exp_id):
             update_imageList =[]
             update_networkList=[]
             for i in update_images_idList:
-                image_in_cart = ImageCart.objects.get(id=i)
-                update_imageList.append(VMImage.objects.get(id=image_in_cart.image.id))
+                image_in_temp = MyTempImage.objects.get(id=i)
+                update_imageList.append(VMImage.objects.get(id=image_in_temp.image.id))
             for i in update_networks_idList:
-                network_in_cart = NetworkCart.objects.get(id=i)
-                update_networkList.append(Network.objects.get(id=network_in_cart.network.id))
+                network_in_temp = MyTempNetwork.objects.get(id=i)
+                update_networkList.append(Network.objects.get(id=network_in_temp.network.id))
 
             #update basic info for exp
             re = Experiment.objects.filter(id=exp_id).update(exp_name=update_name,exp_description=update_desc,
@@ -2609,22 +2686,24 @@ def exp_edit(request,exp_id):
             update_e = Experiment.objects.get(id=exp_id)
             #update image list and network list for exp
             for i in range(0,len(update_imageList)):
-                if update_imageList[i] not in imageList:
+                if update_imageList[i] not in e_imageList:
                     update_e.exp_images.add(update_imageList[i])
-            for j in range(0,len(imageList)):
-                if imageList[j] not in update_imageList:
-                    update_e.exp_images.remove(imageList[j])
+            for j in range(0,len(e_imageList)):
+                if e_imageList[j] not in update_imageList:
+                    update_e.exp_images.remove(e_imageList[j])
 
             for item in update_networkList:
-                if item not in networkList:
+                if item not in e_networkList:
                     update_e.exp_network.add(item)
-            for item in networkList:
+            for item in e_networkList:
                 if item not in update_networkList:
                     update_e.exp_network.remove(item)
             #refersh the exp list
             return HttpResponseRedirect('/exp_home/')
     else:
         # initial the form
+
+
         attrs = {}
         attrs['name'] = e.exp_name
         attrs['desc'] = e.exp_description
@@ -2635,6 +2714,8 @@ def exp_edit(request,exp_id):
     return render_to_response("exp_edit.html",{'rf':gf})
 
 
+def image_share_function():
+    return 0
 
 #only role = teacher has this function
 def exp_share(request,exp_id):
@@ -2644,6 +2725,22 @@ def exp_share(request,exp_id):
         raise Http404
     #update the is_shared field in Experiment db
     re = Experiment.objects.filter(id=exp_id).update(is_shared=True,shared_time=datetime.datetime.now())
+    #also share the include images and net
+    e_imageList = e.exp_images.all()
+    e_networkList = e.exp_network.all()
+
+    for image in e_imageList:
+        vmimage = VMImage.objects.get(id=image.id)
+        if vmimage.is_shared == False:
+            vmimage.is_shared = True
+            vmimage.shared_time = datetime.datetime.now()
+            vmimage.save()
+    for net in e_networkList:
+        network = Network.objects.get(id=net.id)
+        if network.is_shared == False:
+            network.is_shared = True
+            network.shared_time = datetime.datetime.now()
+            network.save()
     if re:
         messages.success(request,"Share exp success!")
     return HttpResponseRedirect('/exp_home/')
@@ -2661,6 +2758,7 @@ def exp_delivery(request,exp_id):
     if request.method == 'POST':
         rf = ExpDeliveryForm(request.POST)
         if rf.is_valid():
+            print "**************************************************enter valid***********************************"
             # get data from the form
             name = rf.cleaned_data['name']
             desc = rf.cleaned_data['desc']
@@ -2699,13 +2797,14 @@ def exp_delivery(request,exp_id):
                         new_score.save()
             return HttpResponseRedirect('/exp_home/')
     else:
-        # clear the MyTempGroup
-        MyTempGroup.objects.all().delete()
+        # # clear the MyTempGroup
+        # MyTempGroup.objects.all().delete()
         # insert into MyTempGroup
         GList = Group.objects.filter(teacher=teacher)
-        for item in GList:
-            new = MyTempGroup(teacher=teacher, group=item)
-            new.save()
+        for item in GList:# first check if exist,if not exist, insert.
+            MyTempGroup.objects.get_or_create(teacher=teacher, group=item)
+            # new = MyTempGroup(teacher=teacher, group=item)
+            # new.save()
         attrs = {}
         attrs['name'] = "delivery_" + e.exp_name + "_" + time.strftime('%Y-%m-%d %X', time.localtime())
         gf = ExpDeliveryForm(initial=attrs)

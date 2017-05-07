@@ -802,7 +802,6 @@ def list_routers(conn):
     for router in routers:
         # list.append(extract_router(router)
         list.append(extract_router2(router))
-        print extract_router2(router)
     return list
 
 

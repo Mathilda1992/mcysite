@@ -33,7 +33,7 @@ class ExperimentAdmin(admin.ModelAdmin):
 
 
 class VMImageAdmin(admin.ModelAdmin):
-    list_display = ('id','image_id','name','owner_name','own_project','is_public',)
+    list_display = ('id','image_id','name','owner_name','own_project','is_public','is_shared')
     filter_horizontal = ('tags',)
 
 
@@ -81,6 +81,12 @@ class MyTempExpAdmin(admin.ModelAdmin):
 class MyTempGroupAdmin(admin.ModelAdmin):
     list_display = ('id', 'teacher','group', 'createtime')
 
+class MyTempImageAdmin(admin.ModelAdmin):
+    list_display = ('id','teacher','image','createtime')
+
+class MyTempNetworkAdmin(admin.ModelAdmin):
+    list_display = ('id','teacher','network','createtime')
+
 admin.site.register(User,UserAdmin)
 admin.site.register(Student,StudentAdmin)
 admin.site.register(Group,GroupAdmin)
@@ -104,4 +110,6 @@ admin.site.register(ExpInstance,ExpInstanceAdmin)
 
 admin.site.register(MyTempExp,MyTempExpAdmin)
 admin.site.register(MyTempGroup,MyTempGroupAdmin)
+admin.site.register(MyTempImage,MyTempImageAdmin)
+admin.site.register(MyTempNetwork,MyTempNetworkAdmin)
 

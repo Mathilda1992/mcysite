@@ -348,17 +348,52 @@ def vm_instance_save_function(conn,vi,username,new_vm_name,new_vm_desc):
     return new_vm.id
 
 
+#Function : Initialize the Router info in RouterInstance
+def router_list(request):
+    conn = createconn_openstackSDK.create_connection(auth_url, region_name, project_name, auth_username, auth_password)
+    routers = network_resource_operation.list_routers(conn)
 
-def teach_result_list(request):
-    context = {}
-    context['role'] = request.session['role']
-    context['username'] = request.session['username']
-    context['hello'] = 'welcome to our platfowm'
-    context['currentTime'] = showTime.formatTime2()
-    context['currentTimeStamp'] = showTime.transform_Timestr_To_TimeStamp(showTime.formatTime1())
+    for item in routers:
+        # get usefull info from APi returned data
+        status = item['status']
+        gateway_net_id = item['external_gateway_info']['network_id']
+        gateway_subnet_id = item['external_gateway_info']['external_fixed_ips'][0]['subnet_id']
+        gateway_ip_address = item['external_gateway_info']['external_fixed_ips'][0]['ip_address']
+        name = item['name']
+        routerIntance_id = item['id']
+        tenant_id = item['tenant_id']
+
+        project = identity_resource_operation.find_project(conn,item['tenant_id'])
+        owner_username = project['name']
+
+        #insert into RouterIntance db-----first check if already exist,if not then insert, to avoid repeat
+        RouterInstance.objects.get_or_create(owner_username = owner_username,routerIntance_id = routerIntance_id,name = name,status = status,
+                             gateway_net_id = gateway_net_id,gateway_subnet_id = gateway_subnet_id,
+                             gateway_ip_address = gateway_ip_address,tenant_id = tenant_id)
+
+    return render(request,'image_list.html',{'RouterList':routers})
+
+
+
+def repo_image_share1(request,i_id):
+    try:
+        image = VMImage.objects.get(id=i_id)
+    except VMImage.DoesNotExist:
+        raise Http404
 
     username = request.session['username']
-    current_teacher = User.objects.get(username=username)
-    ResultList = Score.objects.filter(scorer=current_teacher,situation='Done').order_by('-finishedTime')
-    context['ResultList'] = ResultList
-    return render(request, 'teach_result_list.html', context)
+    user_id = User.objects.get(username=username).id
+
+    if VMImage.objects.filter(id=i_id):
+        image = VMImage.objects.get(id=i_id)
+        if image.is_shared == 'True':
+            image.is_shared = 'False'
+            image.save()
+            print 'image ' + i_id + ' is now private'
+            return HttpResponseRedirect('/repo_private_image_list/')
+        if image.is_shared == 'False':
+            image.is_shared = 'True'
+            image.save()
+            print 'image ' + i_id + ' is now shared'
+            return HttpResponseRedirect('/repo_private_image_list/')
+    return HttpResponseRedirect('/repo_private_image_list/')

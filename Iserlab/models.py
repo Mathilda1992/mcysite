@@ -131,7 +131,7 @@ class VMImage(models.Model):
     description = models.TextField(max_length=500,blank=True)
     status = models.CharField(max_length = 30,default = 'active')
     created_at = models.DateTimeField(auto_now_add = True)
-    updated_at = models.DateTimeField(auto_now = True,null=True,blank = True)
+    updated_at = models.DateTimeField(auto_now = True,null=True,blank = True,editable=True)
     size = models.BigIntegerField(null=True,blank=True)
     min_disk = models.IntegerField(default = 0,null=True,blank=True)
     min_ram = models.IntegerField(default = 0,null=True,blank=True)
@@ -140,7 +140,7 @@ class VMImage(models.Model):
     shared_time = models.DateTimeField(auto_now=True, null=True,editable=True)
     path=models.CharField(max_length=300,null=True,blank=True)
     os = models.CharField(max_length=30,null=True,blank=True)
-    disk_format=models.CharField(max_length=20,default="QCOW2")
+    disk_format=models.CharField(max_length=20,default="qcow2")
 
     def __unicode__(self):
         return u'name=%s,creater=%s' % (self.name,self.owner_name)
@@ -478,28 +478,11 @@ class MyTempExp(models.Model):
     class Meta:
         ordering = ['-createtime']
 
-# class TempGroup(models.Model):
-#     name = models.CharField(max_length = 50)
-#     desc = models.TextField(max_length= 100,null=True,blank=True)
-#     teacher = models.ForeignKey(User)
-#     stuCount = models.IntegerField(null=True,blank=True)
-#     student = models.ManyToManyField(Student)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#
-#
-#     def __unicode__(self):
-#         return u'id=%s,%s,%s' % (self.id,self.name,self.teacher)
-#     # name = models.CharField(max_length=150)
-#     # owner = models.ForeignKey(User)
-#     #
-#     # def __unicode__(self):
-#     #     return u'id=%s,name=%s,creater=%s' % (self.id, self.name, self.owner)
 
 class MyTempGroup(models.Model):
     teacher = models.ForeignKey(User)
     group = models.ForeignKey(Group)
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
-
 
     def __unicode__(self):
         return u'%s,%s' % (self.group.name,self.group.teacher)
@@ -507,3 +490,23 @@ class MyTempGroup(models.Model):
     class Meta:
         ordering = ['-createtime']
 
+class MyTempImage(models.Model):
+    teacher = models.ForeignKey(User)
+    image = models.ForeignKey(VMImage)
+    createtime = models.DateTimeField(auto_now_add=True, editable=True)
+
+    def __unicode__(self):
+        return u'%s,%s' % (self.image.name,self.image.owner_name)
+
+    class Meta:
+        ordering = ['-createtime']
+
+class MyTempNetwork(models.Model):
+    teacher = models.ForeignKey(User)
+    network = models.ForeignKey(Network)
+    createtime = models.DateTimeField(auto_now_add=True, editable=True)
+    def __unicode__(self):
+        return u'%s,%s' % (self.network.network_name,self.network.owner_name)
+
+    class Meta:
+        ordering = ['-createtime']

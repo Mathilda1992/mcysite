@@ -66,7 +66,7 @@ def extract_image(item):
     dict.setdefault("os_distro",item.os_distro)
     dict.setdefault("os_type",item.os_type)
     dict.setdefault("os_version",item.os_version)
-    dict.setdefault("owner_id", item.owner_id)#
+    dict.setdefault("owner_id", item.owner_id)# project id/tenant id
     dict.setdefault("patch_update",item.patch_update)
     dict.setdefault("path",item.path)
     dict.setdefault("properties",item.properties)
