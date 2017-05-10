@@ -204,7 +204,9 @@ def delivery_delete(request,d_id):
         raise Http404
     re = Delivery.objects.filter(id=d_id).delete()
     #also should delete related records in Score db
-
+    slist = Score.objects.filter(delivery_id=d_id)
+    for s in slist:
+        s.delete()
     if re:
         print "Delivery delete success!"
     return HttpResponseRedirect('/delivery_list/')
@@ -2834,6 +2836,11 @@ def exp_delivery(request,exp_id):
                     for j in range(0, len(stulist)):  # insert a record into score db for every stu
                         new_score = Score(exp=d_List[i].exp, stu=stulist[j], scorer=teacher, delivery_id=d_List[i].id)
                         new_score.save()
+            #update the images visibility property in OpenStack
+            imagelist = e.exp_images.all()
+            for image in imagelist:
+                image_update_visibility_function(image.id,"public")
+
             return HttpResponseRedirect('/exp_home/')
     else:
         # # clear the MyTempGroup
