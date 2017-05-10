@@ -511,3 +511,12 @@ class MyTempNetwork(models.Model):
 
     class Meta:
         ordering = ['-createtime']
+
+class MyTempVM(models.Model):
+    teacher = models.ForeignKey(User)
+    vm = models.ForeignKey(VM)
+    createtime = models.DateTimeField(auto_now_add=True, editable=True)
+    def __unicode__(self):
+        return u'%s,%s' % (self.vm.name,self.vm.owner_name)
+    class Meta:
+        ordering = ['-createtime']

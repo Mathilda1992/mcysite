@@ -87,6 +87,9 @@ class MyTempImageAdmin(admin.ModelAdmin):
 class MyTempNetworkAdmin(admin.ModelAdmin):
     list_display = ('id','teacher','network','createtime')
 
+class MyTempVMAdmin(admin.ModelAdmin):
+    list_display = ('id','teacher','vm','createtime')
+
 admin.site.register(User,UserAdmin)
 admin.site.register(Student,StudentAdmin)
 admin.site.register(Group,GroupAdmin)
@@ -112,4 +115,4 @@ admin.site.register(MyTempExp,MyTempExpAdmin)
 admin.site.register(MyTempGroup,MyTempGroupAdmin)
 admin.site.register(MyTempImage,MyTempImageAdmin)
 admin.site.register(MyTempNetwork,MyTempNetworkAdmin)
-
+admin.site.register(MyTempVM,MyTempVMAdmin)

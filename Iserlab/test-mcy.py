@@ -458,3 +458,10 @@ def exp_copy(request,exp_id):
         gf = CopyExpForm(initial=attrs)
 
     return render_to_response("exp_copy.html",{'rf':gf})
+
+
+update_imageList =[]
+update_networkList=[]
+for i in update_images_idList:
+    image_in_temp = MyTempImage.objects.get(id=i)
+    update_imageList.append(VMImage.objects.get(id=image_in_temp.image.id))

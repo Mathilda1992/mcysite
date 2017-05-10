@@ -17,7 +17,7 @@
     <div class="header">
         <h1>实验详情:{{ c.E_Detail_Dict.exp_name }}</h1>
          <div>
-             {% ifequal role 'teacher' %}
+             {% ifequal c.role 'teacher' %}
                 <a href="{% url 'exp_edit' c.E_Detail_Dict.id %}" target="_blank">编辑</a>|
                 <a href="{% url 'exp_share' c.E_Detail_Dict.id %}" >共享</a>|
                 <a href="{% url 'exp_launch' c.E_Detail_Dict.id %}" target="_blank">启动</a>|
@@ -89,7 +89,12 @@
 
     <div class="summary">
          <table cellpadding="5">
-             <tr><td><h2>包含主机</h2></td><td>[<a href="{% url 'exp_create_VM' c.E_Detail_Dict.id %}" target="_blank">添加主机</a>]</td></tr>
+             <tr><td><h2>包含主机</h2></td>
+                 {% ifequal c.role 'teacher' %}
+                     <td>[<a href="{% url 'exp_create_VM' c.E_Detail_Dict.id %}" target="_blank">添加主机</a>]</td>
+                     <td>[<a href="{% url 'exp_set_operateVM' c.E_Detail_Dict.id %}" target="_blank">选择操作机</a>]</td>
+                 {%  endifequal %}
+             </tr>
          </table>
 
         <table cellpadding="5" border="1">
@@ -98,7 +103,10 @@
                 <th>主机名称</th>
                 <th>所连网络</th>
                 <th>所用镜像</th>
-                <th>Actions</th>
+                {% ifequal c.role 'teacher' %}
+                    <th>Actions</th>
+                {% endifequal %}
+
             </tr>
             {% for item in c.E_Detail_Dict.VMList %}
             <tr>
@@ -106,7 +114,10 @@
                 <td><a href="{% url 'repo_VM_detail' item.id %}" target="_blank">{{ item.name }}</a></td>
                 <td>{{ item.network.network_name }}</td>
                 <td>{{ item.image.name }}</td>
-                <td>[<a href="{% url 'exp_delete_VM' item.id %}" >移除主机</a>][<a href="{% url 'repo_VM_delete' item.id %}" >设为操作机</a>]</td>
+                {% ifequal c.role 'teacher' %}
+                    <td>[<a href="{% url 'exp_remove_VM' c.E_Detail_Dict.id %}" target="_blank">移除主机</a>]</td>
+                {% endifequal %}
+
             </tr>
             {% endfor %}
         </table>

@@ -357,6 +357,12 @@ def delivery_create(request): # by mcy using MyTempExp and MyTempGroup 2017-4-25
                 for j in range(0,len(stulist)):#insert a record into score db for every stu
                     new_score = Score(exp=d_List[i].exp,stu=stulist[j],scorer= teacher,delivery_id=d_List[i].id)
                     new_score.save()
+            # set all images in the exp to visibility 'public'
+            for e in expList:
+                imagelist = e.exp_images.all()
+                for image in imagelist:
+                    image_update_visibility_function(image.id,"public")
+
         return HttpResponseRedirect('/delivery_list/')
     else:
         # # clear the MyTempExp
@@ -2453,7 +2459,11 @@ def exp_copy(request,exp_id):
         e.exp_images.add(item)
     for item in networkList:
         e.exp_network.add(item)
-    pass
+
+    #also should copy all vms included in the exp
+    
+    # refresh the exp list
+    return HttpResponseRedirect('/exp_home/')
 
 
 
@@ -2641,20 +2651,51 @@ def exp_delete_VM(request,exp_id):
         return HttpResponse("No VM to delete!")
 
 
+#only teacher
+def exp_set_operateVM(request,e_id):
+    try:
+        e = Experiment.objects.get(id=e_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    teacher = User.objects.get(username=username)
+
+    #Refresh the MyTempVM db----prepare all vms that included in this exp
+    vmlist = VM.objects.filter(exp=e)
+    for item in vmlist:
+        MyTempVM.objects.get_or_create(teacher=teacher,vm=item)
+
+    if request.method == 'POST':
+        rf = SetOperateVMForm(request.POST)
+        if rf.is_valid():
+            vm_id = rf.cleaned_data['vm_id']# this is MyTempVM id
+            vm_temp = MyTempVM.objects.get(id=vm_id)
+
+            e.operate_vm_id = vm_temp.vm.id
+            e.save()
+            return HttpResponse("Successfully Set Operate VM!")
+    else:
+        attrs = {}
+        attrs['exp_name'] = e.exp_name
+        gf = SetOperateVMForm(initial=attrs)
+    return render_to_response("exp_set_operateVM.html",{'rf':gf})
+
+
+
+
 def exp_remove_VM(request,v_id):
     try:
         v = VM.objects.get(id=v_id)
     except VM.DoesNotExist:
         raise Http404
-    pass
 
+    # update the VM_count of Experiment
+    re = Experiment.objects.filter(id=v.exp.id).update(VM_count=v.exp.VM_count - 1)
 
-def exp_set_operateVM(request,v_id):
-    try:
-        v = VM.objects.get(id=v_id)
-    except VM.DoesNotExist:
-        raise Http404
-    pass
+    # delete from VM db
+    VM.objects.filter(id=v_id).delete()
+    return HttpResponse("Already Remove the VM from exp!")
+
 
 #only role = teacher has this function
 def exp_edit(request,exp_id):
@@ -2706,8 +2747,8 @@ def exp_edit(request,exp_id):
             update_vm_count = rf.cleaned_data['vm_count']
             # update_guide = rf.data['guide']
             # update_refer_result = rf.data['refer_result']
-            print "after update"
-            print update_images_idList
+
+
             update_imageList =[]
             update_networkList=[]
             for i in update_images_idList:
@@ -2915,6 +2956,7 @@ def exp_detail(request,exp_id):
     images = e.exp_images.all()
     vms = VM.objects.filter(exp=e)
     networks = e.exp_network.all()
+
 
     topo_ndict = {}
     count = 0

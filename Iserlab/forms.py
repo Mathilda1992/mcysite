@@ -92,6 +92,16 @@ class DeleteVMForm(forms.Form):
         super(DeleteVMForm,self).__init__(*args,**kwargs)
         self.fields['vm_id_list'].choices = [(i.pk,str(i)) for i in VM.objects.all()]
 
+class SetOperateVMForm(forms.Form):
+    exp_name = forms.CharField(label='Exp Name',max_length=150,
+                               widget=forms.TextInput(attrs={'readonly': 'readonly'}),
+                               )
+    vm_id = forms.ChoiceField(label='Choice a vm to be operate VM',)
+    def __init__(self,*args,**kwargs):
+        super(SetOperateVMForm, self).__init__(*args, **kwargs)
+        self.fields['vm_id'].choices = [(i.pk, str(i)) for i in MyTempVM.objects.all()]
+
+
 
 class EditVMForm(forms.Form):
     name = forms.CharField(label='VM name', max_length=150)
