@@ -40,6 +40,7 @@
             <tr><td>更新时间</td><td>{{ c.E_Detail_Dict.exp_updatetime |date:"Y-m-d H:i" }}</td></tr>
             <tr><td>描述</td><td>{{ c.E_Detail_Dict.exp_description }}</td></tr>
             <tr><td>实验指导书</td><td>[<a href="{% url 'exp_guide_download' c.E_Detail_Dict.id%}">下载</a>][<a href="">预览</a>]</td></tr>
+            <tr><td>操作机编号</td><td>{{ c.E_Detail_Dict.operate_vm_id }}</td></tr>
         </table>
     </div>
 
@@ -105,7 +106,7 @@
                 <td><a href="{% url 'repo_VM_detail' item.id %}" target="_blank">{{ item.name }}</a></td>
                 <td>{{ item.network.network_name }}</td>
                 <td>{{ item.image.name }}</td>
-                <td>[<a href="{% url 'repo_VM_delete' item.id %}" >删除</a>]</td>
+                <td>[<a href="{% url 'exp_delete_VM' item.id %}" >移除主机</a>][<a href="{% url 'repo_VM_delete' item.id %}" >设为操作机</a>]</td>
             </tr>
             {% endfor %}
         </table>

@@ -1035,13 +1035,15 @@ def repo_image_share(request,i_id):
         image = VMImage.objects.get(id=i_id)
     except VMImage.DoesNotExist:
         raise Http404
-    re = VMImage.objects.filter(id=i_id).update(is_shared=True)
+    image_update_visibility_function(i_id, "public")
+    re = VMImage.objects.filter(id=i_id).update(is_shared=True,is_public="public")
+
     if re:
         print "repo_image_share Success!"
     return HttpResponseRedirect('/repo_private_image_list/')
 
 
-def repo_image_share1(request,i_id):
+def repo_image_share1(request,i_id):#-----can not use
     try:
         image = VMImage.objects.get(id=i_id)
     except VMImage.DoesNotExist:
@@ -2438,6 +2440,26 @@ def exp_copy(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
+    username = request.session['username']
+    imageList = e.exp_images.all()#these are VMImage records
+    networkList = e.exp_network.all()#these are Network records
+
+    e = Experiment(exp_name=e.exp_name, exp_description=e.exp_description, exp_owner_name=username, exp_image_count=len(imageList),
+                   VM_count=e.VM_count, operate_vm_id=e.operate_vm_id)
+    e.save()
+    for item in imageList:
+        e.exp_images.add(item)
+    for item in networkList:
+        e.exp_network.add(item)
+    pass
+
+
+
+def exp_copy_old(request,exp_id):
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
 
     imageList = e.exp_images.all()#these are VMImage records
     networkList = e.exp_network.all()#these are Network records
@@ -2472,7 +2494,7 @@ def exp_copy(request,exp_id):
             for i in networks_idList:
                 network_in_cart = NetworkCart.objects.get(id=i)
                 networkList.append(Network.objects.get(id=network_in_cart.network.id))
-            e = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=len(imageList))
+            e = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=len(imageList),VM_count=e.VM_count,operate_vm_id=e.operate_vm_id)
             e.save()
             for item in imageList:
                 e.exp_images.add(item)
@@ -2617,6 +2639,21 @@ def exp_delete_VM(request,exp_id):
         return HttpResponse("No VM to delete!")
 
 
+def exp_remove_VM(request,v_id):
+    try:
+        v = VM.objects.get(id=v_id)
+    except VM.DoesNotExist:
+        raise Http404
+    pass
+
+
+def exp_set_operateVM(request,v_id):
+    try:
+        v = VM.objects.get(id=v_id)
+    except VM.DoesNotExist:
+        raise Http404
+    pass
+
 #only role = teacher has this function
 def exp_edit(request,exp_id):
     try:
@@ -2731,6 +2768,8 @@ def exp_share(request,exp_id):
 
     for image in e_imageList:
         vmimage = VMImage.objects.get(id=image.id)
+        #update the visibility of the image
+        image_update_visibility_function(image.id,"public")
         if vmimage.is_shared == False:
             vmimage.is_shared = True
             vmimage.shared_time = datetime.datetime.now()
@@ -2855,6 +2894,7 @@ def exp_detail(request,exp_id):
     edict['VM_count'] = e.VM_count
     VMList = VM.objects.filter(exp=e).order_by('-created_at')
     edict['VMList'] = VMList
+    edict['operate_vm_id'] = e.operate_vm_id
 
     if role == 'teacher':
         teacher = User.objects.get(username=username)
@@ -3353,6 +3393,7 @@ def vm_instance_list(request):
     username = request.session['username']
     VMInstanceList = VMInstance.objects.filter(owner_name = username).order_by('-createtime')
     VMInstanceList = VMInstanceList.exclude(status="DELETED")#do not list DELETED instance
+
     context['VMInstanceList'] = VMInstanceList
     return render(request,'vm_instance_list.html',context)
 
@@ -3365,6 +3406,48 @@ def vm_instance_detail(request,vi_id):
     c= {}
     c['DetailDict']=vi
     return render(request,"vm_instance_detail.html",c)
+
+
+
+def vm_instance_stop_it(request,vi_id):
+    try:
+        vi = VMInstance.objects.get(id=vi_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
+    vm_instance_stop_function(vi,username,password)
+    vi.status = "SHUTOFF"
+    vi.save()
+    return HttpResponse("Alerady stop it!")
+
+
+def vm_instance_start_it(request,vi_id):
+    try:
+        vi = VMInstance.objects.get(id=vi_id)
+    except VMInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
+    vm_instance_start_function(vi,username,password)
+    vi.status = "ACTIVE"
+    vi.save()
+    return HttpResponse("Already start it")
+
 
 def vm_instance_save_it(request,vi_id):
     try:
@@ -3465,6 +3548,26 @@ def vm_instance_goto_function(vi,username,password):
             url = match.group()
     return url
 #-----------------------------------------------------
+
+
+
+def image_update_visibility_function(i_id,visibility):
+    os.environ['OS_PROJECT_DOMAIN_ID'] = 'default'
+    os.environ['OS_USER_DOMAIN_ID'] = 'default'
+    os.environ['OS_PROJECT_NAME'] = 'admin'
+    os.environ['OS_TENANT_NAME'] = 'admin'
+    os.environ['OS_USERNAME'] = 'admin'
+    os.environ['OS_PASSWORD'] = 'os62511279'
+    os.environ['OS_AUTH_URL'] = 'http://controller:5000/v3'
+    os.environ['OS_IDENTITY_API_VERSION'] = '3'
+    os.environ['OS_IMAGE_API_VERSION'] = '2'
+
+    image= VMImage.objects.get(id=i_id)
+    image.is_public=visibility
+    image.save()
+    c = 'glance image-update' + ' ' + image.image_id + ' ' + '--visibility' + ' '+ visibility
+    output = os.system(c)
+
 
 def vm_instance_start_function(vi,username,password):
     os.environ['OS_PROJECT_DOMAIN_ID'] = 'default'
@@ -4033,20 +4136,36 @@ def exp_instance_goto(request,exp_i_id):#make user login the operate server
     username = request.session['username']
     role = request.session['role']
 
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
+
+    #get the operate vm instance
+    vi = VMInstance.objects.get(id=ei.operate_vminstance_id)
+    #get vnc url
+    url = vm_instance_goto_function(vi, username, password)
 
     c={}
     c['E_I_Detail_Dict']=ei
-    c['baiduurl']=" http://202.112.113.220:6080/vnc_auto.html?token=a0dff238-0199-442c-be38-a74a4dfd11c8"
+    c['vnc_url']=url
+    c['role']=role
     return render(request,"exp_instance_goto.html",c)
 
-
+#Function: Unpause all vms
 def exp_instance_recover_it(request,exp_i_id):
     pass
 
 
 
-#Function :
+#Function : Pause all VMs
 def exp_instance_save_it(request,exp_i_id):
+    pass
+
+def exp_instance_stop_it(request,exp_i_id):
     pass
 
 def exp_instance_save(request,exp_i_id):#save the instance as a template:
@@ -4208,6 +4327,11 @@ def exp_instance_submit(request,exp_i_id):
         new_exp_desc = "This exp is a submit exp template"
         result_exp_id = exp_instance_save_function(conn, ei, username, new_exp_name, new_exp_desc)
 
+        #-----to make teacher access the result image, update its visibility to 'public'
+        result_exp = Experiment.objects(id=result_exp_id)
+        imagelist = result_exp.exp_images.all()
+        for image in imagelist:
+            image_update_visibility_function(image.id,"public")
 
         #-----update the Score db on "finishedTime', "situation", "result_exp_id" and "report_path" field
         Score.objects.filter(id=ei.score_id).update(finishedTime = datetime.datetime.now(),situation="done",result_exp_id=result_exp_id,report_path=report_path)

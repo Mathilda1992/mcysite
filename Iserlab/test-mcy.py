@@ -374,26 +374,87 @@ def router_list(request):
     return render(request,'image_list.html',{'RouterList':routers})
 
 
-
-def repo_image_share1(request,i_id):
+def vm_instance_goto(request,vi_id):
     try:
-        image = VMImage.objects.get(id=i_id)
-    except VMImage.DoesNotExist:
+        vi = VMInstance.objects.get(id=vi_id)
+    except VMInstance.DoesNotExist:
         raise Http404
 
     username = request.session['username']
-    user_id = User.objects.get(username=username).id
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
 
-    if VMImage.objects.filter(id=i_id):
-        image = VMImage.objects.get(id=i_id)
-        if image.is_shared == 'True':
-            image.is_shared = 'False'
-            image.save()
-            print 'image ' + i_id + ' is now private'
-            return HttpResponseRedirect('/repo_private_image_list/')
-        if image.is_shared == 'False':
-            image.is_shared = 'True'
-            image.save()
-            print 'image ' + i_id + ' is now shared'
-            return HttpResponseRedirect('/repo_private_image_list/')
-    return HttpResponseRedirect('/repo_private_image_list/')
+    url = vm_instance_goto_function(vi,username,password)
+
+    c={}
+    c['E_I_Detail_Dict']=vi
+    c['baiduurl']=url
+    return render(request,"vm_instance_goto.html",c)
+
+
+#only role = teacher has this function
+def exp_copy(request,exp_id):
+    try:
+        e = Experiment.objects.get(id=exp_id)
+    except Experiment.DoesNotExist:
+        raise Http404
+
+    imageList = e.exp_images.all()#these are VMImage records
+    networkList = e.exp_network.all()#these are Network records
+    images_idList=[]#should be ImageCart id
+    networks_idList=[]#should be NetworkCart id
+    for item in imageList:
+        image_in_cart = ImageCart.objects.get(image = item)
+        images_idList.append(image_in_cart.id)
+    for item in networkList:
+        network_in_cart = NetworkCart.objects.get(network = item)
+        networks_idList.append(network_in_cart.id)
+
+    #insert a new record into db
+    username = request.session['username']
+    t = User.objects.get(username=username)
+    if request.method == 'POST':
+        rf = CopyExpForm(request.POST)
+        if rf.is_valid():
+            #get input data from form
+            name = rf.cleaned_data['name']
+            desc = rf.cleaned_data['desc']
+            images_idList = rf.cleaned_data['images_idList']#this is ImageCart id
+            networks_idList = rf.cleaned_data['networks_idList']#this is NetworkCart id
+
+            #get images
+            imageList=[]
+            for i in images_idList:
+                image_in_cart = ImageCart.objects.get(id =i)
+                imageList.append(VMImage.objects.get(id=image_in_cart.image.id))
+            #get networks
+            networkList=[]
+            for i in networks_idList:
+                network_in_cart = NetworkCart.objects.get(id=i)
+                networkList.append(Network.objects.get(id=network_in_cart.network.id))
+            e = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=len(imageList),VM_count=e.VM_count,operate_vm_id=e.operate_vm_id)
+            e.save()
+            for item in imageList:
+                e.exp_images.add(item)
+            for item in networkList:
+                e.exp_network.add(item)
+
+            #refresh the exp list
+            return HttpResponseRedirect('/exp_home/')
+    else:
+        # initial the form
+        attrs = {}
+        attrs['name'] = e.exp_name + "_copy"
+        attrs['desc'] = e.exp_description
+        attrs['images_idList'] = images_idList#should be ImageCart id
+        attrs['networks_idList'] = networks_idList#should be NetworkCart id
+        attrs['vm_count']=e.VM_count
+        gf = CopyExpForm(initial=attrs)
+
+    return render_to_response("exp_copy.html",{'rf':gf})

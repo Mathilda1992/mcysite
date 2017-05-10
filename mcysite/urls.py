@@ -179,6 +179,8 @@ urlpatterns = [
     url(r'^vm_instance_edit/(\d+)/$', vm_instance_edit, name='vm_instance_edit'),
     url(r'^vm_instance_save_it/(\d+)/$', vm_instance_save_it, name='vm_instance_save_it'),
     url(r'^vm_instance_recover_it/(\d+)/$', vm_instance_recover_it, name='vm_instance_recover_it'),
+    url(r'^vm_instance_stop_it/(\d+)/$', vm_instance_stop_it, name='vm_instance_stop_it'),
+    url(r'^vm_instance_start_it/(\d+)/$', vm_instance_start_it, name='vm_instance_start_it'),
 
     #net instance operate
     url(r'^net_instance_list/$', net_instance_list, name='net_instance_list'),
@@ -222,7 +224,7 @@ urlpatterns = [
 
     url(r'^repo_ImageCart_list/$',repo_ImageCart_list,name='repo_ImageCart_list'),
     url(r'^repo_ImageCart_clear/$',repo_ImageCart_clear,name='repo_ImageCart_clear'),
-    url(r'^repo_ImageCart_add(\d+)/$', repo_ImageCart_add, name='repo_ImageCart_add'),
+    url(r'^repo_ImageCart_add/(\d+)/$', repo_ImageCart_add, name='repo_ImageCart_add'),
     url(r'^repo_ImageCart_delete/(\d+)$', repo_ImageCart_delete, name='repo_ImageCart_delete'),
     url(r'^repo_NetworkCart_list/$',repo_NetworkCart_list,name='repo_NetworkCart_list'),
     url(r'^repo_NetworkCart_clear/$',repo_NetworkCart_clear,name='repo_NetworkCart_clear'),

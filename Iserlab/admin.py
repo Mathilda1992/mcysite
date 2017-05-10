@@ -52,7 +52,7 @@ class SocreAdmin(admin.ModelAdmin):
     list_display = ('id','exp','stu','createTime','situation','finishedTime','score','scoreTime')
 
 class VMAdmin(admin.ModelAdmin):
-    list_display = ('id','owner_name','exp','image','network','created_at')
+    list_display = ('id','name','owner_name','exp','image','network','created_at')
 
 class ExpInstanceAdmin(admin.ModelAdmin):
     list_display = ('id','owner_name','exp','createtime','instance_status')

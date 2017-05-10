@@ -209,6 +209,7 @@ class Experiment(models.Model):
     is_shared = models.BooleanField(default=False)
     shared_time = models.DateTimeField(null=True,blank=True,editable=True)
     VM_count = models.IntegerField(default=0,null=True)
+    operate_vm_id = models.IntegerField(null=True,blank=True)
 
 
     def __unicode__(self):
@@ -315,9 +316,9 @@ class ExpInstance(models.Model):
     owner_name = models.CharField(max_length=50)
     createtime = models.DateTimeField(auto_now_add=True, editable=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
-    instance_status = models.CharField(max_length=20, null=True, blank=True)
-    # ACTIVE,SHUTOFF,PAUSED,SUSPENDED,DELETED
+    instance_status = models.CharField(max_length=20, null=True, blank=True)# ACTIVE,SHUTOFF,PAUSED,SUSPENDED,DELETED
     score_id = models.IntegerField(null=True,blank=True)#if the user is a student, please fill this field
+    operate_vminstance_id = models.IntegerField(null=True, blank=True)
 
     def __unicode__(self):
         return self.name

@@ -22,7 +22,10 @@
 <body>
     <div class="info">
          <h1>进入主机实例：{{ E_I_Detail_Dict.name }}</h1>
-        [<a href="">暂停</a>][<a href="">继续</a>][<a href="">保存</a>][<a href="">关闭</a>]
+        [<a href="{% url 'vm_instance_save_it' E_I_Detail_Dict.id %}" target="_blank">暂停</a>]
+        [<a href="{% url 'vm_instance_recover_it' E_I_Detail_Dict.id %}" target="_blank">继续</a>]
+        [<a href="{% url 'vm_instance_stop_it' E_I_Detail_Dict.id %}" target="_blank">关闭</a>]
+        [<a href="{% url 'vm_instance_save' E_I_Detail_Dict.id %}" target="_blank">保存为模板</a>]
          <table cellpadding="5">
              <tr><td>编号</td><td>{{ E_I_Detail_Dict.id }}</td></tr>
              <tr><td>创建者</td><td>{{ E_I_Detail_Dict.owner_name }}</td></tr>
