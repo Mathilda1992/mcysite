@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="dc1683d4-1adf-4131-b7cf-aed70c5738aa" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Iserlab/home.py" afterPath="$PROJECT_DIR$/Iserlab/home.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/repo_private_VM_list.html" afterPath="$PROJECT_DIR$/templates/repo_private_VM_list.html" />
     </list>
     <ignored path="mcysite.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -75,8 +74,8 @@
       <file leaf-file-name="home.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Iserlab/home.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="2444" column="58" selection-start-line="2444" selection-start-column="58" selection-end-line="2444" selection-end-column="58" />
+            <state relative-caret-position="283">
+              <caret line="3743" column="44" selection-start-line="3743" selection-start-column="44" selection-end-line="3743" selection-end-column="44" />
               <folding>
                 <element signature="e#90#101#0" expanded="true" />
               </folding>
@@ -219,8 +218,8 @@
         <option value="$PROJECT_DIR$/Iserlab/forms.py" />
         <option value="$PROJECT_DIR$/Iserlab/test-mcy.py" />
         <option value="$PROJECT_DIR$/templates/exp_set_operateVM.html" />
-        <option value="$PROJECT_DIR$/Iserlab/home.py" />
         <option value="$PROJECT_DIR$/templates/repo_private_VM_list.html" />
+        <option value="$PROJECT_DIR$/Iserlab/home.py" />
       </list>
     </option>
   </component>
@@ -1094,8 +1093,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Iserlab/home.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="2444" column="58" selection-start-line="2444" selection-start-column="58" selection-end-line="2444" selection-end-column="58" />
+        <state relative-caret-position="283">
+          <caret line="3743" column="44" selection-start-line="3743" selection-start-column="44" selection-end-line="3743" selection-end-column="44" />
           <folding>
             <element signature="e#90#101#0" expanded="true" />
           </folding>

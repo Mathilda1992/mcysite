@@ -3738,6 +3738,7 @@ def vm_instance_snapshot(request,vi_id):
                                                              authDict['auth_username'], authDict['auth_password'])
             # # step1:stop the vm----------can success because the APi is not work
             # compute_resource_operation.stop_server(conn,vi.server_id)
+            vm_instance_stop_function(vi, username, authDict['auth_password'])
 
             # print vi.server_id
             # step2:make snapshot for the vm
