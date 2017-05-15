@@ -2442,7 +2442,7 @@ def exp_list_scored(request):
 
 
 
-#only role = teacher has this function
+#only role = teacher has this function-----temp ok for use
 def exp_copy(request,exp_id):
     try:
         e = Experiment.objects.get(id=exp_id)
@@ -2450,82 +2450,99 @@ def exp_copy(request,exp_id):
         raise Http404
     username = request.session['username']
     imageList = e.exp_images.all()#these are VMImage records
-    networkList = e.exp_network.all()#these are Network records
 
-    e = Experiment(exp_name=e.exp_name, exp_description=e.exp_description, exp_owner_name=username, exp_image_count=len(imageList),
+
+    copy_exp_name = 'copy_of_'+ e.exp_name
+    new_e = Experiment(exp_name=copy_exp_name, exp_description=e.exp_description, exp_owner_name=username, exp_image_count=len(imageList),
                    VM_count=e.VM_count, operate_vm_id=e.operate_vm_id)
-    e.save()
+    new_e.save()
     for item in imageList:
-        e.exp_images.add(item)
-    for item in networkList:
-        e.exp_network.add(item)
+        new_e.exp_images.add(item)
+
+    #also should copy all networks inculde in the exp
+    networkList = e.exp_network.all()#these are Network records
+    for net in networkList:
+        new_net = Network(network_name='copy_of_'+net.network_name,network_description=net.network_description,owner_name=username,
+                          subnet_name=net.subnet_name,ip_version=net.ip_version,cidr=net.cidr,gateway_ip=net.gateway_ip,
+                          enable_dhcp=net.enable_dhcp,allocation_pools_start=net.allocation_pools_start,
+                          allocation_pools_end=net.allocation_pools_end,dns=net.dns)
+        new_net.save()
+        new_e.exp_network.add(new_net)
 
     #also should copy all vms included in the exp
-    
+    vmlist = VM.objects.filter(exp=e)
+    for vm in vmlist:
+        new_vm = VM(name='copy_of_'+ vm.name,desc=vm.desc,owner_name=username,exp=new_e,image=vm.image,network=new_net,
+                    flavor=vm.flavor,keypair=vm.keypair,security_group=vm.security_group)
+        new_vm.save()
+        if vm.id == e.operate_vm_id:
+            new_e.operate_vm_id = new_vm.id
+            new_e.save()
+
     # refresh the exp list
     return HttpResponseRedirect('/exp_home/')
 
 
-
-def exp_copy_old(request,exp_id):
-    try:
-        e = Experiment.objects.get(id=exp_id)
-    except Experiment.DoesNotExist:
-        raise Http404
-
-    imageList = e.exp_images.all()#these are VMImage records
-    networkList = e.exp_network.all()#these are Network records
-    images_idList=[]#should be ImageCart id
-    networks_idList=[]#should be NetworkCart id
-    for item in imageList:
-        image_in_cart = ImageCart.objects.get(image = item)
-        images_idList.append(image_in_cart.id)
-    for item in networkList:
-        network_in_cart = NetworkCart.objects.get(network = item)
-        networks_idList.append(network_in_cart.id)
-
-    #insert a new record into db
-    username = request.session['username']
-    t = User.objects.get(username=username)
-    if request.method == 'POST':
-        rf = CopyExpForm(request.POST)
-        if rf.is_valid():
-            #get input data from form
-            name = rf.cleaned_data['name']
-            desc = rf.cleaned_data['desc']
-            images_idList = rf.cleaned_data['images_idList']#this is ImageCart id
-            networks_idList = rf.cleaned_data['networks_idList']#this is NetworkCart id
-
-            #get images
-            imageList=[]
-            for i in images_idList:
-                image_in_cart = ImageCart.objects.get(id =i)
-                imageList.append(VMImage.objects.get(id=image_in_cart.image.id))
-            #get networks
-            networkList=[]
-            for i in networks_idList:
-                network_in_cart = NetworkCart.objects.get(id=i)
-                networkList.append(Network.objects.get(id=network_in_cart.network.id))
-            e = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=len(imageList),VM_count=e.VM_count,operate_vm_id=e.operate_vm_id)
-            e.save()
-            for item in imageList:
-                e.exp_images.add(item)
-            for item in networkList:
-                e.exp_network.add(item)
-
-            #refresh the exp list
-            return HttpResponseRedirect('/exp_home/')
-    else:
-        # initial the form
-        attrs = {}
-        attrs['name'] = e.exp_name + "_copy"
-        attrs['desc'] = e.exp_description
-        attrs['images_idList'] = images_idList#should be ImageCart id
-        attrs['networks_idList'] = networks_idList#should be NetworkCart id
-        attrs['vm_count']=e.VM_count
-        gf = CopyExpForm(initial=attrs)
-
-    return render_to_response("exp_copy.html",{'rf':gf})
+#------not used---------------
+# def exp_copy_old(request,exp_id):
+#     try:
+#         e = Experiment.objects.get(id=exp_id)
+#     except Experiment.DoesNotExist:
+#         raise Http404
+#
+#     imageList = e.exp_images.all()#these are VMImage records
+#     networkList = e.exp_network.all()#these are Network records
+#     images_idList=[]#should be ImageCart id
+#     networks_idList=[]#should be NetworkCart id
+#     for item in imageList:
+#         image_in_cart = ImageCart.objects.get(image = item)
+#         images_idList.append(image_in_cart.id)
+#     for item in networkList:
+#         network_in_cart = NetworkCart.objects.get(network = item)
+#         networks_idList.append(network_in_cart.id)
+#
+#     #insert a new record into db
+#     username = request.session['username']
+#     t = User.objects.get(username=username)
+#     if request.method == 'POST':
+#         rf = CopyExpForm(request.POST)
+#         if rf.is_valid():
+#             #get input data from form
+#             name = rf.cleaned_data['name']
+#             desc = rf.cleaned_data['desc']
+#             images_idList = rf.cleaned_data['images_idList']#this is ImageCart id
+#             networks_idList = rf.cleaned_data['networks_idList']#this is NetworkCart id
+#
+#             #get images
+#             imageList=[]
+#             for i in images_idList:
+#                 image_in_cart = ImageCart.objects.get(id =i)
+#                 imageList.append(VMImage.objects.get(id=image_in_cart.image.id))
+#             #get networks
+#             networkList=[]
+#             for i in networks_idList:
+#                 network_in_cart = NetworkCart.objects.get(id=i)
+#                 networkList.append(Network.objects.get(id=network_in_cart.network.id))
+#             e = Experiment(exp_name=name,exp_description=desc,exp_owner_name=username,exp_image_count=len(imageList),VM_count=e.VM_count,operate_vm_id=e.operate_vm_id)
+#             e.save()
+#             for item in imageList:
+#                 e.exp_images.add(item)
+#             for item in networkList:
+#                 e.exp_network.add(item)
+#
+#             #refresh the exp list
+#             return HttpResponseRedirect('/exp_home/')
+#     else:
+#         # initial the form
+#         attrs = {}
+#         attrs['name'] = e.exp_name + "_copy"
+#         attrs['desc'] = e.exp_description
+#         attrs['images_idList'] = images_idList#should be ImageCart id
+#         attrs['networks_idList'] = networks_idList#should be NetworkCart id
+#         attrs['vm_count']=e.VM_count
+#         gf = CopyExpForm(initial=attrs)
+#
+#     return render_to_response("exp_copy.html",{'rf':gf})
 
 
 
@@ -2906,9 +2923,17 @@ def exp_delete(request,exp_id):
         e = Experiment.objects.get(id=exp_id)
     except Experiment.DoesNotExist:
         raise Http404
-    result = Experiment.objects.filter(id=exp_id).delete()
-    if result:
-        print "delete exp success!"
+    Experiment.objects.filter(id=exp_id).delete()
+    #also should delete the vms and networks
+    vmlist = VM.objects.filter(exp=e)
+    for vm in vmlist:
+        vm.delete()
+
+    netlist = e.exp_network.all()
+    for net in netlist:
+        net.delete()
+
+    print "-------------delete exp success!"
     return HttpResponseRedirect('/exp_home/')
 
 
