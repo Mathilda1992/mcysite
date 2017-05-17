@@ -3,6 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="dc1683d4-1adf-4131-b7cf-aed70c5738aa" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Iserlab/home.py" afterPath="$PROJECT_DIR$/Iserlab/home.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mcysite/urls.py" afterPath="$PROJECT_DIR$/mcysite/urls.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/exp_instance_detail.html" afterPath="$PROJECT_DIR$/templates/exp_instance_detail.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/exp_instance_goto.html" afterPath="$PROJECT_DIR$/templates/exp_instance_goto.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/exp_instance_list.html" afterPath="$PROJECT_DIR$/templates/exp_instance_list.html" />
     </list>
     <ignored path="mcysite.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -31,8 +35,8 @@
             <file leaf-file-name="models.py" pinned="false" current-in-tab="true">
               <entry file="file://$PROJECT_DIR$/Iserlab/models.py">
                 <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="-853">
-                    <caret line="182" column="24" selection-start-line="182" selection-start-column="4" selection-end-line="182" selection-end-column="24" />
+                  <state relative-caret-position="272">
+                    <caret line="320" column="25" selection-start-line="320" selection-start-column="4" selection-end-line="320" selection-end-column="25" />
                     <folding />
                   </state>
                 </provider>
@@ -74,8 +78,8 @@
       <file leaf-file-name="home.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Iserlab/home.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="283">
-              <caret line="3743" column="44" selection-start-line="3743" selection-start-column="44" selection-end-line="3743" selection-end-column="44" />
+            <state relative-caret-position="-1620">
+              <caret line="4254" column="58" selection-start-line="4254" selection-start-column="58" selection-end-line="4254" selection-end-column="58" />
               <folding>
                 <element signature="e#90#101#0" expanded="true" />
               </folding>
@@ -83,21 +87,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="forms.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Iserlab/forms.py">
+      <file leaf-file-name="exp_instance_list.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/exp_instance_list.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="104" column="0" selection-start-line="104" selection-start-column="0" selection-end-line="104" selection-end-column="0" />
+            <state relative-caret-position="210">
+              <caret line="14" column="85" selection-start-line="14" selection-start-column="85" selection-end-line="14" selection-end-column="85" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="admin.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Iserlab/admin.py">
+      <file leaf-file-name="exp_instance_detail.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/exp_instance_detail.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="657">
-              <caret line="117" column="42" selection-start-line="117" selection-start-column="42" selection-end-line="117" selection-end-column="42" />
+            <state relative-caret-position="900">
+              <caret line="78" column="38" selection-start-line="78" selection-start-column="38" selection-end-line="78" selection-end-column="38" />
               <folding />
             </state>
           </provider>
@@ -106,8 +110,8 @@
       <file leaf-file-name="exp_detail.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/templates/exp_detail.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="98" column="0" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
+            <state relative-caret-position="270">
+              <caret line="42" column="79" selection-start-line="42" selection-start-column="12" selection-end-line="42" selection-end-column="79" />
               <folding />
             </state>
           </provider>
@@ -137,7 +141,7 @@
         <entry file="file://$PROJECT_DIR$/templates/exp_instance_goto.html">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="241">
-              <caret line="28" column="22" selection-start-line="28" selection-start-column="22" selection-end-line="28" selection-end-column="22" />
+              <caret line="28" column="96" selection-start-line="28" selection-start-column="96" selection-end-line="28" selection-end-column="96" />
               <folding />
             </state>
           </provider>
@@ -146,8 +150,8 @@
       <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mcysite/urls.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="141">
-              <caret line="128" column="68" selection-start-line="128" selection-start-column="68" selection-end-line="128" selection-end-column="68" />
+            <state relative-caret-position="381">
+              <caret line="165" column="90" selection-start-line="165" selection-start-column="90" selection-end-line="165" selection-end-column="90" />
               <folding />
             </state>
           </provider>
@@ -196,10 +200,8 @@
         <option value="$PROJECT_DIR$/templates/delivery_list.html" />
         <option value="$PROJECT_DIR$/templates/teach_score_list_by_group.html" />
         <option value="$PROJECT_DIR$/templates/exp_instance_submit.html" />
-        <option value="$PROJECT_DIR$/templates/exp_instance_list.html" />
         <option value="$PROJECT_DIR$/static/js/quick_links.js" />
         <option value="$PROJECT_DIR$/jquery.min.js" />
-        <option value="$PROJECT_DIR$/templates/exp_instance_detail.html" />
         <option value="$PROJECT_DIR$/templates/exp_list_done.html" />
         <option value="$PROJECT_DIR$/templates/teach_situation_detail_by_delivery.html" />
         <option value="$PROJECT_DIR$/templates/teach_result_list.html" />
@@ -208,10 +210,8 @@
         <option value="$PROJECT_DIR$/Iserlab/image_resource_operation.py" />
         <option value="$PROJECT_DIR$/templates/repo_image_detail.html" />
         <option value="$PROJECT_DIR$/templates/vm_instance_goto.html" />
-        <option value="$PROJECT_DIR$/templates/exp_instance_goto.html" />
         <option value="$PROJECT_DIR$/templates/vm_instance_list.html" />
         <option value="$PROJECT_DIR$/templates/repo_private_image_list.html" />
-        <option value="$PROJECT_DIR$/mcysite/urls.py" />
         <option value="$PROJECT_DIR$/templates/exp_detail.html" />
         <option value="$PROJECT_DIR$/Iserlab/models.py" />
         <option value="$PROJECT_DIR$/Iserlab/admin.py" />
@@ -219,6 +219,10 @@
         <option value="$PROJECT_DIR$/Iserlab/test-mcy.py" />
         <option value="$PROJECT_DIR$/templates/exp_set_operateVM.html" />
         <option value="$PROJECT_DIR$/templates/repo_private_VM_list.html" />
+        <option value="$PROJECT_DIR$/templates/exp_instance_detail.html" />
+        <option value="$PROJECT_DIR$/templates/exp_instance_list.html" />
+        <option value="$PROJECT_DIR$/mcysite/urls.py" />
+        <option value="$PROJECT_DIR$/templates/exp_instance_goto.html" />
         <option value="$PROJECT_DIR$/Iserlab/home.py" />
       </list>
     </option>
@@ -646,13 +650,13 @@
     <frame x="0" y="12" width="1920" height="990" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2764706" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20641711" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32916147" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32857144" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21945702" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2647059" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32987013" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -883,14 +887,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/exp_instance_detail.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="52" selection-start-line="17" selection-start-column="52" selection-end-line="17" selection-end-column="52" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/exp_list_done.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
@@ -963,34 +959,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/exp_instance_list.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="22" column="88" selection-start-line="22" selection-start-column="88" selection-end-line="22" selection-end-column="88" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/vm_instance_goto.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="319">
-          <caret line="26" column="88" selection-start-line="26" selection-start-column="88" selection-end-line="26" selection-end-column="88" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/vm_instance_list.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
           <caret line="24" column="78" selection-start-line="24" selection-start-column="78" selection-end-line="24" selection-end-column="78" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/exp_instance_goto.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="28" column="22" selection-start-line="28" selection-start-column="22" selection-end-line="28" selection-end-column="22" />
           <folding />
         </state>
       </provider>
@@ -1027,14 +999,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mcysite/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="141">
-          <caret line="128" column="68" selection-start-line="128" selection-start-column="68" selection-end-line="128" selection-end-column="68" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Iserlab/admin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="657">
@@ -1067,22 +1031,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/templates/exp_detail.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="98" column="0" selection-start-line="98" selection-start-column="0" selection-end-line="98" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Iserlab/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-853">
-          <caret line="182" column="24" selection-start-line="182" selection-start-column="4" selection-end-line="182" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/repo_private_VM_list.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
@@ -1091,10 +1039,66 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/templates/exp_detail.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="42" column="79" selection-start-line="42" selection-start-column="12" selection-end-line="42" selection-end-column="79" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/vm_instance_goto.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="319">
+          <caret line="26" column="88" selection-start-line="26" selection-start-column="88" selection-end-line="26" selection-end-column="88" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/exp_instance_list.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="85" selection-start-line="14" selection-start-column="85" selection-end-line="14" selection-end-column="85" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mcysite/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="381">
+          <caret line="165" column="90" selection-start-line="165" selection-start-column="90" selection-end-line="165" selection-end-column="90" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/exp_instance_detail.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="900">
+          <caret line="78" column="38" selection-start-line="78" selection-start-column="38" selection-end-line="78" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/exp_instance_goto.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="241">
+          <caret line="28" column="96" selection-start-line="28" selection-start-column="96" selection-end-line="28" selection-end-column="96" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Iserlab/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="320" column="25" selection-start-line="320" selection-start-column="4" selection-end-line="320" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Iserlab/home.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="283">
-          <caret line="3743" column="44" selection-start-line="3743" selection-start-column="44" selection-end-line="3743" selection-end-column="44" />
+        <state relative-caret-position="-1620">
+          <caret line="4254" column="58" selection-start-line="4254" selection-start-column="58" selection-end-line="4254" selection-end-column="58" />
           <folding>
             <element signature="e#90#101#0" expanded="true" />
           </folding>

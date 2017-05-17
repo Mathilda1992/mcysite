@@ -163,6 +163,7 @@ urlpatterns = [
 
     url(r'^exp_instance_recover_it/(\d+)/$', exp_instance_recover_it, name='exp_instance_recover_it'),
     url(r'^exp_instance_save_it/(\d+)/$', exp_instance_save_it, name='exp_instance_save_it'),
+    url(r'^exp_instance_stop_it/(\d+)/$', exp_instance_stop_it, name='exp_instance_stop_it'),
 
     # url(r'^exp_instance_start/(\d+)/$', exp_instance_start, name='exp_instance_start'),
     # url(r'^exp_instance_stop/(\d+)/$', exp_instance_stop, name='exp_instance_stop'),

@@ -3540,7 +3540,7 @@ def vm_instance_save_it(request,vi_id):
     vm_instance_pause_function(vi, username, password)
     #update the 'status' field of VMInstance db
     VMInstance.objects.filter(id = vi_id).update(status='PAUSED')
-    return HttpResponse("Already save it")
+    return HttpResponse("Already pause it")
 
 
 
@@ -4159,6 +4159,7 @@ def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info det
     viList = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
     ei_dict['net_instances'] = niList
     ei_dict['vm_instances'] = viList
+    ei_dict['operate_vminstance_id'] = ei.operate_vminstance_id
 
     c = {}
     c['username']=request.session['username']
@@ -4201,8 +4202,6 @@ def exp_instance_detail(request,exp_i_id):#let uer see the exp_instance info det
 
 
 
-
-
 def exp_instance_goto(request,exp_i_id):#make user login the operate server
     try:
         ei = ExpInstance.objects.get(id=exp_i_id)
@@ -4232,16 +4231,85 @@ def exp_instance_goto(request,exp_i_id):#make user login the operate server
 
 #Function: Unpause all vms
 def exp_instance_recover_it(request,exp_i_id):
-    pass
+    try:
+        ei = ExpInstance.objects.get(id=exp_i_id)
+    except ExpInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
+    # -----get included VM
+    include_vi = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
+    include_vi = include_vi.exclude(status="DELETED")
+    for vi in include_vi:
+        vm_instance_unpause_function(vi, username, password)
+        VMInstance.objects.filter(id=vi.id).update(status='ACTIVE')
+    ei.instance_status = "ACTIVE"
+    ei.save()
+    return HttpResponse("Alreday recover the exp instance!")
+
 
 
 
 #Function : Pause all VMs
 def exp_instance_save_it(request,exp_i_id):
-    pass
+    try:
+        ei = ExpInstance.objects.get(id=exp_i_id)
+    except ExpInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
 
+    # -----get included VM
+    include_vi = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
+    include_vi = include_vi.exclude(status="DELETED")
+    for vi in include_vi:
+        # then pause the vminstance
+        vm_instance_pause_function(vi,username,password)
+        VMInstance.objects.filter(id=vi.id).update(status='PAUSED')
+    ei.instance_status="PAUSED"
+    ei.save()
+    return HttpResponse("Already Pause the ExpInstance!")
+
+
+#Function:Stop all VMs
 def exp_instance_stop_it(request,exp_i_id):
-    pass
+    try:
+        ei = ExpInstance.objects.get(id=exp_i_id)
+    except ExpInstance.DoesNotExist:
+        raise Http404
+    username = request.session['username']
+    role = request.session['role']
+    if role == 'teacher':
+        u = User.objects.get(username=username)
+        authDict = get_auth_info(u.username, u.password)
+    else:
+        u = Student.objects.get(stu_username=username)
+        authDict = get_auth_info(u.stu_username, u.stu_password)
+    password = u.password
+    # -----get included VM
+    include_vi = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
+    include_vi = include_vi.exclude(status="DELETED")
+    for vi in include_vi:
+        vm_instance_stop_function(vi, username, password)
+        VMInstance.objects.filter(id=vi.id).update(status='SHUTOFF')
+    ei.instance_status = "SHUTOFF"
+    ei.save()
+    return HttpResponse("Already Shutoff the ExpInstance!")
+
 
 def exp_instance_save(request,exp_i_id):#save the instance as a template:
     try:

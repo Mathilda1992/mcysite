@@ -34,6 +34,7 @@
              <tr><td>创建时间</td><td>{{ c.E_I_Detail_Dict.createtime |date:"Y-m-d H:i" }}</td></tr>
              <tr><td>更新时间</td><td>{{ c.E_I_Detail_Dict.updatetime |date:"Y-m-d H:i" }}</td></tr>
              <tr><td>描述</td><td>{{ c.E_I_Detail_Dict.exp.exp_description }}</td></tr>
+             <tr><td>操作机编号</td><td>{{ c.E_I_Detail_Dict.operate_vminstance_id }}</td></tr>
          </table>
 
     </div>
@@ -42,6 +43,7 @@
             <h2>包含网络</h2>
             <table cellpadding="5" border="1">
                 <tr>
+                    <th>编号</th>
                     <th>网络ID</th>
                     <th>网络名称</th>
                     <th>网络地址</th>
@@ -50,6 +52,7 @@
                 </tr>
                 {% for item in c.E_I_Detail_Dict.net_instances %}
                 <tr>
+                    <td>{{ item.id }}</td>
                     <td>{{ item.network_instance_id }}</td>
                     <td><a href="{% url 'net_instance_detail' item.id %}" target="_blank">{{ item.name }}</a></td>
                     <td>{{ item.network.cidr }}</td>
@@ -64,17 +67,21 @@
         <h2>包含主机</h2>
         <table cellpadding="5" border="1">
             <tr>
+                <th>编号</th>
                 <th>主机ID</th>
                 <th>主机名称</th>
                 <th>所连网络</th>
                 <th>状态</th>
+                <th>操作</th>
             </tr>
             {% for item in c.E_I_Detail_Dict.vm_instances %}
             <tr>
+                <td>{{ item.id }}</td>
                 <td>{{ item.server_id}}</td>
                 <td> <a href="{% url 'vm_instance_detail' item.id %}" target="_blank">{{ item.name }}</a></td>
                 <td>{{ item.connect_net.name }}</td>
                 <td>{{ item.status }}</td>
+                <td><a href="{% url 'vm_instance_goto' item.id %}" target="_blank">进入主机</a></td>
             </tr>
             {% endfor %}
         </table>
