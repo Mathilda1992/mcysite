@@ -277,7 +277,7 @@ class VM(models.Model):
     flavor = models.CharField(max_length= 10,null = True,blank = True,default='m1.tiny')
     keypair = models.CharField(max_length= 20,null = True,blank = True,default='mykey')
     security_group = models.CharField(max_length=30,null=True,blank = True,default='default')
-
+    is_operateVM = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name
@@ -389,6 +389,7 @@ class VMInstance(models.Model):
     vncurl = models.URLField(max_length=200,null=True,blank=True)
     result_image = models.IntegerField(max_length=100,null=True,blank=True)
     connect_net = models.ForeignKey(NetworkInstance,null=True)
+
 
     def __unicode__(self):
         return self.name

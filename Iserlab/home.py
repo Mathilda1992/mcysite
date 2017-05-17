@@ -2473,7 +2473,7 @@ def exp_copy(request,exp_id):
     vmlist = VM.objects.filter(exp=e)
     for vm in vmlist:
         new_vm = VM(name='copy_of_'+ vm.name,desc=vm.desc,owner_name=username,exp=new_e,image=vm.image,network=new_net,
-                    flavor=vm.flavor,keypair=vm.keypair,security_group=vm.security_group)
+                    flavor=vm.flavor,keypair=vm.keypair,security_group=vm.security_group,is_operateVM=vm.is_operateVM)
         new_vm.save()
         if vm.id == e.operate_vm_id:
             new_e.operate_vm_id = new_vm.id
@@ -2669,7 +2669,7 @@ def exp_delete_VM(request,exp_id):
 
 
 #only teacher
-def exp_set_operateVM(request,e_id):
+def exp_set_default_operateVM(request,e_id):
     try:
         e = Experiment.objects.get(id=e_id)
     except Experiment.DoesNotExist:
@@ -2690,6 +2690,7 @@ def exp_set_operateVM(request,e_id):
 
             e.operate_vm_id = vm_temp.vm.id
             e.save()
+            VM.objects.filter(id=vm_temp.vm.id).update(is_operateVM=True)
             return HttpResponse("Successfully Set Operate VM!")
     else:
         attrs = {}
@@ -2698,7 +2699,23 @@ def exp_set_operateVM(request,e_id):
     return render_to_response("exp_set_operateVM.html",{'rf':gf})
 
 
+def exp_set_operateVM(request,v_id):
+    try:
+        v = VM.objects.get(id=v_id)
+    except VM.DoesNotExist:
+        raise Http404
+    # v.is_operateVM=True
+    # v.save()
+    VM.objects.filter(id=v_id).update(is_operateVM=True)
+    return HttpResponse("Already set this VM as a operate vm!")
 
+def exp_unset_operateVM(request,v_id):
+    try:
+        v = VM.objects.get(id=v_id)
+    except VM.DoesNotExist:
+        raise Http404
+    VM.objects.filter(id=v_id).update(is_operateVM=False)
+    return HttpResponse("Already unset this VM as a operate vm!")
 
 def exp_remove_VM(request,v_id):
     try:
@@ -4544,8 +4561,6 @@ def exp_instance_resume(request,exp_i_id):
 
 
 
-
-
 #only role=stu has this operation
 def exp_submit(request,d_id):#??
     username = request.session['username']
@@ -4659,34 +4674,6 @@ def repo_exp_list(request):
     return render_to_response('image_list.html',c)
 
 
-#Select needed experiment_template and copy another
-##step1:choose one template and look into the details++++++++++++++++++++++++++++++++++++need to focus on UI+++++++++++++++++++=
-
-
-
-##step2:make a copy
-
-
-
-#Launch exp instance based on this template
-
-
-
-
-#Modify exp template in private repo
-
-
-#Delete exp template in private repo
-
-
-
-##
-
-
-#***********************************************************************#
-#                  Teacher list resource in private repo                 #
-#***********************************************************************#
-#Models:VMImage(id,name,owner,is_public,created_time)
 
 
 
@@ -4702,63 +4689,3 @@ def upload_imageFile():
     return image_name
 
 
-
-
-
-
-#***********************************************************************#
-#                  Teacher shares  VMImage to VMImage repo              #
-#***********************************************************************#
-#
-
-
-#***********************************************************************#
-#                  Teacher custom create an Experiment instance         #
-#***********************************************************************#
-
-
-
-
-# **********************************************************************#
-#              Teacher saves experiment as template                  #
-#***********************************************************************#
-#Models:SaveResords:<exp_ID,operator,save_time>
-
-
-
-
-# **********************************************************************#
-#              Teacher shares the experiment template to repo            #
-#***********************************************************************#
-#in fact, we update the record in Experiment
-
-
-
-# **********************************************************************#
-#              Delivery the experiment to students                       #
-#***********************************************************************#
-
-
-
-
-# **********************************************************************#
-#              Student login the system                                 #
-#***********************************************************************#
-
-
-# **********************************************************************#
-#              Student instance the experiment                           #
-#***********************************************************************#
-
-
-
-
-# **********************************************************************#
-#              Student save experiment status by exporting as template   #
-#***********************************************************************#
-
-
-
-# **********************************************************************#
-#              Student submit the experiment                             #
-#***********************************************************************#

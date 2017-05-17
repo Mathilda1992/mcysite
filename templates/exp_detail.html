@@ -40,7 +40,7 @@
             <tr><td>更新时间</td><td>{{ c.E_Detail_Dict.exp_updatetime |date:"Y-m-d H:i" }}</td></tr>
             <tr><td>描述</td><td>{{ c.E_Detail_Dict.exp_description }}</td></tr>
             <tr><td>实验指导书</td><td>[<a href="{% url 'exp_guide_download' c.E_Detail_Dict.id%}">下载</a>][<a href="">预览</a>]</td></tr>
-            <tr><td>操作机编号</td><td>{{ c.E_Detail_Dict.operate_vm_id }}</td></tr>
+            <tr><td>默认操作机编号</td><td>{{ c.E_Detail_Dict.operate_vm_id }}</td></tr>
         </table>
     </div>
 
@@ -92,7 +92,7 @@
              <tr><td><h2>包含主机</h2></td>
                  {% ifequal c.role 'teacher' %}
                      <td>[<a href="{% url 'exp_create_VM' c.E_Detail_Dict.id %}" target="_blank">添加主机</a>]</td>
-                     <td>[<a href="{% url 'exp_set_operateVM' c.E_Detail_Dict.id %}" target="_blank">选择操作机</a>]</td>
+                     <td>[<a href="{% url 'exp_set_default_operateVM' c.E_Detail_Dict.id %}" target="_blank">选择默认操作机</a>]</td>
                  {%  endifequal %}
              </tr>
          </table>
@@ -115,7 +115,14 @@
                 <td>{{ item.network.network_name }}</td>
                 <td>{{ item.image.name }}</td>
                 {% ifequal c.role 'teacher' %}
-                    <td>[<a href="{% url 'exp_remove_VM' c.E_Detail_Dict.id %}" target="_blank">移除主机</a>]</td>
+                    <td>[<a href="{% url 'exp_remove_VM' item.id %}" target="_blank">移除主机</a>]
+                        {% ifequal item.is_operateVM False %}
+                            [<a href="{% url 'exp_set_operateVM' item.id %}" target="_blank">设为操作机</a>]
+                        {% else %}
+                            [<a href="{% url 'exp_unset_operateVM' item.id %}" target="_blank">取消设为操作机</a>]
+                        {% endifequal %}
+
+                    </td>
                 {% endifequal %}
 
             </tr>

@@ -34,7 +34,7 @@
              <tr><td>创建时间</td><td>{{ c.E_I_Detail_Dict.createtime |date:"Y-m-d H:i" }}</td></tr>
              <tr><td>更新时间</td><td>{{ c.E_I_Detail_Dict.updatetime |date:"Y-m-d H:i" }}</td></tr>
              <tr><td>描述</td><td>{{ c.E_I_Detail_Dict.exp.exp_description }}</td></tr>
-             <tr><td>操作机编号</td><td>{{ c.E_I_Detail_Dict.operate_vminstance_id }}</td></tr>
+             <tr><td>默认操作机编号</td><td>{{ c.E_I_Detail_Dict.operate_vminstance_id }}</td></tr>
          </table>
 
     </div>
@@ -81,7 +81,13 @@
                 <td> <a href="{% url 'vm_instance_detail' item.id %}" target="_blank">{{ item.name }}</a></td>
                 <td>{{ item.connect_net.name }}</td>
                 <td>{{ item.status }}</td>
-                <td><a href="{% url 'vm_instance_goto' item.id %}" target="_blank">进入主机</a></td>
+                {% ifequal c.role 'teacher' %}
+                    <td><a href="{% url 'vm_instance_goto' item.id %}" target="_blank">进入主机</a></td>
+                {% else %}
+                    {% ifequal item.vm.is_operateVM True%}
+                        <td><a href="{% url 'vm_instance_goto' item.id %}" target="_blank">进入主机</a></td>
+                    {% endifequal %}
+                {% endifequal %}
             </tr>
             {% endfor %}
         </table>

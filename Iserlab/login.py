@@ -96,7 +96,7 @@ def login(request):
                 #     print request.user.date_joined
                 # else:
                 #     print "#######"
-                return HttpResponseRedirect('/home/')
+                return HttpResponseRedirect('/exp_home/')
 
 
                 # #--------set username into cookies
@@ -110,7 +110,7 @@ def login(request):
                 print "Student log in"
                 request.session['username'] = username
                 request.session['role'] = 'sutdent'
-                return HttpResponseRedirect('/home/')
+                return HttpResponseRedirect('/exp_home/')
 
             else:
                 print "ERROR:username or password error!!!"

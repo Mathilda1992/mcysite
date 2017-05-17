@@ -11,13 +11,13 @@
         <div align="center" class="blog">
             <div class="title">
                 <a href="{% url 'repo_image_detail' item.id %}" target="_blank"><h2>{{ item.image.name }}</h2></a>
-                <a href="{% url 'repo_ImageCart_delete' item.image.id %}" >删除</a>
+                <a href="{% url 'repo_ImageCart_delete' item.id %}" >删除</a>
             </div>
         <div class="info">
 
             <span class="catagory" style="color: #ff9900;">镜像编号：{{ item.image.id }}</span>
 
-            <span class="author" style="color: #4a86e8;">所有者：{{ item.user.username }}</span>
+            <span class="author" style="color: #4a86e8;">所有者：{{ item.image.owner_name }}</span>
 
             <span class="created" style="color: #6aa84e;">加入时间：{{ item.createtime |date:"Y-m-d H:i" }}</span>
         </div>

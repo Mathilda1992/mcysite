@@ -18,7 +18,7 @@
                 {% ifequal item.is_shared False %}
                     <a href="{% url 'repo_image_share' item.id %}" >共享</a>|
                 {% endifequal %}
-                <a href="{% url 'repo_ImageCart_add' item.id %}" >加入工具箱</a>
+                <a href="{% url 'repo_ImageCart_add' item.id %}" target="_blank">加入工具箱</a>
             </div>
         <div class="info">
             <span class="catagory" style="color: #ff9900;">镜像名称：{{ item.name }}</span>
