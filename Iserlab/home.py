@@ -2947,6 +2947,7 @@ def exp_delete(request,exp_id):
         vm.delete()
 
     netlist = e.exp_network.all()
+    print netlist
     for net in netlist:
         net.delete()
 
@@ -4230,10 +4231,12 @@ def exp_instance_goto(request,exp_i_id):#make user login the operate server
     if role == 'teacher':
         u = User.objects.get(username=username)
         authDict = get_auth_info(u.username, u.password)
+        password = u.password
     else:
         u = Student.objects.get(stu_username=username)
         authDict = get_auth_info(u.stu_username, u.stu_password)
-    password = u.password
+        password = u.stu_password
+
 
     #get the operate vm instance
     vi = VMInstance.objects.get(id=ei.operate_vminstance_id)
@@ -4257,10 +4260,11 @@ def exp_instance_recover_it(request,exp_i_id):
     if role == 'teacher':
         u = User.objects.get(username=username)
         authDict = get_auth_info(u.username, u.password)
+        password = u.password
     else:
         u = Student.objects.get(stu_username=username)
         authDict = get_auth_info(u.stu_username, u.stu_password)
-    password = u.password
+        password = u.stu_password
     # -----get included VM
     include_vi = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
     include_vi = include_vi.exclude(status="DELETED")
@@ -4285,10 +4289,12 @@ def exp_instance_save_it(request,exp_i_id):
     if role == 'teacher':
         u = User.objects.get(username=username)
         authDict = get_auth_info(u.username, u.password)
+        password = u.password
     else:
         u = Student.objects.get(stu_username=username)
         authDict = get_auth_info(u.stu_username, u.stu_password)
-    password = u.password
+        password = u.stu_password
+
 
     # -----get included VM
     include_vi = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
@@ -4313,10 +4319,12 @@ def exp_instance_stop_it(request,exp_i_id):
     if role == 'teacher':
         u = User.objects.get(username=username)
         authDict = get_auth_info(u.username, u.password)
+        password = u.password
     else:
         u = Student.objects.get(stu_username=username)
         authDict = get_auth_info(u.stu_username, u.stu_password)
-    password = u.password
+        password = u.stu_password
+
     # -----get included VM
     include_vi = VMInstance.objects.filter(belong_exp_instance_id=exp_i_id)
     include_vi = include_vi.exclude(status="DELETED")
