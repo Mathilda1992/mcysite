@@ -1356,16 +1356,18 @@ def repo_create_network(request):
             ip_version = rf.cleaned_data['ip_version']
             cidr = rf.cleaned_data['cidr']
             gateway = rf.cleaned_data['gateway']
-            allocation_pools_start = rf.cleaned_data['allocation_pools_start']
-            allocation_pools_end=rf.cleaned_data['allocation_pools_end']
+            # allocation_pools_start = rf.cleaned_data['allocation_pools_start']
+            # allocation_pools_end=rf.cleaned_data['allocation_pools_end']
             enable_dhcp=rf.cleaned_data['enable_dhcp']
 
             #insert into db
             n = Network(owner_name=username,network_name=name,network_description=desc,subnet_name=subnet_name,ip_version=ip_version,
-                        cidr=cidr,gateway_ip=gateway,allocation_pools_start=allocation_pools_start,
-                        allocation_pools_end=allocation_pools_end,enable_dhcp=enable_dhcp)
+                        cidr=cidr,gateway_ip=gateway,
+                        # allocation_pools_start=allocation_pools_start,
+                        # allocation_pools_end=allocation_pools_end,
+                        enable_dhcp=enable_dhcp)
             n.save()
-            return HttpResponseRedirect('/repo_home/')
+            return HttpResponseRedirect('/repo_private_network_list/')
     else:
         rf = AddNetworkForm()
     return render(request,'repo_create_network.html',{'rf':rf})
