@@ -267,7 +267,6 @@ class NetworkCart(models.Model):
 class VM(models.Model):
     name = models.CharField(max_length=100)
     desc = models.TextField(max_length=500,null=True,blank=True)
-    # owner = models.ForeignKey(User,null=True)
     owner_name = models.CharField(max_length=50, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True,blank=True,editable=True)
     updated_at = models.DateTimeField(auto_now=True, null=True,blank=True,editable=True)
@@ -336,6 +335,7 @@ class Score(models.Model):
     delivery_id = models.IntegerField(null=True,blank=True)
     exp_instance_id = models.IntegerField(null=True,blank=True)
     createTime = models.DateTimeField(auto_now_add=True, editable=True)
+    updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     startTime = models.DateTimeField(null=True,blank=True,editable=True)
     finishedTime = models.DateTimeField(null=True,blank=True,editable=True)
     score = models.IntegerField(editable=True,default=0)
@@ -357,14 +357,12 @@ class NetworkInstance(models.Model):
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     network = models.ForeignKey(Network)
     belong_exp_instance_id = models.IntegerField(null=True, blank=True)
-    # exp_instance = models.ForeignKey(Score)
-
-    network_instance_id = models.CharField(max_length=50, null=True, blank=True)#not required,because user can just launch a network
+    network_instance_id = models.CharField(max_length=50, null=True, blank=True)#not must required,because user can just launch a network
     subnet_instance_id = models.CharField(max_length=50, null=True, blank=True)
     tenant_id = models.CharField(max_length=50, null=True, blank=True)
     status = models.CharField(max_length=20, null=True, blank=True)#ACTIVE,DELETED
-    allocation_pools_start = models.CharField(max_length=20, null=True, blank=True)
-    allocation_pools_end = models.CharField(max_length=20, null=True, blank=True)
+    allocation_pools_start = models.CharField(max_length=20, null=True, blank=True)#not used,can delete
+    allocation_pools_end = models.CharField(max_length=20, null=True, blank=True)#not used,can delete
 
     def __unicode__(self):
         return u'name=%s,creator=%s,created=%s' % (self.name, self.owner_name, self.createtime)
@@ -380,8 +378,7 @@ class VMInstance(models.Model):
     createtime = models.DateTimeField(auto_now_add=True)
     updatetime = models.DateTimeField(auto_now=True, null=True, blank=True)
     vm = models.ForeignKey(VM)
-    belong_exp_instance_id = models.IntegerField(null=True,blank=True)#not required, because user can just launch a vminstance
-    # exp_instance = models.ForeignKey(Score)
+    belong_exp_instance_id = models.IntegerField(null=True,blank=True)#not must required, because user can just launch a vminstance
     # after finishing creation, fill below fields
     server_id = models.CharField(max_length = 100)
     status = models.CharField(max_length = 20)#ERROR, ACTIVE,SHUTOFF,SUSPENDED,PAUSED,DELETED
@@ -396,9 +393,6 @@ class VMInstance(models.Model):
 
     class Meta:
         ordering = ['-createtime']
-
-
-
 
 
 
